@@ -6,7 +6,7 @@ import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.util.TokenUtil;
 import com.example.SBEAM.vo.UserVO;
-import org.apache.catalina.security.SecurityUtil;
+import com.example.SBEAM.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

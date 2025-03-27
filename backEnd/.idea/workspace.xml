@@ -5,50 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="581c5e4e-b0c1-4eba-988f-e65d8188f5a4" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/bluewhale.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/controller/UserController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/enums/RoleEnum.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/exception/SBEAMException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/po/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/repository/UserRepository.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/service/AccountService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/service/UserService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/UserServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/util/SecurityUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/util/TokenUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/ResultVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/UserVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/application.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/application.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/SBEAMApplication.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/controller/UserController.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/exception/SBEAMException.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/po/Account.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/po/User.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/service/AccountService.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/service/UserService.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/serviceImpl/AccountServiceImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/serviceImpl/UserServiceImpl.class" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/vo/UserVO.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/tomatomall/TomatoMallApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/SBEAMApplication.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/tomatomall/controller/AccountController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/controller/AccountController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/tomatomall/po/Account.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/po/Account.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/tomatomall/service/AccountService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/tomatomall/service/serviceImpl/AccountServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/AccountServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/tomatomall/vo/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/Response.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/example/tomatomall/TomatoMallApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/example/SBEAM/SBEAMApplicationTests.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/tomatomall/TomatoMallApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/tomatomall/controller/AccountController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/controller/AccountController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/tomatomall/po/Account.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/tomatomall/service/AccountService.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/tomatomall/service/serviceImpl/AccountServiceImpl.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/com/example/tomatomall/vo/Response.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/vo/Response.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/SBEAMApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/SBEAMApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/controller/UserController.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/controller/UserController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/exception/SBEAMException.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/exception/SBEAMException.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/po/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/po/User.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/service/UserService.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/service/UserService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/vo/Response.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/vo/Response.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/vo/UserVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/vo/UserVO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -92,6 +59,7 @@
     &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
     &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;Spring Boot.BlueWhaleApplication.executor&quot;: &quot;Run&quot;,
     &quot;Spring Boot.SBEAMApplication.executor&quot;: &quot;Run&quot;,
@@ -108,7 +76,8 @@
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;inlay.hints&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;,
+    &quot;应用程序.SBEAMApplication.executor&quot;: &quot;Run&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -122,25 +91,22 @@
       <recent name="com.example.SBEAM.util" />
     </key>
   </component>
-  <component name="RunManager" selected="Spring Boot.SBEAMApplication">
-    <configuration name="generated-requests | #2" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" index="2" requestIdentifier="#2">
-      <method v="2" />
-    </configuration>
-    <configuration name="BlueWhaleApplicationTests.contextLoads" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="BlueWhale" />
+  <component name="RunManager" selected="应用程序.SBEAMApplication">
+    <configuration name="SBEAMApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.SBEAM.SBEAMApplication" />
+      <module name="SBEAM" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.seecoder.BlueWhale.*" />
+          <option name="PATTERN" value="com.example.SBEAM.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.seecoder.BlueWhale" />
-      <option name="MAIN_CLASS_NAME" value="com.seecoder.BlueWhale.BlueWhaleApplicationTests" />
-      <option name="METHOD_NAME" value="contextLoads" />
-      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="generated-requests | #2" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" nameIsGenerated="true" path="$APPLICATION_CONFIG_DIR$/scratches/generated-requests.http" index="2" requestIdentifier="#2">
+      <method v="2" />
     </configuration>
     <configuration name="localhost:5173" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:5173/">
       <method v="2" />
@@ -173,20 +139,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Spring Boot.SBEAMApplication" />
-        <item itemvalue="Spring Boot.BlueWhaleApplication" />
-        <item itemvalue="HTTP 请求.generated-requests | #2" />
-        <item itemvalue="JavaScript 调试.localhost:5173" />
+        <item itemvalue="应用程序.SBEAMApplication" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.15989.150" />
-        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-IU-241.15989.150" />
-      </set>
-    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="应用程序级" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">

@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="581c5e4e-b0c1-4eba-988f-e65d8188f5a4" name="更改" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/configure/CorsFilter.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/configure/LoginInterceptor.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/configure/MyWebMvcConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/bluewhale.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sbeam.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -15,8 +19,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -197,6 +201,8 @@
       <workItem from="1742958036516" duration="1552000" />
       <workItem from="1743064447220" duration="7000" />
       <workItem from="1743064507226" duration="69000" />
+      <workItem from="1743065063218" duration="36000" />
+      <workItem from="1743141893191" duration="489000" />
     </task>
     <servers />
   </component>

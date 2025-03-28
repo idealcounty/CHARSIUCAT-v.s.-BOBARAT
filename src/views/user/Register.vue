@@ -2,7 +2,7 @@
 import {ref, computed} from 'vue'
 import {router} from '../../router'
 import {userRegister} from "../../api/user.ts"
-import { getAllStore } from "../../api/store.ts";
+//import { getAllStore } from "../../api/store.ts";
 
 // 输入框值（需要在前端拦截不合法输入：是否为空+额外规则）
 const name = ref('')
@@ -13,16 +13,16 @@ const password = ref('')
 const confirmPassword = ref('')
 
 //对于商家用户，还需要在注册时选择所属商店，从而传入storeId。但由于Lab2才会开发商店模块，所以这里暂且设置唯一一个Id为1的商店1，待Lab2完善
-interface StoreItem {
+/*interface StoreItem {
   id: number
   name: string
-}
+}*/
 
-const storeList = ref<StoreItem[]>([])
+/*const storeList = ref<StoreItem[]>([])
 const storeId = ref(undefined)
 getAllStore().then(res => {
   storeList.value = res.data.result
-})
+})*/
 
 // 电话号码是否为空
 const hasTelInput = computed(() => tel.value != '')
@@ -34,8 +34,12 @@ const hasConfirmPasswordInput = computed(() => confirmPassword.value != '')
 const hasAddressInput = computed(() => address.value != '')
 // 身份是否为空
 const hasIdentityChosen = computed(() => identity.value != '')
+
+/*
 // 对于商家用户，商店Id是否为空
 const hasStoreName = computed(() => storeId.value != undefined)
+*/
+
 // 电话号码的规则
 const chinaMobileRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
 const telLegal = computed(() => chinaMobileRegex.test(tel.value))
@@ -49,8 +53,8 @@ const registerDisabled = computed(() => {
     return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
         telLegal.value && isPasswordIdentical.value)
   } else if (identity.value == 'STAFF') {
-    return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
-        hasStoreName.value && telLegal.value && isPasswordIdentical.value)
+    return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value /*&&
+        hasStoreName.value*/ && telLegal.value && isPasswordIdentical.value)
   }
 })
 
@@ -62,7 +66,7 @@ function handleRegister() {
     phone: tel.value,
     password: password.value,
     address: address.value,
-    storeId: storeId.value
+    //storeId: storeId.value
   }).then(res => {
     if (res.data.code === '000') {  //类型守卫，它检查 res.data 对象中是否存在名为 code 的属性
       ElMessage({
@@ -168,10 +172,12 @@ function handleRegister() {
                 <label for="address">
                   所属商店
                 </label>
+                <!--
                 <el-select id="identity" v-model="storeId" placeholder="请选择" style="width: 100%;">
                   <el-option v-for="item in storeList" :key="item.id" :label="item.name"
                              :value="item.id" />
                 </el-select>
+                -->
               </el-form-item>
             </el-col>
           </el-row>

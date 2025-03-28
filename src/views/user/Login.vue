@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import {ElForm, ElFormItem} from "element-plus"
-import {ref, computed} from 'vue'
-import {router} from '../../router'
-import {userInfo, userLogin} from "../../api/user.ts"
+import { ref, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { userInfo, userLogin } from "../../api/user.ts"
 
-// 输入框值（需要在前端拦截不合法输入：是否为空+额外规则）
 const tel = ref('')
 const password = ref('')
+const rememberMe = ref(true)
+const errMsg = ref('')
+const loading = ref(false)
 
-// 电话号码是否为空
+const route = useRoute()
+const router = useRouter()
+
 const hasTelInput = computed(() => tel.value != '')
-// 密码是否为空
 const hasPasswordInput = computed(() => password.value != '')
-// 电话号码的规则
 const chinaMobileRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
 const telLegal = computed(() => chinaMobileRegex.test(tel.value))
-// 密码不设置特殊规则
-// 登录按钮可用性
 const loginDisabled = computed(() => {
   return !(hasTelInput.value && telLegal.value && hasPasswordInput.value)
 })
@@ -27,12 +26,8 @@ function handleLogin() {
     phone: tel.value,
     password: password.value
   }).then(res => {
+    console.log(res.data.code)
     if (res.data.code === '000') {
-      ElMessage({
-        message: "登录成功！",
-        type: 'success',
-        center: true,
-      })
       const token = res.data.result
       sessionStorage.setItem('token', token)
 
@@ -43,83 +38,307 @@ function handleLogin() {
         router.push({path: "/dashboard"})
       })
     } else if (res.data.code === '400') {
-      ElMessage({
-        message: res.data.msg,
-        type: 'error',
-        center: true,
-      })
+      errMsg.value = '登陆失败'
       password.value = ''
     }
   })
+      .catch(error => {
+        console.error("登录请求失败:", error);
+        errMsg.value = '手机号或密码错误';
+      })
+      .finally(() => {
+        loading.value = false; // 取消加载状态
+      });
+}
+
+function clearErrMsg() {
+  errMsg.value = ''
 }
 </script>
 
 <template>
-  <el-main class="main-frame bgimage">
-    <el-card class="login-card">
-      <div>
-        <h1>登入您的账户</h1>
-        <el-form>
-          <el-form-item>
-            <label v-if="!hasTelInput" for="tel">注册手机号</label>
-            <label v-else-if="!telLegal" for="tel" class="error-warn">手机号不合法</label>
-            <label v-else for="tel">注册手机号</label>
-            <el-input id="tel" type="text" v-model="tel"
-                      required :class="{'error-warn-input' :(hasTelInput && !telLegal)}"
-                      placeholder="请输入手机号"/>
-          </el-form-item>
+  <div class="app">
+    <div class="login">
+      <div class="login-title">登录</div>
+      <div class="login-content">
+        <div class="login-content-left">
+          <!--手机号-->
+          <div class="telephonenumber">
+            <div class="telephonenumber-label">用手机号登录</div>
+            <input v-model="tel" class="telephone-input" name="telephone" @input="clearErrMsg()">
+          </div>
+          <!--密码-->
+          <div class="password">
+            <div class="password-label">密码</div>
+            <input v-model="password" class="password-input" name="password" @input="clearErrMsg()">
+            <!--错误提示-->
+            <div class="error-message">{{ errMsg }}</div>
+          </div>
+          <!--记住我-->
+          <label class="remember">
+            <input v-model="rememberMe" class="remember-input" type="checkbox">记住我
+          </label>
+          <!--登录按钮-->
+          <div v-loading="loading" class="login-button" @click.prevent="handleLogin" :disabled="loginDisabled">登录</div>
+          <!--帮助-->
+          <RouterLink class="login-help" to="">请求帮助，我无法登录。</RouterLink>
+        </div>
 
-          <el-form-item>
-            <label for="password">账户密码</label>
-            <el-input id="password" type="password" v-model="password" required placeholder="••••••••"/>
-          </el-form-item>
-
-          <span class="button-group">
-              <el-button @click.prevent="handleLogin" :disabled="loginDisabled" type="primary">登入</el-button>
-              <router-link to="/register" v-slot="{navigate}">
-                <el-button @click="navigate">去注册</el-button>
-              </router-link>
-          </span>
-        </el-form>
+        <div class="login-content-right">
+          <!--二维码登录-->
+          <div class="qrcode-label">或者用二维码登录</div>
+          <div class="qrcode">
+            <img src="../../assets/login_qr_code.png" alt="">
+          </div>
+          <div class="qrcode-tip">通过二维码使用 SBEAM 手机应用登录</div>
+        </div>
       </div>
-    </el-card>
-  </el-main>
+    </div>
+    <div class="bottom">
+      <div class="bottom-left">
+        <div>加入 SBEAM，探索数千款精彩游戏。</div>
+        <RouterLink class="learn-more" to="about">了解更多</RouterLink>
+      </div>
+      <div class="bottom-middle">
+        <img src="../../assets/join_pc.png" alt="Join Steam">
+      </div>
+      <div class="bottom-right">
+        <!--注册-->
+        <RouterLink class="join-button" :to="`/join?redir=${route.query.redir}`">加入 SBEAM</RouterLink>
+        <div>免费加入且简单易用。</div>
+      </div>
+    </div>
+  </div>
 </template>
 
-
 <style scoped>
-.main-frame {
+.app {
+  background-color: #181a21;
+  min-height: calc(100vh - 104px);
+  font-family: "Motiva Sans", sans-serif;
+}
+
+.login {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 32px;
+  padding: 80px 0 150px 0;
+  background-image: url("../../assets/new_login_bg_strong_mask.jpg");
+  background-position: center top;
+  background-repeat: no-repeat;
+}
+
+.login-title {
+  box-sizing: border-box;
+  width: 700px;
+  padding: 8px 16px;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 200;
+}
+
+.login-content {
+  display: flex;
+  column-gap: 40px;
+  box-sizing: border-box;
+  width: 700px;
+  padding: 24px 32px;
+  border-radius: 4px;
+  background-color: #181a21;
+}
+
+.login-content-left {
+  display: flex;
+  flex-direction: column;
+  row-gap: 12px;
+  flex-grow: 1;
+}
+
+.telephonenumber-label, .qrcode-label {
+  margin-bottom: 2px;
+  color: #1999ff;
+  font-size: 12px;
+  user-select: none;
+}
+
+.password-label {
+  margin-bottom: 2px;
+  color: #afafaf;
+  font-size: 12px;
+  user-select: none;
+}
+
+.telephone-input, .password-input {
+  box-sizing: border-box;
   width: 100%;
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bgimage {
-  background-image: url("../../assets/shopping-1s-1084px.svg");
-}
-
-.login-card {
-  width: 60%;
   padding: 10px;
+  border: none;
+  border-radius: 2px;
+  outline: none;
+  color: #ffffff;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  background-color: #32353c;
+
+  &:hover {
+    background-color: #393c44;
+  }
 }
 
-.error-warn {
-  color: red;
-}
-
-.error-warn-input {
-  --el-input-focus-border-color: red;
-}
-
-.button-group {
-  padding-top: 10px;
+.remember {
   display: flex;
-  flex-direction: row;
-  gap: 30px;
   align-items: center;
-  justify-content: right;
+  color: #afafaf;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.remember-input {
+  position: relative;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  padding: 10px;
+  margin: 0 6px 0 0;
+  border-radius: 2px;
+  background-color: #32353c;
+  cursor: pointer;
+  appearance: none;
+
+  &:checked::after {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  &:hover {
+    background-color: #393c44;
+  }
+}
+
+.login-button {
+  align-self: center;
+  box-sizing: border-box;
+  width: 270px;
+  padding: 12px;
+  border-radius: 2px;
+  color: #ffffff;
+  font-size: 16px;
+  text-align: center;
+  background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+  cursor: pointer;
+
+  &:hover {
+    background: linear-gradient(90deg, #06BFFF 30%, #2D73FF 100%);
+  }
+}
+
+.login-error {
+  align-self: center;
+  height: 16px;
+  color: #c15755;
+  font-size: 12px;
+}
+
+.error-message {
+  color: #c15755;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.login-help {
+  align-self: center;
+  color: #afafaf;
+  font-size: 12px;
+
+  &:hover {
+    color: #c9c9c9;
+  }
+}
+
+.qrcode {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  overflow: hidden;
+  user-select: none;
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.qrcode-tip {
+  color: #afafaf;
+  font-size: 12px;
+  text-align: center;
+}
+
+.bottom {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 100px;
+  color: #b8b6b4;
+  font-size: 14px;
+}
+
+.bottom-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 200px;
+  text-align: center;
+}
+
+.learn-more {
+  color: #ffffff;
+  text-decoration: none;
+
+  &:hover {
+    color: #66c0f4
+  }
+}
+
+.bottom-middle {
+  width: 200px;
+
+  img {
+    width: 100%;
+  }
+}
+
+.bottom-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 200px;
+}
+
+.join-button {
+  padding: 0 15px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  margin: 40px 0 10px 0;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 30px;
+  text-decoration: none;
+
+  &:hover {
+    border-color: #ffffff;
+  }
 }
 </style>

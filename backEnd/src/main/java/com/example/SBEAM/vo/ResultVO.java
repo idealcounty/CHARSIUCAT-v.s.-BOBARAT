@@ -22,7 +22,9 @@ public class ResultVO<T> implements Serializable {
     public static <T> ResultVO<T> buildSuccess(T result) {
         return new ResultVO<T>("000", null, result);
     }
-
+    public static ResultVO<Void> buildSuccess() {
+        return new ResultVO<>("000", "Success", null);
+    }
     public static <T> ResultVO<T> buildFailure(String msg) {
         return new ResultVO<T>("400", msg, null);
     }

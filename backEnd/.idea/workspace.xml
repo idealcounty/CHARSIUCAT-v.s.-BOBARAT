@@ -5,11 +5,28 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="581c5e4e-b0c1-4eba-988f-e65d8188f5a4" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/configure/CorsFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/configure/LoginInterceptor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/configure/MyWebMvcConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/bluewhale.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sbeam.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/controller/StoreController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/po/Product.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/po/Store.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/repository/ProductRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/repository/StoreRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/service/ProductService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/service/StoreService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/ProductServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/StoreServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/util/OssUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/ProductVO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/StoreVO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/po/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/po/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/UserServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/serviceImpl/UserServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/ResultVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/ResultVO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/UserVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/example/SBEAM/vo/UserVO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/com/example/SBEAM/serviceImpl/UserServiceImpl.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/com/example/SBEAM/serviceImpl/UserServiceImpl.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,10 +51,16 @@
       </MavenGeneralSettings>
     </option>
   </component>
+  <component name="PerforceDirect.Settings">
+    <option name="CHARSET" value="无" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
   <component name="ProjectId" id="2tA5GaRNbHu8lojGNyzQ35j5XRM" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -85,7 +108,7 @@
       <recent name="com.example.SBEAM.util" />
     </key>
   </component>
-  <component name="RunManager" selected="应用程序.SBEAMApplication">
+  <component name="RunManager" selected="Spring Boot.SBEAMApplication">
     <configuration name="SBEAMApplication" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="com.example.SBEAM.SBEAMApplication" />
       <module name="SBEAM" />
@@ -133,6 +156,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Spring Boot.SBEAMApplication" />
         <item itemvalue="应用程序.SBEAMApplication" />
       </list>
     </recent_temporary>
@@ -140,8 +164,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
+        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.15989.150" />
+        <option value="bundled-js-predefined-1d06a55b98c1-91d5c284f522-JavaScript-IU-241.15989.150" />
       </set>
     </attachedChunks>
   </component>
@@ -203,6 +227,8 @@
       <workItem from="1743064507226" duration="69000" />
       <workItem from="1743065063218" duration="36000" />
       <workItem from="1743141893191" duration="489000" />
+      <workItem from="1743411040740" duration="2178000" />
+      <workItem from="1743418850835" duration="7756000" />
     </task>
     <servers />
   </component>

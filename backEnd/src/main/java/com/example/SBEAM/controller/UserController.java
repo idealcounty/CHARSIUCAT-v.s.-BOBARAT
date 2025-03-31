@@ -5,6 +5,8 @@ import com.example.SBEAM.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -30,4 +32,11 @@ public class UserController {
     public ResultVO<Boolean> updateInformation(@RequestBody UserVO userVO){
         return ResultVO.buildSuccess(userService.updateInformation(userVO));
     }
+
+    @PutMapping
+    public ResultVO<Void> deposit(@RequestParam Integer userId, @RequestParam double amount){
+        userService.depositBalance(userId,amount);
+        return ResultVO.buildSuccess();
+    }
+    //尚未写路径
 }

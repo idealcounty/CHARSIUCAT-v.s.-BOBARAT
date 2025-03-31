@@ -7,9 +7,11 @@ import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.util.TokenUtil;
 import com.example.SBEAM.vo.UserVO;
 import com.example.SBEAM.util.SecurityUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 @Service
 public class UserServiceImpl implements UserService {
@@ -67,5 +69,10 @@ public class UserServiceImpl implements UserService {
         return true;
     }
 
+    @Override
+    public void depositBalance(Integer userId, double amount) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        user.updateBalance(amount);
+    }
 }
 

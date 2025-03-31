@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -46,6 +47,10 @@ public class User {
     private String address;
 
     @Basic
+    @Column(name = "balance")
+    private Double balance= (double) 0;
+
+    @Basic
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
@@ -60,6 +65,10 @@ public class User {
         userVO.setPhone(this.phone);
         userVO.setPassword(this.password);
         userVO.setCreateTime(this.createTime);
+        userVO.setBalance(this.balance);
         return userVO;
+    }
+    public void updateBalance(double newBalance){
+        this.balance =this.balance+newBalance;
     }
 }

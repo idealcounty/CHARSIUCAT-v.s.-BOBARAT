@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Getter
@@ -29,6 +30,8 @@ public class UserVO {
 
     private Date createTime;
 
+    private Double balance;
+
     public User toPO(){
         User user=new User();
         user.setId(this.id);
@@ -39,6 +42,7 @@ public class UserVO {
         user.setStoreId(this.storeId);
         user.setPassword(this.password);
         user.setCreateTime(this.createTime);
+        user.setBalance((double) 0);
         return user;
     }
 }

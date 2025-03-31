@@ -54,6 +54,10 @@ function handleLogin() {
 function clearErrMsg() {
   errMsg.value = ''
 }
+
+function JumpToRegister() {
+  router.push({path:'/register'})
+}
 </script>
 
 <template>
@@ -96,22 +100,21 @@ function clearErrMsg() {
     </div>
     <div class="bottom">
       <div class="bottom-left">
-        <div>加入 SBEAM，探索数千款精彩游戏。</div>
-        <RouterLink class="learn-more" to="about">了解更多</RouterLink>
-      </div>
-      <div class="bottom-middle">
-        <img src="../../assets/join_pc.png" alt="Join Steam">
+        <div class="register-title">首次使用 SBEAM?</div>
+        <div class="register-button" @click="JumpToRegister" :disabled="loginDisabled">创建账户</div>
       </div>
       <div class="bottom-right">
         <!--注册-->
-        <RouterLink class="join-button" :to="`/join?redir=${route.query.redir}`">加入 SBEAM</RouterLink>
-        <div>免费加入且简单易用。</div>
+        <div>创建账户既免费又简单。探索成千上万款游戏,与数百万新朋友一起畅玩吧!</div>
+        <RouterLink class="learn-more" to="">了解更多关于SBEAM的信息</RouterLink>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+@import url('https://fonts.cdnfonts.com/css/motiva-sans');
+
 .app {
   background-color: #181a21;
   min-height: calc(100vh - 104px);
@@ -242,6 +245,33 @@ function clearErrMsg() {
   }
 }
 
+.register-title {
+  font-family: "Motiva Sans", sans-serif;
+  font-weight: bold;
+  color: white;
+  font-size: 24px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.5px;
+}
+
+.register-button {
+  width: 100px;
+  padding: 12px;
+  border-radius: 4px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  text-align: center;
+  background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s;
+}
+
+.register-button:hover {
+  background: linear-gradient(90deg, #06BFFF 30%, #2D73FF 100%);
+}
+
 .login-error {
   align-self: center;
   height: 16px;
@@ -287,44 +317,38 @@ function clearErrMsg() {
 
 .bottom {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  padding-bottom: 100px;
+  width: 700px;
+  margin: 50px auto;
+  padding: 40px 0;
   color: #b8b6b4;
-  font-size: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .bottom-left {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  width: 200px;
+  width: 300px;
   text-align: center;
 }
 
 .learn-more {
-  color: #ffffff;
-  text-decoration: none;
+  color: #b8b6b4;
+  font-size: 14px;
 
   &:hover {
-    color: #66c0f4
-  }
-}
-
-.bottom-middle {
-  width: 200px;
-
-  img {
-    width: 100%;
+    text-decoration: underline;
+    color: #ffffff;
   }
 }
 
 .bottom-right {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 200px;
+  width: 360px;
+  color: #b8b6b4;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .join-button {

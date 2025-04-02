@@ -4,5 +4,6 @@ import java.util.List;
 
 public interface ProductService {
     Boolean createProduct(ProductVO productVO);
-    List<ProductVO> getAllProducts(Integer storeId);
+    List<ProductVO> getAllProductsByStoreId(Integer storeId);
+    List<ProductVO> getAllProducts();
 }

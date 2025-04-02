@@ -30,7 +30,6 @@ public class Product {
     @Column(name = "product_amount")
     private Integer productAmount;
 
-
     @Basic
     @Column(name = "product_price")
     private Double productPrice;

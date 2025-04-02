@@ -30,12 +30,16 @@ public class ProductServiceImpl implements ProductService {
         return true;
     }
     @Override
-    public List<ProductVO> getAllProducts(Integer storeId) {
+    public List<ProductVO> getAllProductsByStoreId(Integer storeId) {
         Store store = storeRepository.findById(storeId).orElse(null);
         if (store == null) {
             throw SBEAMException.storeNotExists();
         }
         return productRepository.findAllByStoreId(storeId).stream().map(Product::toVO).collect(Collectors.toList());
+    }
 
+    @Override
+    public List<ProductVO> getAllProducts(){
+        return productRepository.findAll().stream().map(Product::toVO).collect(Collectors.toList());
     }
 }

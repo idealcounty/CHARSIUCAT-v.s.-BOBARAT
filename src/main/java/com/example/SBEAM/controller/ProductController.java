@@ -19,7 +19,11 @@ public class ProductController {
             return ResultVO.buildSuccess(productService.createProduct(productVO));
         }
         @GetMapping("/store/storeDetail")
-        public ResultVO<List<ProductVO>> getAllProducts(@RequestParam("storeId") Integer storeId) {
-                return ResultVO.buildSuccess(productService.getAllProducts(storeId));
+        public ResultVO<List<ProductVO>> getAllProductsByStoreId(@RequestParam("storeId") Integer storeId) {
+                return ResultVO.buildSuccess(productService.getAllProductsByStoreId(storeId));
+        }
+        @GetMapping("/store")//路径尚未确定
+        public ResultVO<List<ProductVO>> getAllProducts() {
+                return ResultVO.buildSuccess(productService.getAllProducts());
         }
 }

@@ -14,6 +14,7 @@ public class ProductVO {
     private String productName;
     private Integer productAmount;
     private Double productPrice;
+    private String productDescription;
 
     public Product toPO(){
         Product product = new Product();
@@ -22,6 +23,7 @@ public class ProductVO {
         product.setProductName(this.productName);
         product.setProductAmount(this.productAmount);
         product.setProductPrice(this.productPrice);
+        product.setProductDescription(this.productDescription);
         return product;
     }
 }

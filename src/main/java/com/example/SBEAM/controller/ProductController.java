@@ -13,17 +13,41 @@ import java.util.List;
 public class ProductController {
         @Autowired
         ProductService productService;
-
         @PostMapping("/product/createProduct")
         public ResultVO<Boolean> createProduct(@RequestBody ProductVO productVO) {
             return ResultVO.buildSuccess(productService.createProduct(productVO));
         }
+
         @GetMapping("/store/storeDetail")
         public ResultVO<List<ProductVO>> getAllProductsByStoreId(@RequestParam("storeId") Integer storeId) {
                 return ResultVO.buildSuccess(productService.getAllProductsByStoreId(storeId));
         }
+        @DeleteMapping("")//路径尚未确定
+        public ResultVO<Boolean> deleteProduct(@RequestBody ProductVO productVO) {
+                boolean success = productService.deleteProduct(productVO);
+                if (success) {
+                        return ResultVO.buildSuccess(true);
+                }
+                else {
+                        return ResultVO.buildFailure("商品不存在，删除失败");
+                }
+        }
         @GetMapping("/store")//路径尚未确定
         public ResultVO<List<ProductVO>> getAllProducts() {
                 return ResultVO.buildSuccess(productService.getAllProducts());
+        }
+        @GetMapping("/store")//路径尚未确定
+        public ResultVO<ProductVO> getProductByProductName(@RequestParam("productName") String productName) {
+                return ResultVO.buildSuccess(productService.getProductByProductName(productName));
+        }
+        @PutMapping("")//路径尚未确定
+                public ResultVO<Boolean> updateProduct(@RequestParam Integer productId, @RequestBody ProductVO productVO) {
+                boolean success = productService.updateProduct(productId, productVO);
+                if (success) {
+                        return ResultVO.buildSuccess(true);
+                }
+                else {
+                        return ResultVO.buildFailure("商品不存在，更新失败");
+                }
         }
 }

@@ -6,4 +6,7 @@ public interface ProductService {
     Boolean createProduct(ProductVO productVO);
     List<ProductVO> getAllProductsByStoreId(Integer storeId);
     List<ProductVO> getAllProducts();
+    ProductVO getProductByProductName(String productName);
+    Boolean deleteProduct(ProductVO productVO);
+    Boolean updateProduct(Integer productId,ProductVO productVO);
 }

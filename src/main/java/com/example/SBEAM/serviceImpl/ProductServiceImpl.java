@@ -42,4 +42,38 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductVO> getAllProducts(){
         return productRepository.findAll().stream().map(Product::toVO).collect(Collectors.toList());
     }
+
+    @Override
+    public ProductVO getProductByProductName(String productName) {
+        return productRepository.findByProductName(productName).toVO();
+    }
+
+    @Override
+    public Boolean deleteProduct(ProductVO productVO) {
+        Product product = productRepository.findByProductId(productVO.getProductId());
+        if (product == null) {
+            throw SBEAMException.productNotExists();
+        }
+        Integer productId = product.getProductId();
+        if (!productRepository.existsById(productId)) {
+            return false;
+        }
+        productRepository.deleteById(productId);
+        return true;
+    }
+
+    @Override
+    public Boolean updateProduct(Integer productId,ProductVO productVO){
+        Product newProduct = productRepository.findByProductId(productId);
+        if (newProduct == null) {
+            throw SBEAMException.productNotExists();
+        }
+        Product product = productRepository.findByProductId(productId);
+        product.setProductName(productVO.getProductName());
+        product.setProductAmount(productVO.getProductAmount());
+        product.setProductPrice(productVO.getProductPrice());
+        product.setProductDescription(productVO.getProductDescription());
+        productRepository.save(product);
+        return true;
+    }
 }

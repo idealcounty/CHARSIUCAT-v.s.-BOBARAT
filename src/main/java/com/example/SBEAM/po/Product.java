@@ -34,6 +34,9 @@ public class Product {
     @Column(name = "product_price")
     private Double productPrice;
 
+    @Basic
+    @Column(name = "product_description", columnDefinition = "TEXT")
+    private String productDescription;
 
     public ProductVO toVO() {
         ProductVO productVO = new ProductVO();
@@ -42,6 +45,7 @@ public class Product {
         productVO.setProductName(this.productName);
         productVO.setProductAmount(this.productAmount);
         productVO.setProductPrice(this.productPrice);
+        productVO.setProductDescription(this.productDescription);
         return productVO;
     }
 }

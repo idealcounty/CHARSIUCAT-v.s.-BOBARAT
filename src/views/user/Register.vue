@@ -2,7 +2,7 @@
 import {ref, computed} from 'vue'
 import {router} from '../../router'
 import {userRegister} from "../../api/user.ts"
-//import { getAllStore } from "../../api/store.ts";
+import {getAllStore} from "../../api/store.ts";
 
 // 输入框值（需要在前端拦截不合法输入：是否为空+额外规则）
 const name = ref('')
@@ -10,19 +10,20 @@ const identity = ref('')
 const tel = ref('')
 const address = ref('')
 const password = ref('')
+const storeId = ref(undefined)
 const confirmPassword = ref('')
 
 //对于商家用户，还需要在注册时选择所属商店，从而传入storeId。但由于Lab2才会开发商店模块，所以这里暂且设置唯一一个Id为1的商店1，待Lab2完善
-/*interface StoreItem {
+interface StoreItem {
   id: number
   name: string
-}*/
+}
 
-/*const storeList = ref<StoreItem[]>([])
-const storeId = ref(undefined)
+const storeList = ref<StoreItem[]>([])
+
 getAllStore().then(res => {
   storeList.value = res.data.result
-})*/
+})
 
 // 电话号码是否为空
 const hasTelInput = computed(() => tel.value != '')
@@ -34,12 +35,8 @@ const hasConfirmPasswordInput = computed(() => confirmPassword.value != '')
 const hasAddressInput = computed(() => address.value != '')
 // 身份是否为空
 const hasIdentityChosen = computed(() => identity.value != '')
-
-/*
 // 对于商家用户，商店Id是否为空
 const hasStoreName = computed(() => storeId.value != undefined)
-*/
-
 // 电话号码的规则
 const chinaMobileRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
 const telLegal = computed(() => chinaMobileRegex.test(tel.value))
@@ -47,26 +44,38 @@ const telLegal = computed(() => chinaMobileRegex.test(tel.value))
 const isPasswordIdentical = computed(() => password.value == confirmPassword.value)
 // 注册按钮可用性
 const registerDisabled = computed(() => {
-  if (!hasIdentityChosen.value) {
+  if (!hasIdentityChosen.value || !agree.value) {
     return true
   } else if (identity.value == 'CUSTOMER') {
     return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
         telLegal.value && isPasswordIdentical.value)
   } else if (identity.value == 'STAFF') {
-    return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value /*&&
-        hasStoreName.value*/ && telLegal.value && isPasswordIdentical.value)
+    return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
+        hasStoreName.value && telLegal.value && isPasswordIdentical.value)
   }
 })
 
+const loading = ref(false)
+const agree = ref(false)
+const agreeErrMsg = ref('')
+
 // 注册按钮触发
 function handleRegister() {
+  // 密码处理
+  // const md5: any = new Md5()
+  // md5.appendAsciiStr(password.value)
+  // password.value = md5.end()
+  // confirmPassword.value = md5.end()
+  if (registerDisabled.value) {
+    return
+  }
   userRegister({
     role: identity.value,
     name: name.value,
     phone: tel.value,
     password: password.value,
     address: address.value,
-    //storeId: storeId.value
+    storeId: storeId.value
   }).then(res => {
     if (res.data.code === '000') {  //类型守卫，它检查 res.data 对象中是否存在名为 code 的属性
       ElMessage({
@@ -88,169 +97,289 @@ function handleRegister() {
 
 
 <template>
-  <el-main class="main-frame bgimage">
-    <el-card class="login-card">
-      <div>
-        <h1>创建一个新的账户</h1>
+  <div class="app">
+    <div class="register">
+      <div class="register-content">
+        <div class="register-title">
+          创建您的账户
+        </div>
 
-        <el-form>
-          <el-row>
-            <el-col :span="15">
-              <el-form-item>
-                <label for="name">昵称</label>
-                <el-input id="name"
-                          v-model="name"
-                          placeholder="请输入昵称"/>
-              </el-form-item>
-            </el-col>
 
-            <el-col :span="1"></el-col>
+        <div class="name">
+          <div class="label">
+            Sbeam 账户名称
+          </div>
+          <div class="input-area">
+            <input v-model="name" class="input">
+          </div>
+        </div>
 
-            <el-col :span="8">
-              <el-form-item>
-                <label for="identity">身份</label>
-                <el-select id="identity"
-                           v-model="identity"
-                           placeholder="请选择"
-                           style="width: 100%;"
-                >
-                  <el-option value="CUSTOMER" label="顾客"/>
-                  <el-option value="STAFF" label="商家"/>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
+        <div class="tel">
+          <label class="label" v-if="!hasTelInput" for="tel">
+            注册手机号
+          </label>
+          <label class="error-warn" v-else-if="!telLegal" for="tel">
+            手机号不合法
+          </label>
+          <label class="label" v-else for="tel">
+            注册手机号
+          </label>
+          <br/>
+          <input id="tel" v-model="tel" class="input">
+        </div>
 
-          <el-row>
-            <el-col :span="8">
-              <el-form-item>
+        <div class="address">
+          <div class="label">
+            个人地址
+          </div>
+          <div class="input-area">
+            <input v-model="address" class="input">
+          </div>
+        </div>
 
-                <label v-if="!hasTelInput" for="tel">
-                  注册手机号
-                </label>
-                <label v-else-if="!telLegal" for="tel" class="error-warn">
-                  手机号不合法
-                </label>
-                <label v-else for="tel">
-                  注册手机号
-                </label>
+        <div class="password">
+          <div class="label">
+            账户密码
+          </div>
+          <div class="input-area">
+            <input type="password" v-model="password" class="input">
+          </div>
+        </div>
 
-                <el-input id="tel"
-                          v-model="tel" :class="{'error-warn-input' :(hasTelInput && !telLegal)}"
-                          placeholder="请输入手机号"/>
-              </el-form-item>
-            </el-col>
+        <div class="confirm-password">
+          <label class="label" v-if="!hasConfirmPasswordInput">确认密码</label>
+          <label v-else-if="!isPasswordIdentical" class="error-warn">密码不一致</label>
+          <label class="label" v-else>确认密码</label>
+          <br/>
+          <div class="input-area">
+            <input type="password" v-model="confirmPassword" class="input">
+          </div>
+        </div>
+        <div class="identity">
+          <div class="label">
+            身份
+          </div>
+          <div class="select-area">
+            <select name="identity"
+                    id="identity"
+                    v-model="identity"
+                    class="select">
+              <option value="CUSTOMER">顾客</option>
+              <option value="STAFF">商家</option>
+            </select>
+          </div>
+        </div>
 
-            <el-col :span="1"></el-col>
+        <div class="store" v-if="identity==='STAFF'">
+          <div class="label">所属商店</div>
+          <div class="select-area">
+            <select name="store"
+                    id="store"
+                    v-model="storeId"
+                    class="select">
+              <option v-for="item in storeList" :value="item.id" :key="item.id" v-text="item.name"></option>
+            </select>
 
-            <el-col :span="15" v-if="identity!=='STAFF'">
-              <el-form-item>
-                <label for="address">
-                  地址
-                </label>
-                <el-input id="address"
-                          v-model="address"
-                          placeholder="请输入地址"/>
-              </el-form-item>
-            </el-col>
+          </div>
+        </div>
 
-            <el-col :span="7" v-if="identity==='STAFF'">
-              <el-form-item>
-                <label for="address">
-                  地址
-                </label>
-                <el-input id="address"
-                          v-model="address"
-                          placeholder="请输入地址"/>
-              </el-form-item>
-            </el-col>
+        <label class="agree">
+          <input v-model="agree" class="agree-input" :class="{ error: agreeErrMsg }" type="checkbox"
+                 @change="agreeErrMsg = ''">
+          我已年满 13 周岁并同意<a href="" target="_blank">《Sbeam 订户协议》</a>和<a href="" target="_blank">《Sbeam
+          隐私政策》</a>的条款。
+        </label>
 
-            <el-col :span="1" v-if="identity==='STAFF'"></el-col>
+        <div v-loading="loading" class="register-button" @click.prevent="handleRegister">
+          完成
+        </div>
 
-            <el-col :span="7" v-if="identity==='STAFF'">
-              <el-form-item>
-                <label for="address">
-                  所属商店
-                </label>
-                <!--
-                <el-select id="identity" v-model="storeId" placeholder="请选择" style="width: 100%;">
-                  <el-option v-for="item in storeList" :key="item.id" :label="item.name"
-                             :value="item.id" />
-                </el-select>
-                -->
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-form-item>
-            <label for="password">密码</label>
-            <el-input type="password" id="password" v-model="password" placeholder="••••••••"/>
-          </el-form-item>
-
-          <el-form-item>
-            <label v-if="!hasConfirmPasswordInput">确认密码</label>
-            <label v-else-if="!isPasswordIdentical" class="error-warn">密码不一致</label>
-            <label v-else>确认密码</label>
-
-            <el-input type="password" id="confirm-password" v-model="confirmPassword"
-                      :class="{'error-warn-input' :(hasConfirmPasswordInput && !isPasswordIdentical)}"
-                      placeholder="••••••••"/>
-          </el-form-item>
-
-          <span class="button-group">
-            <el-button @click.prevent="handleRegister" :disabled="registerDisabled" type="primary">
-              创建账户
-            </el-button>
-
-            <router-link to="/login" v-slot="{navigate}">
-              <el-button @click="navigate">
-                去登录
-              </el-button>
-            </router-link>
-          </span>
-
-        </el-form>
       </div>
-
-    </el-card>
-  </el-main>
+    </div>
+  </div>
 
 </template>
 
 
 <style scoped>
-.main-frame {
-  width: 100%;
-  height: 100%;
+.app {
+  background-color: #1f2428;
+  min-height: calc(100vh);
+  font-family: "Motiva Sans", sans-serif;
+}
 
+.register {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  row-gap: 32px;
+  padding: 80px 0 150px 0;
+  background-image: url("../../assets/acct_creation_bg.png");
+  background-position: left top;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.register-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 800px;
+  padding: 0 36px;
+  margin: 0 auto;
+}
+
+.register-title {
+  margin-bottom: 10px;
+  color: #ffffff;
+  font-size: 32px;
+  font-weight: 200;
+}
+
+.label {
+  margin-bottom: 2px;
+  color: #b8b6b4;
+  font-size: 14px;
+}
+
+.input-area {
+  position: relative;
+  display: inline-block;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 300px;
+  padding: 8px;
+  border: none;
+  border-radius: 2px;
+  color: #ffffff;
+  font-size: 15px;
+  font-family: Arial, sans-serif;
+  background-color: #32353c;
+
+  &:hover {
+    background-color: #393c44;
+  }
+
+  &.error {
+    outline: 1px solid #c15755;
+  }
+}
+
+.select {
+  background-color: #32353c;
+  color: #b8b6b4;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  box-shadow: 1px 1px 0px #000;
+  width: 300px;
+  padding: 8px;
+}
+
+.err-msg {
+  position: absolute;
+  left: calc(100% + 20px);
+  top: 50%;
+  padding: 8px;
+  border-radius: 4px;
+  color: #ffffff;
+  background-color: #a0382b;
+  font-size: 12px;
+  white-space: nowrap;
+  transform: translateY(-50%);
+
+  &::before {
+    content: "";
+    position: absolute;
+    right: 100%;
+    top: 50%;
+    display: inline-block;
+    border-top: 8px solid transparent;
+    border-right: 8px solid #a0382b;
+    border-bottom: 8px solid transparent;
+    transform: translate(1px, -50%);
+  }
+}
+
+.agree {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
+  width: max-content;
+  color: #b8b6b4;
+  font-size: 14px;
+  cursor: pointer;
+
+  a {
+    color: #ffffff;
+    text-decoration: none;
+
+    &:hover {
+      color: #66c0f4;
+    }
+  }
 }
 
-.bgimage {
-  background-image: url("../../assets/shopping-1s-1084px.svg");
-}
-
-.login-card {
-  width: 60%;
+.agree-input {
+  position: relative;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
   padding: 10px;
+  margin: 0 6px 0 0;
+  //border: 1px solid #;
+  border-radius: 2px;
+  background-color: #32353c;
+  cursor: pointer;
+  appearance: none;
+
+  &:checked::after {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    color: #ffffff;
+    font-size: 15px;
+    line-height: 20px;
+    text-align: center;
+  }
+
+  &:hover {
+    background-color: #393c44;
+  }
+
+  &.error {
+    outline: 1px solid #c15755;
+  }
+}
+
+.register-button {
+  box-sizing: border-box;
+  width: 130px;
+  border-radius: 2px;
+  margin-top: 10px;
+  color: #ffffff;
+  font-size: 15px;
+  line-height: 36px;
+  text-align: center;
+  background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+  cursor: pointer;
+
+  &:hover {
+    background: linear-gradient(90deg, #06BFFF 30%, #2D73FF 100%);
+  }
 }
 
 .error-warn {
   color: red;
+  margin-bottom: 2px;
+  font-size: 14px;
 }
 
-.error-warn-input {
-  --el-input-focus-border-color: red;
-}
-
-.button-group {
-  padding-top: 10px;
-  display: flex;
-  flex-direction: row;
-  gap: 30px;
-  align-items: center;
-  justify-content: right;
-}
 </style>

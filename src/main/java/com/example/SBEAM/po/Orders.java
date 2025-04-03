@@ -1,5 +1,5 @@
 package com.example.SBEAM.po;
-import com.example.SBEAM.vo.OrderVO;
+import com.example.SBEAM.vo.OrdersVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -10,12 +10,12 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "order")
-public class Order {
+@Table(name = "orders")
+public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "order_id")
-    private Integer orderId;
+    @Column(name = "orders_id")
+    private Integer ordersId;
 
     @Basic
     @Column(name = "product_id")
@@ -33,9 +33,9 @@ public class Order {
     @Column(name = "product_price")
     private Double productPrice;
 
-    public OrderVO toVO() {
-        OrderVO orderVO = new OrderVO();
-        orderVO.setOrderId(orderId);
+    public OrdersVO toVO() {
+        OrdersVO orderVO = new OrdersVO();
+        orderVO.setOrdersId(ordersId);
         orderVO.setProductId(productId);
         orderVO.setUserId(userId);
         orderVO.setProductAmount(productAmount);

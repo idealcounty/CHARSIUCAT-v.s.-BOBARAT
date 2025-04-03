@@ -32,15 +32,15 @@ public class ProductController {
                         return ResultVO.buildFailure("商品不存在，删除失败");
                 }
         }
-        @GetMapping("/store")//路径尚未确定
+        @GetMapping("/store1")//路径尚未确定
         public ResultVO<List<ProductVO>> getAllProducts() {
                 return ResultVO.buildSuccess(productService.getAllProducts());
         }
-        @GetMapping("/store")//路径尚未确定
+        @GetMapping("/store2")//路径尚未确定
         public ResultVO<ProductVO> getProductByProductName(@RequestParam("productName") String productName) {
                 return ResultVO.buildSuccess(productService.getProductByProductName(productName));
         }
-        @PutMapping("")//路径尚未确定
+        @PutMapping("3")//路径尚未确定
                 public ResultVO<Boolean> updateProduct(@RequestParam Integer productId, @RequestBody ProductVO productVO) {
                 boolean success = productService.updateProduct(productId, productVO);
                 if (success) {

@@ -1,4 +1,11 @@
 package com.example.SBEAM.repository;
+import com.example.SBEAM.po.Cart;
+import com.example.SBEAM.vo.CartVO;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CartRepository {
+import java.util.Arrays;
+import java.util.List;
+public interface CartRepository extends JpaRepository<Cart, Integer> {
+    Cart findByCartId(Integer cartId);
+
 }

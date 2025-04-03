@@ -1,4 +1,8 @@
 package com.example.SBEAM.repository;
 
-public interface CartItemRepository {
+import com.example.SBEAM.po.CartItem;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CartItemRepository extends JpaRepository<CartItem, Integer> {
+
 }

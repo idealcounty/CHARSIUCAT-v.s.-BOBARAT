@@ -22,4 +22,13 @@ public class Cart {
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CartItem> cartItems;
+
+    public CartVO toVO(){
+        CartVO cartVO = new CartVO();
+        cartVO.setCartId(this.getCartId());
+        cartVO.setUserId(this.getUserId());
+        cartVO.setCartItems(this.getCartItems());
+
+        return cartVO;
+    }
 }

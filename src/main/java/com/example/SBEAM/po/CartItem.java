@@ -1,5 +1,6 @@
 package com.example.SBEAM.po;
 
+import com.example.SBEAM.vo.CartItemVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,4 +29,12 @@ public class CartItem {
 
     @Column(name = "product_price",nullable = false)
     private Double productPrice;
+    public CartItemVO toVO(){
+        CartItemVO cartItemVO = new CartItemVO();
+        cartItemVO.setCartItemId(cartItemId);
+        cartItemVO.setProductId(productId);
+        cartItemVO.setProductQuantity(productQuantity);
+        cartItemVO.setProductPrice(productPrice);
+        return cartItemVO;
+    }
 }

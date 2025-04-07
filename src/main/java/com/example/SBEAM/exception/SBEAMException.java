@@ -32,5 +32,6 @@ public class SBEAMException extends RuntimeException{
         return new SBEAMException("文件上传失败!");
     }
     public static SBEAMException productNotExists(){return new SBEAMException("商品不存在!");}
-
+    public static SBEAMException productNotEnough(){return new SBEAMException("商品数量不足!");}
+    public static SBEAMException priceNotEnough(){return new SBEAMException("账户余额不足!");}
 }

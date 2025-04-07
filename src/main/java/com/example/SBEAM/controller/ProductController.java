@@ -17,7 +17,6 @@ public class ProductController {
         public ResultVO<Boolean> createProduct(@RequestBody ProductVO productVO) {
             return ResultVO.buildSuccess(productService.createProduct(productVO));
         }
-
         @GetMapping("/store/storeDetail")
         public ResultVO<List<ProductVO>> getAllProductsByStoreId(@RequestParam("storeId") Integer storeId) {
                 return ResultVO.buildSuccess(productService.getAllProductsByStoreId(storeId));

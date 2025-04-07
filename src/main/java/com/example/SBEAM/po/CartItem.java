@@ -29,6 +29,14 @@ public class CartItem {
 
     @Column(name = "product_price",nullable = false)
     private Double productPrice;
+
+    public CartItem(Cart cart, Integer productId, Integer quantity, Double price) {
+        this.cart = cart;
+        this.productId = productId;
+        this.productQuantity = quantity;
+        this.productPrice = price;
+    }
+
     public CartItemVO toVO(){
         CartItemVO cartItemVO = new CartItemVO();
         cartItemVO.setCartItemId(cartItemId);

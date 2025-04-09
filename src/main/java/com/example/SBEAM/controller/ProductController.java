@@ -36,8 +36,8 @@ public class ProductController {
                 return ResultVO.buildSuccess(productService.getAllProducts());
         }
         @GetMapping("/store2")//路径尚未确定
-        public ResultVO<ProductVO> getProductByProductName(@RequestParam("productName") String productName) {
-                return ResultVO.buildSuccess(productService.getProductByProductName(productName));
+        public ResultVO<ProductVO> getProductByProductId(@RequestParam Integer productId) {
+                return ResultVO.buildSuccess(productService.getProductByProductId(productId));
         }
         @PutMapping("3")//路径尚未确定
                 public ResultVO<Boolean> updateProduct(@RequestParam Integer productId, @RequestBody ProductVO productVO) {
@@ -48,5 +48,9 @@ public class ProductController {
                 else {
                         return ResultVO.buildFailure("商品不存在，更新失败");
                 }
+        }
+        @PutMapping("4")
+        public ResultVO<Boolean> updateProductAmount(@RequestParam Integer productId,@RequestParam Integer productAmount) {
+                return ResultVO.buildSuccess(productService.updateProductAmount(productId,productAmount));
         }
 }

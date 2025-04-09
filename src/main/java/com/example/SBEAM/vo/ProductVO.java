@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,6 +17,7 @@ public class ProductVO {
     private Integer productAmount;
     private Double productPrice;
     private String productDescription;
+    private List<String> productImages;
 
     public Product toPO(){
         Product product = new Product();
@@ -24,6 +27,7 @@ public class ProductVO {
         product.setProductAmount(this.productAmount);
         product.setProductPrice(this.productPrice);
         product.setProductDescription(this.productDescription);
+        product.setProductImages(this.productImages);
         return product;
     }
 }

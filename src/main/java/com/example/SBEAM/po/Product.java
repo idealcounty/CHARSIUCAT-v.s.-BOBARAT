@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.util.List;
 
 
 @Getter
@@ -38,6 +39,10 @@ public class Product {
     @Column(name = "product_description", columnDefinition = "TEXT")
     private String productDescription;
 
+    @ElementCollection
+    @Column(name = "product_images")
+    private List<String> productImages;
+
     public ProductVO toVO() {
         ProductVO productVO = new ProductVO();
         productVO.setProductId(this.productId);
@@ -46,6 +51,7 @@ public class Product {
         productVO.setProductAmount(this.productAmount);
         productVO.setProductPrice(this.productPrice);
         productVO.setProductDescription(this.productDescription);
+        productVO.setProductImages(this.productImages);
         return productVO;
     }
 }

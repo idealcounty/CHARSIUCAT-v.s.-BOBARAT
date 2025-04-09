@@ -44,8 +44,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductVO getProductByProductName(String productName) {
-        return productRepository.findByProductName(productName).toVO();
+    public ProductVO getProductByProductId(Integer productId) {
+        return productRepository.findByProductId(productId).toVO();
     }
 
     @Override
@@ -73,6 +73,17 @@ public class ProductServiceImpl implements ProductService {
         product.setProductAmount(productVO.getProductAmount());
         product.setProductPrice(productVO.getProductPrice());
         product.setProductDescription(productVO.getProductDescription());
+        productRepository.save(product);
+        return true;
+    }
+
+    @Override
+    public Boolean updateProductAmount(Integer productId,Integer amount){
+        Product product = productRepository.findByProductId(productId);
+        if (product == null) {
+            throw SBEAMException.productNotExists();
+        }
+        product.setProductAmount(amount);
         productRepository.save(product);
         return true;
     }

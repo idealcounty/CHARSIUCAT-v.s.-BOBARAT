@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -33,6 +35,7 @@ public class Store {
         storeVO.setStoreName(this.storeName);
         storeVO.setLikes(this.likes);
         storeVO.setLogoUrl(this.logoUrl);
+
         return storeVO;
     }
 }

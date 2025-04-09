@@ -40,7 +40,7 @@ public class Product {
     private String productDescription;
 
     @Basic
-    @Column(name = "product_images")
+    @Column(name = "product_logo")
     private String productLogo;
 
     @ElementCollection

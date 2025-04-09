@@ -39,6 +39,10 @@ public class Product {
     @Column(name = "product_description", columnDefinition = "TEXT")
     private String productDescription;
 
+    @Basic
+    @Column(name = "product_images")
+    private String productLogo;
+
     @ElementCollection
     @Column(name = "product_images")
     private List<String> productImages;
@@ -52,6 +56,7 @@ public class Product {
         productVO.setProductPrice(this.productPrice);
         productVO.setProductDescription(this.productDescription);
         productVO.setProductImages(this.productImages);
+        productVO.setProductLogo(this.productLogo);
         return productVO;
     }
 }

@@ -36,6 +36,10 @@ public class Product {
     private Double productPrice;
 
     @Basic
+    @Column(name = "product_discount")
+    private Double productDiscount;
+
+    @Basic
     @Column(name = "product_description", columnDefinition = "TEXT")
     private String productDescription;
 
@@ -47,6 +51,7 @@ public class Product {
     @Column(name = "product_images")
     private List<String> productImages;
 
+
     public ProductVO toVO() {
         ProductVO productVO = new ProductVO();
         productVO.setProductId(this.productId);
@@ -54,6 +59,7 @@ public class Product {
         productVO.setProductName(this.productName);
         productVO.setProductAmount(this.productAmount);
         productVO.setProductPrice(this.productPrice);
+        productVO.setProductDiscount(this.productDiscount);
         productVO.setProductDescription(this.productDescription);
         productVO.setProductImages(this.productImages);
         productVO.setProductLogo(this.productLogo);

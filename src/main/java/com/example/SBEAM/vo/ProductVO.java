@@ -19,6 +19,7 @@ public class ProductVO {
     private String productDescription;
     private List<String> productImages;
     private String productLogo;
+    private Double productDiscount;
 
     public Product toPO(){
         Product product = new Product();
@@ -30,6 +31,7 @@ public class ProductVO {
         product.setProductDescription(this.productDescription);
         product.setProductImages(this.productImages);
         product.setProductLogo(this.productLogo);
+        product.setProductDiscount(this.productDiscount);
         return product;
     }
 }

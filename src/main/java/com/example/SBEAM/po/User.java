@@ -33,7 +33,6 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    //必须注意，在Java中用驼峰，在MySQL字段中用连字符_
     @Basic
     @Column(name = "create_time")
     private Date createTime;

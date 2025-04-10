@@ -10,4 +10,5 @@ public interface ProductService {
     Boolean deleteProduct(ProductVO productVO);
     Boolean updateProduct(Integer productId,ProductVO productVO);
     Boolean updateProductAmount(Integer productId,Integer amount);
+    Boolean updateProductDiscount(Integer productId,Double productDiscount);
 }

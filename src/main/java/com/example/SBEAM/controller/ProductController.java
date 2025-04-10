@@ -53,4 +53,8 @@ public class ProductController {
         public ResultVO<Boolean> updateProductAmount(@RequestParam Integer productId,@RequestParam Integer productAmount) {
                 return ResultVO.buildSuccess(productService.updateProductAmount(productId,productAmount));
         }
+        @PutMapping("5")
+        public ResultVO<Boolean> updateProductDiscount(@RequestParam Integer productId,@RequestParam Double productDiscount) {
+                return ResultVO.buildSuccess(productService.updateProductDiscount(productId,productDiscount));
+        }
 }

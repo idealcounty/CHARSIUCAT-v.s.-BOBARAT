@@ -87,4 +87,15 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
         return true;
     }
+
+    @Override
+    public Boolean updateProductDiscount(Integer productId,Double productDiscount){
+                Product product = productRepository.findByProductId(productId);
+        if (product == null) {
+            throw SBEAMException.productNotExists();
+        }
+        product.setProductDiscount(productDiscount);
+        productRepository.save(product);
+        return true;
+    }
 }

@@ -52,7 +52,7 @@ function logout() {
         <div class="action-menu">
           <RouterLink class="install" :class="{ light: token === null }" to="/about">
             <img src="../assets/btn_header_installsteam_download.png" alt="安装Steam">
-            安装 Steam
+            安装 SBEAM
           </RouterLink>
           <div v-if="token" class="account-pulldown" @mouseenter="actionMenuLocked = false">
             {{ nickname }}

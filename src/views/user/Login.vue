@@ -38,7 +38,7 @@ function handleLogin() {
         if(res.data.result.role == "STAFF")
           router.push({path: "/administrator"})
         else if(res.data.result.role == "CUSTOMER")
-          router.push({path: "/dashboard"})
+          router.push({path: "/"})
       })
     } else if (res.data.code === '400') {
       errMsg.value = '登陆失败'

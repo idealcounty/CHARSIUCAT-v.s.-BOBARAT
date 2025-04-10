@@ -4,62 +4,20 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: '/',
-        redirect: '/login',
-    }, {
-        path: '/login',
-        component: () => import('../views/user/Login.vue'),
-        meta: {title: '用户登录'}
-    }, {
-        path: '/register',
-        component: () => import('../views/user/Register.vue'),
-        meta: {title: '用户注册'}
-    }, {
-        path: '/home',
-        redirect: '/dashboard',
-        component: () => import('../views/Home.vue'),
-        children: [
-            {
-                path: '/dashboard',
-                name: 'Dashboard',
-                component: () => import('../views/user/Dashboard.vue'),
-                meta: {title: '个人信息'}
-            },
-            {
-                path: '/CreateStore',
-                name: 'CreateStore',
-                component: () => import('../views/store/CreateStore.vue'),
-                meta: {
-                    title: '创建商店',
-                    permission: ['MANAGER']
-                }
-            },
-            {
-                path: '/AllStore',
-                name: 'AllStore',
-                component: () => import('../views/store/AllStore.vue'),
-                meta: {title: '商店列表'}
-            },
-            {
-                path: '/storeDetail/:storeId',
-                name: 'StoreDetail',
-                component: () => import('../views/store/StoreDetail.vue'),
-                meta: {title: '商店详情'}
-            },
-            {
-                path: '/CreateProduct',
-                name: 'CreateProduct',
-                component: () => import('../views/product/CreateProduct.vue'),
-                meta: {
-                    title: '创建商品',
-                    permission: ['STAFF']
-                }
-            },
-        ]
+        component: () =>import('../views/store/Store.vue'),
     }, {
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),
         meta: {title: '404'}
+    }, {
+        path: '/register',
+        component: () => import('../views/user/Register.vue'),
+        meta: {title: '用户注册'}
+    }, {
+        path: '/login',
+        component: () => import('../views/user/Login.vue'),
+        meta: {title: '用户登录'}
     }, {
         path: '/:catchAll(.*)',
         redirect: '/404'

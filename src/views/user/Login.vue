@@ -35,7 +35,10 @@ function handleLogin() {
         sessionStorage.setItem('name', res.data.result.name)
         sessionStorage.setItem('role', res.data.result.role)
         sessionStorage.setItem('storeId', res.data.result.storeId)
-        router.push({path: "/dashboard"})
+        if(res.data.result.role == "STAFF")
+          router.push({path: "/administrator"})
+        else if(res.data.result.role == "CUSTOMER")
+          router.push({path: "/dashboard"})
       })
     } else if (res.data.code === '400') {
       errMsg.value = '登陆失败'

@@ -36,11 +36,14 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
-    Header: typeof import('./src/components/Header.vue')['default']
+    Header: typeof import('./src/components/GlobalHeader.vue')['default']
     ProductItem: typeof import('./src/components/ProductItem.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     StoreItem: typeof import('./src/components/StoreItem.vue')['default']
     StoreItems: typeof import('./src/components/StoreItems.vue')['default']
+  }
+  export interface ComponentCustomProperties {
+    vLoading: typeof import('element-plus/es')['ElLoadingDirective']
   }
 }

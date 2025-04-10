@@ -1,11 +1,11 @@
-<script setup lang="ts">
+<script setup>
+import GlobalHeader from './components/GlobalHeader.vue'
 
 </script>
 
 <template>
-  <el-container direction="vertical">
-    <router-view />
-  </el-container>
+  <GlobalHeader />
+  <router-view/>
 </template>
 
 <style scoped>

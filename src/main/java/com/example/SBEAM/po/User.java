@@ -55,6 +55,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
 
+    @Basic
+    @Column(name="avatar")
+    private String avatar;
+
     public UserVO toVO(){
         UserVO userVO=new UserVO();
         userVO.setId(this.id);
@@ -66,9 +70,7 @@ public class User {
         userVO.setPassword(this.password);
         userVO.setCreateTime(this.createTime);
         userVO.setBalance(this.balance);
+        userVO.setAvatar(this.avatar);
         return userVO;
-    }
-    public void updateBalance(double newBalance){
-        this.balance =this.balance+newBalance;
     }
 }

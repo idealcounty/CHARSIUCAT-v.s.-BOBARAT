@@ -65,6 +65,12 @@ public class UserServiceImpl implements UserService {
         if (userVO.getAddress()!=null){
             user.setAddress(userVO.getAddress());
         }
+        if(userVO.getAvatar()!=null){
+            user.setAvatar(userVO.getAvatar());
+        }
+        if(userVO.getAddress()!=null){
+            user.setAddress(userVO.getAddress());
+        }
         userRepository.save(user);
         return true;
     }
@@ -72,7 +78,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void depositBalance(Integer userId, double amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.updateBalance(amount);
+        user.setBalance(user.getBalance()+amount);
     }
 }
 

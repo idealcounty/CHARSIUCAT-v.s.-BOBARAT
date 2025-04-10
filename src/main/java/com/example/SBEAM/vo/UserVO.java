@@ -32,6 +32,7 @@ public class UserVO {
 
     private Double balance;
 
+    private String avatar;
     public User toPO(){
         User user=new User();
         user.setId(this.id);
@@ -43,6 +44,7 @@ public class UserVO {
         user.setPassword(this.password);
         user.setCreateTime(this.createTime);
         user.setBalance((double) 0);
+        user.setAvatar(this.avatar);
         return user;
     }
 }

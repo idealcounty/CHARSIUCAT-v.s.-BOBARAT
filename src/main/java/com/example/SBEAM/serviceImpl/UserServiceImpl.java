@@ -35,12 +35,12 @@ public class UserServiceImpl implements UserService {
         if (user != null) {
             throw SBEAMException.phoneAlreadyExists();
         }
-        Cart cart = new Cart(user.getId());
-        cartRepository.save(cart);
-
         User newUser = userVO.toPO();
         newUser.setCreateTime(new Date());
-        userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
+
+        Cart cart = new Cart(newUser.getId());
+        cartRepository.save(cart);
 
         return true;
     }

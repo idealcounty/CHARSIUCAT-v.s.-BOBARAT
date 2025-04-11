@@ -20,13 +20,16 @@ public class Cart {
 
     @Column(nullable = false)
     private Integer userId;
-
+    
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name="cart_item")
     private List<CartItem> cartItems;
 
     public Cart(Integer userId) {
         this.userId = userId;
         this.cartItems=new ArrayList<CartItem>();
+        CartItem cartItem=new CartItem(this,0,1,0.0);
+        this.cartItems.add(cartItem);
     }
     public CartVO toVO(){
         CartVO cartVO = new CartVO();

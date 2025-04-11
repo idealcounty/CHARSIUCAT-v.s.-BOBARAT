@@ -4,7 +4,7 @@ const router = createRouter({
     history: createWebHashHistory(),
     routes: [{
         path: '/',
-        component: () =>import('../views/store/Store.vue'),
+        component: () => import('../views/store/Store.vue'),
     }, {
         path: '/404',
         name: '404',
@@ -19,9 +19,17 @@ const router = createRouter({
         component: () => import('../views/user/Login.vue'),
         meta: {title: '用户登录'}
     }, {
+        path: '/admin',
+        component: () => import('../views/admin/Administrator.vue'),
+        meta: {title: '管理商品'},
+    }, {
+        path: '/createProduct',
+        component: () => import('../views/admin/CreateProduct.vue'),
+        meta: {title: '创建商品'}
+    }, {
         path: '/:catchAll(.*)',
         redirect: '/404'
-    }]
+    },]
 })
 
 router.beforeEach((to, _, next) => {

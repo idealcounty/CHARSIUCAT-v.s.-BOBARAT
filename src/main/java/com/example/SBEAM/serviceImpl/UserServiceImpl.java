@@ -2,6 +2,7 @@ package com.example.SBEAM.serviceImpl;
 
 import com.example.SBEAM.exception.SBEAMException;
 import com.example.SBEAM.po.User;
+import com.example.SBEAM.po.Cart;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.util.TokenUtil;
@@ -32,8 +33,10 @@ public class UserServiceImpl implements UserService {
         if (user != null) {
             throw SBEAMException.phoneAlreadyExists();
         }
+        Cart cart = new Cart(user.getId());
         User newUser = userVO.toPO();
         newUser.setCreateTime(new Date());
+
         userRepository.save(newUser);
         return true;
     }

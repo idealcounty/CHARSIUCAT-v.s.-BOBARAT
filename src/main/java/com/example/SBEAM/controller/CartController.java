@@ -21,6 +21,11 @@ public class CartController {
     public ResultVO<Boolean> updateCart(@PathVariable("productId") int productId,@RequestParam int numberOfProduct, @RequestBody CartVO cartVO) {
         return ResultVO.buildSuccess(cartService.updateCart(productId,numberOfProduct,cartVO));
     }
+    @GetMapping("/dashboard/{userId}/cart")
+    public List<CartItemVO> showAllCartItem(@PathVariable("userId") int userId) {
+        return ResultVO.buildSuccess(cartService.showAllCartItems(userId)).getResult();
+    }
+
     @PutMapping("/dashboard/{userId}/cart")
     public ResultVO<Boolean> settleAccount(@PathVariable("userId") int userId,@RequestBody CartVO cartVO){
         return ResultVO.buildSuccess(cartService.settleAccount(userId,cartVO));

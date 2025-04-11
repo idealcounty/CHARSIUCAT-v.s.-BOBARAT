@@ -1,8 +1,35 @@
-<script setup lang="ts">
-import { ref, computed } from 'vue'
+<script setup lang="ts" xmlns:https="http://www.w3.org/1999/xhtml">
+import { ref } from 'vue'
 
 const currentHour = ref(new Date().getHours())
-const keyword = ref('')
+const activeTab = ref(0)
+
+const tabs = [
+  {
+    name: '深渊之影',
+    title: '深渊之影',
+    images: [
+      'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2100150/ss_b79e7c206636cf13f46b7b9f641141216b7a2ece.600x338.jpg',
+      'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2100150/ss_b79e7c206636cf13f46b7b9f641141216b7a2ece.600x338.jpg',
+    ],
+  },
+  {
+    name: '幻境探险',
+    title: '幻境探险',
+    images: [
+      'https://via.placeholder.com/600x338?text=幻境1',
+      'https://via.placeholder.com/600x338?text=幻境2',
+    ],
+  },
+  {
+    name: '机械狂潮',
+    title: '机械狂潮',
+    images: [
+      'https://via.placeholder.com/600x338?text=机械1',
+      'https://via.placeholder.com/600x338?text=机械2',
+    ],
+  },
+]
 </script>
 
 <template>
@@ -120,6 +147,59 @@ const keyword = ref('')
         <RouterLink class="browse" to="">优惠</RouterLink>
         <RouterLink class="browse" to="">免费游戏</RouterLink>
         <RouterLink class="browse" to="">按用户标签</RouterLink>
+      </div>
+    </div>
+    <div class="home_ctn tab_container" style="overflow: visible;">
+      <div class="home_page_content home_tabs_row_ctn">
+        <div class="store_horizontal_minislider_ctn" style="height: 31px;">
+          <div class="home_tabs_row store_horizontal_minislider">
+            <div class="home_tab">
+              <div class="tab_content">商品列表</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="home_page_content flex_cols">
+        <div class="home_leftcol home_tab_col">
+          <div class="home_tabs_content">
+            <a
+              v-for="(tab, index) in tabs"
+              :key="index"
+              class="tab_item"
+              @mouseenter="activeTab = index"
+            >
+              <div class="tab_item_cap">
+                <img class="tab_item_cap_img" src="https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2100150/capsule_184x69_schinese.jpg?t=1744250803">
+              </div>
+              <div class="discount_block tab_item_discount">
+                <div class="discount_pct">-30%</div>
+                <div class="discount_prices">
+                  <div class="discount_original_price">48.00</div>
+                  <div class="discount_final_price">33.60</div>
+                </div>
+              </div>
+              <div class="tab_item_content">
+                <div class="tab_item_name">深渊之影</div>
+              </div>
+              <div style="clear: both;"></div>
+              <div class="ds_options"><div></div></div>
+            </a>
+          </div>
+        </div>
+        <div class="home_rightcol">
+          <div class="tab_preview_container">
+            <div class="tab_preview">
+              <h2 class="tab_preview_title">{{ tabs[activeTab].title }}</h2>
+              <img
+                  v-for="(img, i) in tabs[activeTab].images"
+                  :key="i"
+                  class="screenshot"
+                  :src="img"
+              />
+            </div>
+          </div>
+        </div>
+        <div style="clear: both;"></div>
       </div>
     </div>
   </div>
@@ -620,5 +700,313 @@ const keyword = ref('')
   &:hover {
     background: linear-gradient(90deg, #06BFFF 30%, #2D73FF 100%);
   }
+}
+
+.home_ctn {
+  padding-left: 2%;
+  padding-right: 2%;
+  padding-bottom: 20px;
+  padding-top: 20px;
+  overflow: hidden;
+}
+
+.home_ctn.tab_container {
+  background: linear-gradient( to bottom, rgba(42,71,94,1.0) 5%, rgba(42,71,94,0.0) 70%);
+  padding-top: 1px;
+  margin-top: 60px;
+}
+
+.home_page_content {
+  position: relative;
+  width: 940px;
+  margin: 0 auto;
+}
+
+.home_tabs_row_ctn {
+  margin-bottom: 38px;
+  width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.store_horizontal_minislider_ctn {
+  position: relative;
+  overflow: hidden;
+}
+
+.home_tab {
+  border: none;
+  display: inline-block;
+  margin-right: 0px;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  font-size: 13px;
+  color: #2f89bc;
+  line-height: 24px;
+  cursor: pointer;
+  vertical-align: top;
+  background: transparent;
+  margin-top: 0;
+  box-shadow: none;
+  padding: 1px;
+}
+
+.tab_content {
+  border: none;
+  background-color: #2a475e;
+  line-height: 29px;
+  font-size: 14px;
+  color: #ffffff;
+  background: #1a2737;
+  text-shadow: -1px -1px rgba( 0, 0, 0, 0.25 );
+  cursor: default;
+  margin-top: 0;
+  box-shadow: none;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding: 0 10px;
+  vertical-align: top;
+}
+
+.flex_cols {
+  display: flex;
+  flex-direction: row;
+}
+
+.home_leftcol {
+  float: none;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.home_tab_col {
+  position: relative;
+}
+
+.home_tabs_content {
+  min-height: 775px;
+}
+
+.tab_item {
+  position: relative;
+  display: block;
+  background: rgba(0, 0, 0, 0.2); /* 默认背景 */
+  height: 69px;
+  margin-bottom: 5px;
+  padding-left: 198px;
+  -webkit-text-size-adjust: none;
+  overflow: visible;     /* 让伪元素能扩展出组件本体 */
+  z-index: 0;
+}
+
+/* 背景伪元素 */
+.tab_item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+
+  z-index: -1;
+  transition: width 0s ease;
+  border-radius: 8px;
+  pointer-events: none;
+}
+
+.tab_item:hover::before {
+  background: linear-gradient(to right, #c6e6f8 5%, #95bcd3 95%);
+  width: 600px;
+}
+
+.tab_item:hover .tab_item_name{
+  color: #10161b;
+}
+
+.tab_item:hover .discount_final_price {
+  color: #263645;
+}
+
+.tab_item_cap {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 3;
+  line-height: 69px;
+  transition: opacity 0.25s;
+}
+
+img {
+  border: none;
+  overflow-clip-margin: content-box;
+  overflow: clip;
+}
+
+.discount_block {
+  position: relative;
+  display: flex;
+}
+
+.tab_item_discount {
+  display: flex;
+  justify-content: space-between;
+  float: right;
+  margin-right: 16px;
+  background: none;
+  margin-top: 23px;
+  width: 133px;
+  text-align: right;
+}
+
+.tab_item_discount
+.discount_pct {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 18px;
+  padding: 0 4px;
+  border-radius: 1px;
+}
+
+.discount_block
+.discount_pct,
+.discount_pct {
+  font-family: "Motiva Sans", sans-serif;
+  font-weight: 500;
+  color: #BEEE11;
+  background: #4c6b22;
+}
+
+.discount_prices {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  justify-content: center;
+  padding-left: 4px;
+}
+
+.discount_original_price {
+  position: relative;
+  width: fit-content;
+  color: #738895;
+  font-size: 11px;
+  line-height: 12px;
+}
+
+.discount_original_price::before {
+  content: '';
+  left: 0px;
+  right: 0px;
+  position: absolute;
+  top: 43%;
+  border-bottom: 1.5px solid #738895;
+  transform: skewY(-8deg);
+  box-shadow: 0 0 2px black;
+}
+
+.discount_final_price {
+  color: #BEEE11;
+  line-height: 16px;
+  font-size: 15px;
+}
+
+.tab_item_content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-top: 6px;
+  font-size: 12px;
+  width: 217px;
+}
+
+.tab_item_name {
+  color: #c7d5e0;
+  font-size: 1.25em;
+  line-height: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+  overflow: hidden;
+  transition: color 0.25s;
+}
+
+.ds_options {
+  display: block;
+  position: absolute;
+  top: 0px;
+  right: -5px;
+  cursor: pointer;
+  opacity: 0;
+  padding: 5px 5px 0 0;
+  transition: opacity 0.2s, right 0.2s;
+  z-index: 15;
+}
+
+h2 {
+  font-family: "Motiva Sans", sans-serif;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0 0 10px;
+  font-weight: normal;
+  padding-top: 2px;
+}
+
+.home_rightcol {
+  flex: 1;
+  margin-left: 14px;
+  float: none;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  width: 308px;
+}
+
+.tab_preview_container {
+  flex: 1;
+  position: relative;
+  background: radial-gradient(69% 62% at 100% 16%, #b4cfe1 0%, #95bbd4 100%);
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.tab_preview {
+  position: absolute;
+  top: 9px;
+  left: 16px;
+  opacity: 0;
+  transition: opacity 300ms;
+  pointer-events: none;
+  width: 292px;
+
+  opacity: 1.0;
+  pointer-events: auto;
+}
+
+.tab_preview_title {
+  text-transform: none;
+  font-size: 21px;
+  letter-spacing: 0px;
+  color: #263645;
+  height: 30px;
+  padding-right: 8px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  display: block;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+
+.screenshot {
+  width: 258px;
+  height: 134px;
+  margin-top: 3px;
+  background-size: cover;
+  background-position: center center;
+  padding: 8px;
 }
 </style>

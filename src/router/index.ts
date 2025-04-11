@@ -27,6 +27,10 @@ const router = createRouter({
         component: () => import('../views/admin/CreateProduct.vue'),
         meta: {title: '创建商品'}
     }, {
+        path: '/wishlist',
+        component: () => import('../views/user/WishList.vue'),
+        meta: {title: '创建商品'}
+    },{
         path: '/:catchAll(.*)',
         redirect: '/404'
     },]

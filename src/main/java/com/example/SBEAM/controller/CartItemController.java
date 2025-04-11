@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public class CartItemController {
     @Autowired
     CartItemService cartItemService;
-    @PostMapping("/product/createProduct2")
+    @PostMapping("/product/createProduct2")//可能用不到
     public ResultVO<Boolean> createCart(@RequestBody CartItemVO cartItemVO) {
         return ResultVO.buildSuccess(cartItemService.createCartItem(cartItemVO));
     }

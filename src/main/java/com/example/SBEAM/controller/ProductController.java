@@ -21,9 +21,9 @@ public class ProductController {
         public ResultVO<List<ProductVO>> getAllProductsByStoreId(@RequestParam("storeId") Integer storeId) {
                 return ResultVO.buildSuccess(productService.getAllProductsByStoreId(storeId));
         }
-        @DeleteMapping("")//路径尚未确定
-        public ResultVO<Boolean> deleteProduct(@RequestBody ProductVO productVO) {
-                boolean success = productService.deleteProduct(productVO);
+        @DeleteMapping("/product/deleteProduct")
+        public ResultVO<Boolean> deleteProduct(@RequestBody Integer productId) {
+                boolean success = productService.deleteProduct(productId);
                 if (success) {
                         return ResultVO.buildSuccess(true);
                 }
@@ -31,16 +31,16 @@ public class ProductController {
                         return ResultVO.buildFailure("商品不存在，删除失败");
                 }
         }
-        @GetMapping("/store1")//路径尚未确定
+        @GetMapping("/product")
         public ResultVO<List<ProductVO>> getAllProducts() {
                 return ResultVO.buildSuccess(productService.getAllProducts());
         }
-        @GetMapping("/store2")//路径尚未确定
+        @GetMapping("/product/search")
         public ResultVO<ProductVO> getProductByProductId(@RequestParam Integer productId) {
                 return ResultVO.buildSuccess(productService.getProductByProductId(productId));
         }
-        @PutMapping("3")//路径尚未确定
-                public ResultVO<Boolean> updateProduct(@RequestParam Integer productId, @RequestBody ProductVO productVO) {
+        @PutMapping("/product/productDetail/{productId}")
+                public ResultVO<Boolean> updateProduct(@PathVariable int productId, @RequestBody ProductVO productVO) {
                 boolean success = productService.updateProduct(productId, productVO);
                 if (success) {
                         return ResultVO.buildSuccess(true);
@@ -49,12 +49,12 @@ public class ProductController {
                         return ResultVO.buildFailure("商品不存在，更新失败");
                 }
         }
-        @PutMapping("4")
-        public ResultVO<Boolean> updateProductAmount(@RequestParam Integer productId,@RequestParam Integer productAmount) {
+        @GetMapping("/product/productDetail/{productId}")
+        public ResultVO<Boolean> updateProductAmount(@PathVariable int productId,@RequestParam Integer productAmount) {
                 return ResultVO.buildSuccess(productService.updateProductAmount(productId,productAmount));
         }
-        @PutMapping("5")
-        public ResultVO<Boolean> updateProductDiscount(@RequestParam Integer productId,@RequestParam Double productDiscount) {
+        @PatchMapping("/product/productDetail/{productId}")
+        public ResultVO<Boolean> updateProductDiscount(@PathVariable int productId,@RequestParam Double productDiscount) {
                 return ResultVO.buildSuccess(productService.updateProductDiscount(productId,productDiscount));
         }
 }

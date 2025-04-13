@@ -14,6 +14,8 @@ const productDescription = ref('')
 const productLogo = ref('')
 const productImages = ref([])
 
+const activeImage = ref(1)
+
 const loadData = async () => {
   const res = await getProductByProductId(Number(product_id))
   productVO.value = res.data.result
@@ -74,15 +76,43 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <div style="clear: left;"></div>
     <!--主体-->
     <div class="block game_media_and_summary_ctn">
       <div class="game_background_glow">
         <div class="block_content page_content">
-          <div class="leftcol">
-
-          </div>
+          <!--右栏-->
           <div class="rightcol">
-
+            <div class="glance_ctn">
+              <div class="game_header_image_ctn">
+                <img class="game_header_image_full" :src="productLogo">
+              </div>
+              <div class="game_description_snippet">{{ productDescription }}</div>
+            </div>
+          </div>
+          <!--左栏-->
+          <div class="leftcol">
+            <div class="highlight_ctn">
+              <div class="highlight_overflow">
+                <div class="highlight_player_area">
+                  <img
+                      class="highlight_player_item highlight_screenshot"
+                      :src="productImages[activeImage]"
+                  >
+                </div>
+                <div class="highlight_strip">
+                  <div class="highlight_strip_scroll">
+                    <img
+                        class="highlight_strip_item highlight_strip_screenshot"
+                        v-for="(img,i) in productImages"
+                        :src="img"
+                        :key="i"
+                        @mouseenter="activeImage = i"
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div style="clear: both;"></div>
         </div>
@@ -95,6 +125,11 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+* {
+  margin: 0;
+  padding: 0;
+}
+
 .app {
   position: relative;
   display: flex;
@@ -237,5 +272,100 @@ onMounted(async () => {
   text-overflow: ellipsis;
 }
 
+.game_background_glow {
+  background: url( '../../assets/game_page_background_shadow.png?v=2' );
+  background-position: bottom;
+  padding-bottom: 1px;
+  background-repeat: no-repeat;
+  margin: 0px auto;
+}
 
+.leftcol {
+  width: 616px;
+  float: left;
+}
+
+.highlight_overflow {
+  overflow: hidden;
+  margin-right: 16px;
+  position: relative;
+}
+
+.highlight_player_area {
+  background-color: #000000;
+  overflow: hidden;
+  position: relative;
+  width: 600px;
+  height: 337px;
+}
+
+.highlight_player_item {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  width: 600px;
+  height: 337px;
+}
+
+.highlight_strip {
+  margin-top: 4px;
+  position: relative;
+  height: 69px;
+  margin-bottom: 4px;
+  z-index: 40;
+}
+
+.highlight_strip_scroll {
+  position: absolute;
+}
+
+.highlight_strip_item {
+  float: left;
+  height: 65px;
+  width: 116px;
+  cursor: pointer;
+  text-align: center;
+  margin: 2px;
+  background-color: #000000;
+  position: relative;
+}
+
+.rightcol {
+  width: 324px;
+  margin-left: 0px;
+  float: right;
+}
+
+img {
+  -webkit-user-drag: none;
+  border: none;
+}
+
+.glance_ctn {
+  padding: 0px 0px 0px 0px;
+}
+
+.game_header_image_ctn {
+  margin-bottom: 7px;
+}
+
+.game_header_image_full {
+  width: 324px;
+  height: 151px;
+}
+
+.game_description_snippet {
+  max-height: 111px;
+  overflow: hidden;
+  font-size: 13px;
+  line-height: 18px;
+  padding-right: 16px;
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  -webkit-box-orient: vertical;
+  color: #ffffff;
+}
 </style>

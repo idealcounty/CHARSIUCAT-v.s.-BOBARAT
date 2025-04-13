@@ -9,33 +9,6 @@ const productList = ref<ProductInfo[]>([])
 getAllProducts().then(res => {
   productList.value = res.data.result
 })
-
-const tabs = [
-  {
-    name: '深渊之影',
-    title: '深渊之影',
-    images: [
-      'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2100150/ss_b79e7c206636cf13f46b7b9f641141216b7a2ece.600x338.jpg',
-      'https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2100150/ss_b79e7c206636cf13f46b7b9f641141216b7a2ece.600x338.jpg',
-    ],
-  },
-  {
-    name: '幻境探险',
-    title: '幻境探险',
-    images: [
-      'https://via.placeholder.com/600x338?text=幻境1',
-      'https://via.placeholder.com/600x338?text=幻境2',
-    ],
-  },
-  {
-    name: '机械狂潮',
-    title: '机械狂潮',
-    images: [
-      'https://via.placeholder.com/600x338?text=机械1',
-      'https://via.placeholder.com/600x338?text=机械2',
-    ],
-  },
-]
 </script>
 
 <template>
@@ -784,6 +757,7 @@ const tabs = [
   min-width: 0;
   display: flex;
   flex-direction: column;
+  width: 618px;
 }
 
 .home_tab_col {
@@ -823,7 +797,7 @@ const tabs = [
 
 .tab_item:hover::before {
   background: linear-gradient(to right, #c6e6f8 5%, #95bcd3 95%);
-  width: 600px;
+  width: 650px;
 }
 
 .tab_item:hover .tab_item_name{
@@ -832,6 +806,11 @@ const tabs = [
 
 .tab_item:hover .discount_final_price {
   color: #263645;
+}
+
+.tab_item_cap_img {
+  width: 184px;
+  height: 69px;
 }
 
 .tab_item_cap {

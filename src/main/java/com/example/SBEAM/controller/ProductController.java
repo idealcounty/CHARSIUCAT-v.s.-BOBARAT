@@ -35,7 +35,7 @@ public class ProductController {
         public ResultVO<List<ProductVO>> getAllProducts() {
                 return ResultVO.buildSuccess(productService.getAllProducts());
         }
-        @GetMapping("/store2")//路径尚未确定
+        @GetMapping("/search/{productId}")//路径尚未确定
         public ResultVO<ProductVO> getProductByProductId(@RequestParam Integer productId) {
                 return ResultVO.buildSuccess(productService.getProductByProductId(productId));
         }

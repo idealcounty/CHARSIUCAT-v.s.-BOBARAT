@@ -9,7 +9,7 @@ const router = createRouter({
         path: '/:product_id',
         name: 'detail',
         component: () => import('../views/store/Detail.vue'),
-    },{
+    }, {
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),
@@ -31,10 +31,14 @@ const router = createRouter({
         component: () => import('../views/admin/CreateProduct.vue'),
         meta: {title: '创建商品'}
     }, {
+        path: '/updateProduct/:product_id',
+        component: () => import('../views/admin/UpdateProduct.vue'),
+        meta: {title: '更新商品信息'}
+    }, {
         path: '/wishlist',
         component: () => import('../views/user/WishList.vue'),
         meta: {title: '创建商品'}
-    },{
+    }, {
         path: '/:catchAll(.*)',
         redirect: '/404'
     },]

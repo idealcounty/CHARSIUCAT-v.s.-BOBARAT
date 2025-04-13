@@ -20,9 +20,9 @@ export const createProduct = (productInfo: ProductInfo) => {
         })
 }
 
-// 获取商店下所有商品
-export const getProductsByStoreId = (storeId: number) => {
-    return axios.get(`${PRODUCT_MODULE}/?storeId=${storeId}`)
+// 获取所有商品
+export const getAllProducts = () => {
+    return axios.get(`${PRODUCT_MODULE}`)
         .then(res => {
             return res
         })

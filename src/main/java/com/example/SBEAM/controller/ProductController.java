@@ -21,8 +21,8 @@ public class ProductController {
         public ResultVO<List<ProductVO>> getAllProductsByStoreId(@RequestParam("storeId") Integer storeId) {
                 return ResultVO.buildSuccess(productService.getAllProductsByStoreId(storeId));
         }
-        @DeleteMapping("/product/deleteProduct")
-        public ResultVO<Boolean> deleteProduct(@RequestBody Integer productId) {
+        @DeleteMapping("/product/deleteProduct/{productId}")
+        public ResultVO<Boolean> deleteProduct(@PathVariable int productId) {
                 boolean success = productService.deleteProduct(productId);
                 if (success) {
                         return ResultVO.buildSuccess(true);
@@ -50,11 +50,11 @@ public class ProductController {
                 }
         }
         @GetMapping("/product/productDetail/{productId}")
-        public ResultVO<Boolean> updateProductAmount(@PathVariable int productId,@RequestParam Integer productAmount) {
+        public ResultVO<Boolean> updateProductAmount(@PathVariable int productId,@RequestBody Integer productAmount) {
                 return ResultVO.buildSuccess(productService.updateProductAmount(productId,productAmount));
         }
         @PatchMapping("/product/productDetail/{productId}")
-        public ResultVO<Boolean> updateProductDiscount(@PathVariable int productId,@RequestParam Double productDiscount) {
+        public ResultVO<Boolean> updateProductDiscount(@PathVariable int productId,@RequestBody Double productDiscount) {
                 return ResultVO.buildSuccess(productService.updateProductDiscount(productId,productDiscount));
         }
 }

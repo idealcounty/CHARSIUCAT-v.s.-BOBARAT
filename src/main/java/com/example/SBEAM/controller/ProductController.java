@@ -36,7 +36,7 @@ public class ProductController {
                 return ResultVO.buildSuccess(productService.getAllProducts());
         }
         @GetMapping("/product/search/{productId}")
-        public ResultVO<ProductVO> getProductByProductId(@RequestParam Integer productId) {
+        public ResultVO<ProductVO> getProductByProductId(@PathVariable int productId) {
                 return ResultVO.buildSuccess(productService.getProductByProductId(productId));
         }
         @PutMapping("/product/productDetail/{productId}")

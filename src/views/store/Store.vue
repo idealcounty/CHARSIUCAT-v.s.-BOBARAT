@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { router } from '../../router'
 import { getAllProducts, ProductInfo } from "../../api/product.ts";
 
 const currentHour = ref(new Date().getHours())
@@ -10,10 +9,6 @@ const productList = ref<ProductInfo[]>([])
 getAllProducts().then(res => {
   productList.value = res.data.result
 })
-
-function JumpToDetail(product_id: number) {
-  router.push({name:"detail",params:{product_id:product_id}});
-}
 </script>
 
 <template>
@@ -22,16 +17,34 @@ function JumpToDetail(product_id: number) {
     <div class="store-background"
          :class="{ 'store-background_day': currentHour >= 6 && currentHour < 18, 'store-background_night': currentHour < 6 || currentHour >= 18 }"></div>
     <!-- 导航栏 -->
+    <!-- 导航栏 -->
     <div class="store-header">
-<!--      <RouterLink v-if="token" class="wishlist" to="wishlist">愿望单<span v-if="wishlistSize > 0"> ({{ wishlistSize }})</span></RouterLink>-->
-<!--      <div v-else class="wishlist-area"/>-->
-      <div class="store-nav">
-        <RouterLink class="store-nav-tab" to="">您的商店</RouterLink>
-        <RouterLink class="store-nav-tab" to="">新鲜推荐</RouterLink>
-        <RouterLink class="store-nav-tab" to="">类别</RouterLink>
-        <RouterLink class="store-nav-tab" to="">点数商店</RouterLink>
-        <RouterLink class="store-nav-tab" to="">新闻</RouterLink>
-        <RouterLink class="store-nav-tab" to="">实验室</RouterLink>
+      <div class="content">
+        <div class="store_controls">
+          <div class="cart_status_flex">
+            <div class="store_header_btn_gray store-header_btn">
+              <div class="store_header_btn_caps store_header_btn_leftcap"></div>
+              <div class="store_header_btn_caps store_header_btn_rightcap"></div>
+              <router-link class="store_header_btn_content" to="">
+                愿望单（24)
+              </router-link>
+            </div>
+          </div>
+        </div>
+        <div class="store_nav_area">
+          <div class="store_nav_leftcap"></div>
+          <div class="store_nav_bg">
+            <div class="store_nav">
+              <RouterLink class="store-nav-tab" to="">您的商店</RouterLink>
+              <RouterLink class="store-nav-tab" to="">新鲜推荐</RouterLink>
+              <RouterLink class="store-nav-tab" to="">类别</RouterLink>
+              <RouterLink class="store-nav-tab" to="">点数商店</RouterLink>
+              <RouterLink class="store-nav-tab" to="">新闻</RouterLink>
+              <RouterLink class="store-nav-tab" to="">实验室</RouterLink>
+            </div>
+          </div>
+          <div class="store_nav_rightcap"></div>
+        </div>
 <!--        <div class="search">-->
 <!--          <input v-model="keyword" class="search-input" placeholder="搜索" @input="getSearchSuggestionsDebounce()">-->
 <!--          <RouterLink class="search-button" to=""/>-->
@@ -151,7 +164,7 @@ function JumpToDetail(product_id: number) {
               :key="index"
               class="tab_item"
               @mouseenter="activeTab = index"
-              :to="{name:'detail',params:{ product_id:product.productId }}"
+              :to="{ name:'detail',params:{ product_id:product.productId }}"
             >
               <div class="tab_item_cap">
                 <img class="tab_item_cap_img" :src="product.productLogo">
@@ -236,40 +249,70 @@ function JumpToDetail(product_id: number) {
   margin: 7px auto 550px auto;
 }
 
-.wishlist-area {
-  height: 20px;
-  margin-bottom: 4px;
+.content {
+  height: 66px;
+  position: relative;
+  width: 940px;
+  margin: 0 auto;
+  z-index: 300;
 }
 
-.wishlist {
-  width: max-content;
-  min-width: 50px;
-  height: 20px;
-  padding: 0 25px;
-  margin: 0 0 4px auto;
-  color: #ffffff;
+.store_controls {
+  top: 8px;
+  position: absolute;
+  right: 0;
+  top: 10px;
+  text-align: right;
+  z-index: 300;
   font-size: 11px;
-  font-family: Arial, Helvetica, sans-serif;
-  text-decoration: none;
-  text-align: center;
-  line-height: 20px;
-  background-color: #6e96a0;
-  background-image: url("../../assets/background_wishlist.jpg");
-  background-size: cover;
-  box-shadow: 0 0 3px #000000;
-
-  &:hover {
-    color: #111111;
-    background-image: linear-gradient(135deg, #ffffff, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
-  }
 }
 
-.store-nav {
+.store_controls:hover .store_header_btn_gray {
+  background: linear-gradient(to right, #e4ebf1, #c7d0da);;
+}
+
+.store_controls:hover .store_header_btn_content {
+  color: #000000;
+}
+
+.cart_status_flex {
   display: flex;
-  align-items: center;
-  height: 35px;
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
+}
+
+.store_header_btn_gray {
+  background-image: url( '../../assets/background_wishlist.jpg' );
+  background-color: rgba( 255, 255, 255, 0.4 );
+  background-position: -34px 20px;
+}
+
+.store_header_btn_content {
+  display: inline-block;
+  padding: 0 25px;
+  margin: 0 1px;
+  line-height: 20px;
+  text-align: center;
+  font-size: 11px;
+  color: #ffffff;
+}
+
+.store_nav_area {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 24px;
+  height: 49px;
+}
+
+.store_nav_bg {
   background: linear-gradient(90deg, rgba(62, 103, 150, 0.919) 11.38%, rgba(58, 120, 177, 0.8) 25.23%, rgb(15, 33, 110) 100%);
+  box-shadow: 0 0 3px rgba( 0, 0, 0, 0.4);
+  height: 35px;
+  margin: 7px 0;
+}
+
+.store_nav {
+  height: 35px;
+  display: flex;
 }
 
 .store-nav-tab {

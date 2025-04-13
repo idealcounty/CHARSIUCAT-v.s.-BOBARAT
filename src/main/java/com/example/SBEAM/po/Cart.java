@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -21,8 +22,15 @@ public class Cart {
     private Integer userId;
 
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name="cart_item")
     private List<CartItem> cartItems;
 
+    public Cart(Integer userId) {
+        this.userId = userId;
+        this.cartItems=new ArrayList<CartItem>();
+        CartItem cartItem=new CartItem(this,0,1,0.0);
+        this.cartItems.add(cartItem);
+    }
     public CartVO toVO(){
         CartVO cartVO = new CartVO();
         cartVO.setCartId(this.getCartId());

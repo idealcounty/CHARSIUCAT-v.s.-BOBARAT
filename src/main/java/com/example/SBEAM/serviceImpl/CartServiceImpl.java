@@ -1,9 +1,6 @@
 package com.example.SBEAM.serviceImpl;
 import com.example.SBEAM.exception.SBEAMException;
-import com.example.SBEAM.po.Cart;
-import com.example.SBEAM.po.CartItem;
-import com.example.SBEAM.po.Product;
-import com.example.SBEAM.po.User;
+import com.example.SBEAM.po.*;
 import com.example.SBEAM.repository.CartRepository;
 import com.example.SBEAM.repository.ProductRepository;
 import com.example.SBEAM.repository.UserRepository;
@@ -75,4 +72,10 @@ public class CartServiceImpl implements CartService{
         return true;
     }
 
+    @Override
+    public List<CartItemVO>showAllCartItems(int userId){
+        Cart cart = cartRepository.findByCartId(userId);
+        List<CartItem> cartItems = cart.getCartItems();
+        return cartItems.stream().map(CartItem::toVO).collect(Collectors.toList());
+    }
 }

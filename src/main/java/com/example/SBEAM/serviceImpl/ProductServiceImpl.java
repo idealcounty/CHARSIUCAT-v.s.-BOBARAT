@@ -49,12 +49,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean deleteProduct(ProductVO productVO) {
-        Product product = productRepository.findByProductId(productVO.getProductId());
+    public Boolean deleteProduct(Integer productId) {
+        Product product = productRepository.findByProductId(productId);
         if (product == null) {
             throw SBEAMException.productNotExists();
         }
-        Integer productId = product.getProductId();
         if (!productRepository.existsById(productId)) {
             return false;
         }

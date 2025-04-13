@@ -2,6 +2,8 @@ package com.example.SBEAM.serviceImpl;
 
 import com.example.SBEAM.exception.SBEAMException;
 import com.example.SBEAM.po.User;
+import com.example.SBEAM.po.Cart;
+import com.example.SBEAM.repository.CartRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.util.TokenUtil;
@@ -18,7 +20,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     UserRepository userRepository;
-
+    @Autowired
+    CartRepository cartRepository;
     @Autowired
     TokenUtil tokenUtil;
 
@@ -34,7 +37,11 @@ public class UserServiceImpl implements UserService {
         }
         User newUser = userVO.toPO();
         newUser.setCreateTime(new Date());
-        userRepository.save(newUser);
+        newUser = userRepository.save(newUser);
+
+        Cart cart = new Cart(newUser.getId());
+        cartRepository.save(cart);
+
         return true;
     }
 

@@ -33,8 +33,8 @@ public class UserController {
         return ResultVO.buildSuccess(userService.updateInformation(userVO));
     }
 
-    @PutMapping
-    public ResultVO<Void> deposit(@RequestParam Integer userId, @RequestParam double amount){
+    @PutMapping("/{userId}")
+    public ResultVO<Void> deposit(@PathVariable int userId, @RequestParam double amount){
         userService.depositBalance(userId,amount);
         return ResultVO.buildSuccess();
     }

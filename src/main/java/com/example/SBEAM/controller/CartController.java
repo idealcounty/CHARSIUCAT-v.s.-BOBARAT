@@ -13,15 +13,20 @@ import java.util.List;
 public class CartController {
     @Autowired
     CartService cartService;
-    @PostMapping("/product/createProduct1")
+    @PostMapping("/product/createCart")//这个不太清楚会不会用到
     public ResultVO<Boolean> createCart(@RequestBody CartVO cartVO) {
         return ResultVO.buildSuccess(cartService.createCart(cartVO));
     }
-    @PutMapping("/product/{productId}/cart")
+    @PutMapping("/product/productDetail/{productId}/cart")
     public ResultVO<Boolean> updateCart(@PathVariable("productId") int productId,@RequestParam int numberOfProduct, @RequestBody CartVO cartVO) {
         return ResultVO.buildSuccess(cartService.updateCart(productId,numberOfProduct,cartVO));
     }
-    @PutMapping("/dashboard/{userId}/cart")
+    @GetMapping("/users/{userId}/cart")
+    public List<CartItemVO> showAllCartItem(@PathVariable("userId") int userId) {
+        return ResultVO.buildSuccess(cartService.showAllCartItems(userId)).getResult();
+    }
+
+    @PutMapping("/users/{userId}/cart")
     public ResultVO<Boolean> settleAccount(@PathVariable("userId") int userId,@RequestBody CartVO cartVO){
         return ResultVO.buildSuccess(cartService.settleAccount(userId,cartVO));
     }

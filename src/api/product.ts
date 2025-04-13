@@ -30,7 +30,7 @@ export const getAllProducts = () => {
 }
 
 // 根据商品Id获取商品信息
-export const getProductById = (productId: number) => {
+export const getProductByProductId = (productId: number) => {
     return axios.get(`${PRODUCT_MODULE}/${productId}`)
         .then(res => {
             return res

@@ -19,7 +19,6 @@ function jumpToUpdate(product_id: number) {
 
 async function deleteProduct(product_id: number) {
   await deleteProductById(product_id)
-  // 删除后重新获取商品列表
   const res = await getAllProducts()
   productList.value = res.data.result
 }

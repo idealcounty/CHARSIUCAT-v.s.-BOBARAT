@@ -31,7 +31,16 @@ export const getAllProducts = () => {
 
 // 根据商品Id获取商品信息
 export const getProductByProductId = (productId: number) => {
-    return axios.get(`${PRODUCT_MODULE}/${productId}`)
+    return axios.get(`${PRODUCT_MODULE}/search/${productId}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 根据商品Id更新商品信息
+export const updateProductByProductId = (productId: number, productInfo: ProductInfo) => {
+    return axios.put(`${PRODUCT_MODULE}/productDetail/${productId}`, productInfo,
+        {headers: {'Content-Type': 'application/json'}})
         .then(res => {
             return res
         })

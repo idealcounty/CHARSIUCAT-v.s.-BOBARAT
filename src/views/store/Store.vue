@@ -1,8 +1,14 @@
-<script setup lang="ts" xmlns:https="http://www.w3.org/1999/xhtml">
+<script setup lang="ts">
 import { ref } from 'vue'
+import { getAllProducts, ProductInfo } from "../../api/product.ts";
 
 const currentHour = ref(new Date().getHours())
 const activeTab = ref(0)
+const productList = ref<ProductInfo[]>([])
+
+getAllProducts().then(res => {
+  productList.value = res.data.result
+})
 
 const tabs = [
   {
@@ -163,23 +169,23 @@ const tabs = [
         <div class="home_leftcol home_tab_col">
           <div class="home_tabs_content">
             <a
-              v-for="(tab, index) in tabs"
+              v-for="(product, index) in productList"
               :key="index"
               class="tab_item"
               @mouseenter="activeTab = index"
             >
               <div class="tab_item_cap">
-                <img class="tab_item_cap_img" src="https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/2100150/capsule_184x69_schinese.jpg?t=1744250803">
+                <img class="tab_item_cap_img" :src="product.productLogo">
               </div>
               <div class="discount_block tab_item_discount">
-                <div class="discount_pct">-30%</div>
+                <div class="discount_pct">-{{ product.productDiscount }}%</div>
                 <div class="discount_prices">
-                  <div class="discount_original_price">48.00</div>
-                  <div class="discount_final_price">33.60</div>
+                  <div class="discount_original_price">{{ (product.productPrice).toFixed(2) }}</div>
+                  <div class="discount_final_price">{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
                 </div>
               </div>
               <div class="tab_item_content">
-                <div class="tab_item_name">深渊之影</div>
+                <div class="tab_item_name">{{ product.productName }}</div>
               </div>
               <div style="clear: both;"></div>
               <div class="ds_options"><div></div></div>
@@ -189,9 +195,9 @@ const tabs = [
         <div class="home_rightcol">
           <div class="tab_preview_container">
             <div class="tab_preview">
-              <h2 class="tab_preview_title">{{ tabs[activeTab].title }}</h2>
+              <h2 class="tab_preview_title">{{ productList[activeTab].productName }}</h2>
               <img
-                  v-for="(img, i) in tabs[activeTab].images"
+                  v-for="(img, i) in productList[activeTab].productImages"
                   :key="i"
                   class="screenshot"
                   :src="img"

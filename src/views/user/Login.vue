@@ -36,7 +36,7 @@ function handleLogin() {
         sessionStorage.setItem('role', res.data.result.role)
         sessionStorage.setItem('storeId', res.data.result.storeId)
         if(res.data.result.role == "STAFF")
-          router.push({path: "/administrator"})
+          router.push({path: "/admin"})
         else if(res.data.result.role == "CUSTOMER")
           router.push({path: "/"})
       })

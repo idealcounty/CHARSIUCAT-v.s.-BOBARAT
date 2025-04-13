@@ -35,8 +35,6 @@ const hasConfirmPasswordInput = computed(() => confirmPassword.value != '')
 const hasAddressInput = computed(() => address.value != '')
 // 身份是否为空
 const hasIdentityChosen = computed(() => identity.value != '')
-// 对于商家用户，商店Id是否为空
-const hasStoreName = computed(() => storeId.value != undefined)
 // 电话号码的规则
 const chinaMobileRegex = /^1(3[0-9]|4[579]|5[0-35-9]|6[2567]|7[0-8]|8[0-9]|9[189])\d{8}$/
 const telLegal = computed(() => chinaMobileRegex.test(tel.value))
@@ -51,7 +49,7 @@ const registerDisabled = computed(() => {
         telLegal.value && isPasswordIdentical.value)
   } else if (identity.value == 'STAFF') {
     return !(hasTelInput.value && hasPasswordInput.value && hasConfirmPasswordInput && hasAddressInput.value &&
-        hasStoreName.value && telLegal.value && isPasswordIdentical.value)
+        telLegal.value && isPasswordIdentical.value)
   }
 })
 
@@ -155,6 +153,7 @@ function handleRegister() {
             <input type="password" v-model="confirmPassword" class="input">
           </div>
         </div>
+
         <div class="identity">
           <div class="label">
             身份
@@ -167,19 +166,6 @@ function handleRegister() {
               <option value="CUSTOMER">顾客</option>
               <option value="STAFF">商家</option>
             </select>
-          </div>
-        </div>
-
-        <div class="store" v-if="identity==='STAFF'">
-          <div class="label">所属商店</div>
-          <div class="select-area">
-            <select name="store"
-                    id="store"
-                    v-model="storeId"
-                    class="select">
-              <option v-for="item in storeList" :value="item.id" :key="item.id" v-text="item.name"></option>
-            </select>
-
           </div>
         </div>
 
@@ -330,7 +316,6 @@ function handleRegister() {
   height: 20px;
   padding: 10px;
   margin: 0 6px 0 0;
-  //border: 1px solid #;
   border-radius: 2px;
   background-color: #32353c;
   cursor: pointer;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { router } from '../../router'
 import { getAllProducts, ProductInfo } from "../../api/product.ts";
 
 const currentHour = ref(new Date().getHours())
@@ -9,6 +10,10 @@ const productList = ref<ProductInfo[]>([])
 getAllProducts().then(res => {
   productList.value = res.data.result
 })
+
+function JumpToDetail(product_id: number) {
+  router.push({name:"detail",params:{product_id:product_id}});
+}
 </script>
 
 <template>
@@ -120,7 +125,7 @@ getAllProducts().then(res => {
     <!--    </div>-->
     <!-- 浏览Steam -->
     <div class="store-section">
-      <div class="store-section-title">浏览 STEAM</div>
+      <div class="store-section-title">浏览 SBEAM</div>
       <div class="browses">
         <RouterLink class="browse" to="">新品</RouterLink>
         <RouterLink class="browse" to="">优惠</RouterLink>
@@ -141,11 +146,12 @@ getAllProducts().then(res => {
       <div class="home_page_content flex_cols">
         <div class="home_leftcol home_tab_col">
           <div class="home_tabs_content">
-            <a
+            <router-link
               v-for="(product, index) in productList"
               :key="index"
               class="tab_item"
               @mouseenter="activeTab = index"
+              :to="{name:'detail',params:{ product_id:product.productId }}"
             >
               <div class="tab_item_cap">
                 <img class="tab_item_cap_img" :src="product.productLogo">
@@ -162,7 +168,7 @@ getAllProducts().then(res => {
               </div>
               <div style="clear: both;"></div>
               <div class="ds_options"><div></div></div>
-            </a>
+            </router-link>
           </div>
         </div>
         <div class="home_rightcol">

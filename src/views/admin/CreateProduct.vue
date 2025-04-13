@@ -27,7 +27,7 @@ const hasDescriptionInput = computed(() => description.value != '')
 // 商品logo是否为空
 const hasLogoUrl = computed(() => logoUrlList.value != '')
 // 商品图片是否达到4张
-const hasImageUrl = computed(() => imageUrlList.value.length === 4)
+const hasImageUrl = computed(() => imageUrlList.value.length != 4)
 
 // 创建按钮可用性
 const createDisabled = computed(() => {

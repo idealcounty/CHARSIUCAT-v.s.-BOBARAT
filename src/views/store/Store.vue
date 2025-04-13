@@ -17,6 +17,7 @@ getAllProducts().then(res => {
     <div class="store-background"
          :class="{ 'store-background_day': currentHour >= 6 && currentHour < 18, 'store-background_night': currentHour < 6 || currentHour >= 18 }"></div>
     <!-- 导航栏 -->
+    <!-- 导航栏 -->
     <div class="store-header">
       <div class="content">
         <div class="store_controls">
@@ -223,12 +224,29 @@ getAllProducts().then(res => {
   background-repeat: repeat;
 }
 
+.store-background {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 765px;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+}
+
+.store-background_day {
+  background-image: url("../../assets/home_header_bg_day_schinese.gif");
+}
+
+.store-background_night {
+  background-image: url("../../assets/home_header_bg_night_schinese.gif");
+}
+
 .store-header {
-  background-color: transparent;
-  padding-left: 0;
-  padding-right: 0;
-  min-width: 940px;
-  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  width: 940px;
+  margin: 7px auto 550px auto;
 }
 
 .content {

@@ -232,7 +232,7 @@ function handleExceedImages() {
           </div>
         </div>
 
-        <div v-loading="loading" class="register-button" @click="handleCreateProduct">
+        <div v-loading="loading" class="buttons" @click="handleCreateProduct">
           完成
         </div>
 
@@ -331,7 +331,7 @@ function handleExceedImages() {
   color: #b8b6b4;
 }
 
-.register-button {
+.buttons {
   box-sizing: border-box;
   width: 130px;
   border-radius: 2px;

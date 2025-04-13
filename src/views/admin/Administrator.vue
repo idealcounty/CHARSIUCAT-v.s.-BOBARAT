@@ -62,7 +62,7 @@ async function deleteProduct(product_id: number) {
               <div class="tab_item_content">
                 <div class="tab_item_name">{{ product.productName }}</div>
               </div>
-              <div v-loading="loading" class="update-button" @click.prevent="jumpToUpdate(product.productId)">
+              <div v-loading="loading" class="buttons" @click.prevent="jumpToUpdate(product.productId)">
                 更新信息
               </div>
               <div v-loading="loading" class="delete-button" @click.prevent="deleteProduct(product.productId)">
@@ -365,7 +365,7 @@ h2 {
   padding-top: 2px;
 }
 
-.update-button {
+.buttons {
   box-sizing: border-box;
   width: 100px;
   border-radius: 2px;

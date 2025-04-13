@@ -1,7 +1,7 @@
 import { axios } from '../utils/request'
 import { PRODUCT_MODULE } from './_prefix'
 
-type ProductInfo = {
+export type ProductInfo = {
     productName: string,
     productAmount: number,
     productPrice: number,

@@ -46,7 +46,7 @@ onMounted(async () => {
             <div class="store_header_btn_gray store-header_btn">
               <div class="store_header_btn_caps store_header_btn_leftcap"></div>
               <div class="store_header_btn_caps store_header_btn_rightcap"></div>
-              <router-link class="store_header_btn_content" to="">
+              <router-link class="store_header_btn_content" to="/wishlist">
                 愿望单（24)
               </router-link>
             </div>
@@ -201,6 +201,7 @@ onMounted(async () => {
   text-align: center;
   font-size: 11px;
   color: #ffffff;
+  text-decoration: none;
 }
 
 .store_nav_area {

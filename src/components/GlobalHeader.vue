@@ -1,23 +1,43 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref,onMounted } from 'vue'
 
 const storeMenuLocked = ref(false)
 const mineMenuLocked = ref(false)
 const actionMenuLocked = ref(false)
 
-const store = ref('')
-const token = ref('')
 const userId = ref('')
-const username = ref('')
-const nickname = ref('')
-const avatar = ref('')
+const userName = ref('')
+const userPhone = ref('')
+const userPassword = ref('')
+const userAddress = ref('')
+const userRole = ref('')
+const userCreateTime = ref('')
+const userBalance = ref('')
+const userAvatar = ref('')
 
-const route = useRoute()
 const current = ref('')
+const token = ref(false)
+
+onMounted(async () => {
+  const { userInfo } = await import('../api/user.ts')
+  const res = await userInfo()
+  if(res.data.code === '000')
+    token.value = true
+  else if(res.data.code === '400')
+    return
+  userId.value = res.data.result.id
+  userName.value = res.data.result.name
+  userPhone.value = res.data.result.userPhone
+  userPassword.value = res.data.result.password
+  userAddress.value = res.data.result.address
+  userRole.value = res.data.result.role
+  userCreateTime.value = res.data.result.createTime
+  userBalance.value = res.data.result.balance
+  userAvatar.value = res.data.result.avatar
+})
 
 function logout() {
-  store.dispatch('user/logout')
+  //待实现
 }
 
 </script>
@@ -28,25 +48,25 @@ function logout() {
       <div class="logo">
         <img src="../assets/logo_steam.svg" alt="steam" />
       </div>
-      <div class="nav">
-        <RouterLink class="nav-item" :class="{ current: current === 0 }" to="/" @click="storeMenuLocked = true" @mouseenter="storeMenuLocked = false">
+      <div class="supernav_container">
+        <RouterLink class="menuitem supernav" :class="{ current: current === 0 }" to="/" @click="storeMenuLocked = true" @mouseenter="storeMenuLocked = false">
           商店
           <div v-show="!storeMenuLocked" class="nav-menu">
             <RouterLink class="nav-menu-item" to="/" @click="storeMenuLocked = true">主页</RouterLink>
             <RouterLink class="nav-menu-item" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
           </div>
         </RouterLink>
-        <RouterLink class="nav-item" :class="{ current: current === 1 }" to="/community">社区</RouterLink>
-        <RouterLink v-if="token" class="nav-item nickname" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
-          {{ nickname }}
+        <RouterLink class="menuitem supernav" :class="{ current: current === 1 }" to="/community">社区</RouterLink>
+        <RouterLink v-if="token" class="menuitem supernav username" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
+          {{ userName }}
           <div v-show="!mineMenuLocked" class="nav-menu">
             <RouterLink class="nav-menu-item" :to="`/profile/${userId}`" @click="mineMenuLocked = true">个人资料</RouterLink>
             <RouterLink class="nav-menu-item" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
           </div>
         </RouterLink>
-        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>
-        <RouterLink v-if="token" class="nav-item" :class="{ current: current === 4 }" to="/chat">聊天</RouterLink>
-        <RouterLink class="nav-item" :class="{ current: current === 5 }" to="">客服</RouterLink>
+<!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
+        <RouterLink v-if="token" class="menuitem" :class="{ current: current === 4 }" to="/chat">聊天</RouterLink>
+        <RouterLink class="menuitem" :class="{ current: current === 5 }" to="">客服</RouterLink>
       </div>
       <div class="actions">
         <div class="action-menu">
@@ -55,17 +75,17 @@ function logout() {
             安装 SBEAM
           </RouterLink>
           <div v-if="token" class="account-pulldown" @mouseenter="actionMenuLocked = false">
-            {{ nickname }}
+            {{ userName }}
             <img src="../assets/btn_arrow_down_padded.png" alt="">
             <div v-show="!actionMenuLocked" class="account-pulldown-menu">
               <RouterLink class="account-pulldown-menu-item" :to="`/profile/${userId}`" @click="actionMenuLocked = true">查看个人资料</RouterLink>
-              <div class="account-pulldown-menu-item" @click="logout(); actionMenuLocked = true">注销：<span>{{ username }}</span></div>
+              <div class="account-pulldown-menu-item" @click="logout(); actionMenuLocked = true">注销：<span>{{ userName }}</span></div>
             </div>
           </div>
         </div>
 
         <RouterLink v-if="token" class="user-avatar" :to="`/profile/${userId}`">
-          <img :src="avatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'" alt="">
+          <img :src="userAvatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'" alt="">
         </RouterLink>
         <RouterLink v-else class="login" to="/login">登录</RouterLink>
       </div>
@@ -100,29 +120,43 @@ function logout() {
     height: 100%;
   }
 }
-.nav {
-  display: flex;
+
+.supernav_container {
+  position: absolute;
+  left: 200px;
 }
 
-.nav-item {
+.menuitem {
+  display: block;
   position: relative;
-  padding: 7px;
+  padding-top: 45px;
+  padding-left: 7px;
+  padding-right: 7px;
+  padding-bottom: 7px;
+  line-height: 16px;
+  float: left;
+  font-size: 14px;
   color: #dcdedf;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-family: "Motiva Sans", "Twemoji", "Noto Sans", Helvetica, sans-serif;
+  font-weight: 500;
   text-decoration: none;
-  &:hover {
-    color: #ffffff;
-  }
-  &.nickname {
-    font-weight: 500;
-  }
-  &.current {
-    color: #1a9fff;
-  }
-  &:hover>.nav-menu {
-    opacity: 1;
-    pointer-events: auto;
-  }
 }
+
+.menuitem:hover {
+  text-decoration: underline;
+  color: #1a9fff
+}
+
+.username {
+  max-width: 250px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
 .nav-menu {
   position: absolute;
   left: 0;

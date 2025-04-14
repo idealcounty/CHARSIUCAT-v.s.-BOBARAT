@@ -25,7 +25,7 @@ getAllProducts().then(res => {
             <div class="store_header_btn_gray store-header_btn">
               <div class="store_header_btn_caps store_header_btn_leftcap"></div>
               <div class="store_header_btn_caps store_header_btn_rightcap"></div>
-              <router-link class="store_header_btn_content" to="">
+              <router-link class="store_header_btn_content" to="/wishlist">
                 愿望单（24)
               </router-link>
             </div>
@@ -187,8 +187,9 @@ getAllProducts().then(res => {
         <div class="home_rightcol">
           <div class="tab_preview_container">
             <div class="tab_preview">
-              <h2 class="tab_preview_title">{{ productList[activeTab].productName }}</h2>
+              <h2 class="tab_preview_title" v-if="productList && productList[activeTab]">{{ productList[activeTab].productName }}</h2>
               <img
+                  v-if="productList && productList[activeTab]"
                   v-for="(img, i) in productList[activeTab].productImages"
                   :key="i"
                   class="screenshot"
@@ -292,6 +293,7 @@ getAllProducts().then(res => {
   text-align: center;
   font-size: 11px;
   color: #ffffff;
+  text-decoration: none;
 }
 
 .store_nav_area {

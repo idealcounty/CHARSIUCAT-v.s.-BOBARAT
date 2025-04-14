@@ -22,5 +22,5 @@ public class OrdersController {
     public ResultVO<Boolean> deleteOrders(@PathVariable int orderId) {
         return ResultVO.buildSuccess(ordersService.deleteOrdersByOrderId(orderId));
     }
-    
+
 }

@@ -24,7 +24,6 @@ public class UserServiceImpl implements UserService {
     CartRepository cartRepository;
     @Autowired
     TokenUtil tokenUtil;
-
     @Autowired
     SecurityUtil securityUtil;
 

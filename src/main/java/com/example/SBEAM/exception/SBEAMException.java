@@ -22,9 +22,8 @@ public class SBEAMException extends RuntimeException{
     public static SBEAMException storeNotExists(){
         return new SBEAMException("商店名称不存在!");
     }
-    public static SBEAMException notLogin(){
-        return new SBEAMException("未登录!");
-    }
+    public static SBEAMException notLogin(){return new SBEAMException("未登录!");}
+    public static SBEAMException orderAlreadyExists(){return new SBEAMException("未登录!");}
     public static SBEAMException phoneOrPasswordError(){
         return new SBEAMException("手机号或密码错误!");
     }

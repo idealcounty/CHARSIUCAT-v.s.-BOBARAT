@@ -1,26 +1,32 @@
 package com.example.SBEAM.vo;
+import com.example.SBEAM.enums.OrderStatus;
 import com.example.SBEAM.po.Orders;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class OrdersVO {
     private Integer ordersId;
-    private Integer productId;
     private Integer userId;
-    private Double productAmount;
-    private Double productPrice;
+    private Double totalPrice;
+    private String payMethod;
+    private OrderStatus orderStatus;
+    private Date createTime;
+
 
     public Orders toPO(){
         Orders orders = new Orders();
         orders.setOrdersId(ordersId);
-        orders.setProductId(productId);
         orders.setUserId(userId);
-        orders.setProductAmount(productAmount);
-        orders.setProductPrice(productPrice);
+        orders.setTotalPrice(totalPrice);
+        orders.setPayMethod(payMethod);
+        orders.setOrderStatus(orderStatus);
+        orders.setCreateTime(createTime);
         return orders;
     }
 }

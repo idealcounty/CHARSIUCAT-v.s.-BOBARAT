@@ -1,6 +1,8 @@
 package com.example.SBEAM.controller;
 
 import com.example.SBEAM.service.OrdersService;
+import com.example.SBEAM.vo.OrdersVO;
+import com.example.SBEAM.vo.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,5 +13,10 @@ public class OrdersController {
     @Autowired
     OrdersService ordersService;
 
+    @PostMapping("/users/{userId}/cart")
+    public ResultVO<Boolean> createOrder(OrdersVO ordersVO) {
+        return ResultVO.buildSuccess(ordersService.createOrders(ordersVO));
+    }
+    
 
 }

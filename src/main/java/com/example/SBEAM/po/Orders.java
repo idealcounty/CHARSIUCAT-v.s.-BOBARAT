@@ -1,9 +1,12 @@
 package com.example.SBEAM.po;
+import com.example.SBEAM.enums.OrderStatus;
+import com.example.SBEAM.enums.RoleEnum;
 import com.example.SBEAM.vo.OrdersVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.util.Date;
 
 
 @Getter
@@ -18,28 +21,39 @@ public class Orders {
     private Integer ordersId;
 
     @Basic
-    @Column(name = "product_id")
-    private Integer productId;
-
-    @Basic
     @Column(name = "user_id")
     private Integer userId;
 
     @Basic
-    @Column(name = "product_amount")
-    private Double productAmount;
+    @Column(name = "total_price")
+    private Double totalPrice;
 
     @Basic
-    @Column(name = "product_price")
-    private Double productPrice;
+    @Column(name = "pay_method")
+    private String payMethod;
 
+    @Basic
+    @Column(name = "order_status")
+    @Enumerated(EnumType.STRING)
+    private OrderStatus orderStatus;
+
+    @Basic
+    @Column(name = "create_time")
+    private Date createTime;
+
+    public Orders(int userId, Double totalPrice){
+        this.userId = userId;
+        this.totalPrice = totalPrice;
+
+    }
     public OrdersVO toVO() {
         OrdersVO orderVO = new OrdersVO();
         orderVO.setOrdersId(ordersId);
-        orderVO.setProductId(productId);
         orderVO.setUserId(userId);
-        orderVO.setProductAmount(productAmount);
-        orderVO.setProductPrice(productPrice);
+        orderVO.setTotalPrice(totalPrice);
+        orderVO.setPayMethod(payMethod);
+        orderVO.setOrderStatus(orderStatus);
+        orderVO.setCreateTime(createTime);
         return orderVO;
     }
 }

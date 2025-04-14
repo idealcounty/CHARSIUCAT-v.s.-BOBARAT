@@ -4,7 +4,6 @@ import {router} from '../../router'
 import {getAllProducts, ProductInfo} from "../../api/product.ts";
 import {deleteProductById} from "../../api/product.ts";
 
-const currentHour = ref(new Date().getHours())
 const activeTab = ref(0)
 const productList = ref<ProductInfo[]>([])
 const loading = ref(false)
@@ -14,7 +13,11 @@ getAllProducts().then(res => {
 })
 
 function jumpToUpdate(product_id: number) {
-  router.push({path: '/updateProduct/' + product_id});
+  router.push({path: '/updateProduct/' + product_id})
+}
+
+function jumpToCreate() {
+  router.push({path: '/createProduct'})
 }
 
 async function deleteProduct(product_id: number) {
@@ -35,6 +38,9 @@ async function deleteProduct(product_id: number) {
               <div class="tab_content">商品列表</div>
             </div>
           </div>
+        </div>
+        <div v-loading="loading" class="create-button" @click.prevent="jumpToCreate">
+          创建商品
         </div>
       </div>
       <div class="home_page_content flex_cols">
@@ -62,7 +68,7 @@ async function deleteProduct(product_id: number) {
               <div class="tab_item_content">
                 <div class="tab_item_name">{{ product.productName }}</div>
               </div>
-              <div v-loading="loading" class="buttons" @click.prevent="jumpToUpdate(product.productId)">
+              <div v-loading="loading" class="update-button" @click.prevent="jumpToUpdate(product.productId)">
                 更新信息
               </div>
               <div v-loading="loading" class="delete-button" @click.prevent="deleteProduct(product.productId)">
@@ -365,16 +371,16 @@ h2 {
   padding-top: 2px;
 }
 
-.buttons {
+.update-button {
   box-sizing: border-box;
   width: 100px;
   border-radius: 2px;
   position: absolute;
-  right: 350px; /* 距离右侧20px */
-  top: 50%; /* 垂直居中定位 */
-  transform: translateY(-50%); /* 垂直偏移补偿 */
-  margin-top: 0; /* 清除原有margin */
-  z-index: 2; /* 确保按钮显示在顶层 */
+  right: 350px;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-top: 0;
+  z-index: 2;
   color: #ffffff;
   font-size: 14px;
   line-height: 25px;
@@ -407,6 +413,23 @@ h2 {
   &:hover {
     background: #ff3b2c
   }
+}
+
+.create-button{
+  box-sizing: border-box;
+  width: 100px;
+  border-radius: 2px;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 35px;
+  text-align: center;
+  background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+  cursor: pointer;
 }
 
 

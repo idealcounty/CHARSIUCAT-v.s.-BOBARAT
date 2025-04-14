@@ -146,8 +146,7 @@ onMounted(async () => {
   top: 0;
   z-index: -2;
   height: 100%;
-  background-image: url("../../assets/Steam_Summer_Sale_pattern-04-day_lighter.gif");
-  background-repeat: repeat;
+  background: linear-gradient(to bottom, #1e3c57, #192534);
 }
 
 .store-header {

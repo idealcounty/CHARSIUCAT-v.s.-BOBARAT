@@ -43,6 +43,7 @@ public class CartServiceImpl implements CartService{
         if (optional.isPresent()) {
             CartItem existing = optional.get();
             existing.setProductQuantity(numberOfProduct);
+
         }
         else {
             CartItem cartItem = new CartItem(cart, productId, numberOfProduct, product.getProductPrice());

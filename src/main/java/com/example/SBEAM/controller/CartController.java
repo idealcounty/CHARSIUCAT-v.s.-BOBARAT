@@ -26,7 +26,7 @@ public class CartController {
         return ResultVO.buildSuccess(cartService.showAllCartItems(userId)).getResult();
     }
 
-    @PutMapping("/users/{userId}/cart")
+    @PutMapping("/users/{userId}/cart")//可能有问题，暂时别用
     public ResultVO<Boolean> settleAccount(@PathVariable("userId") int userId,@RequestBody CartVO cartVO){
         return ResultVO.buildSuccess(cartService.settleAccount(userId,cartVO));
     }

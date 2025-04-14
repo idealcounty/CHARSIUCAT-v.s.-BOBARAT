@@ -17,6 +17,10 @@ public class OrdersController {
     public ResultVO<Boolean> createOrder(OrdersVO ordersVO) {
         return ResultVO.buildSuccess(ordersService.createOrders(ordersVO));
     }
-    
 
+    @DeleteMapping("/user/{userId}/orders/{orderId}")
+    public ResultVO<Boolean> deleteOrders(@PathVariable int orderId) {
+        return ResultVO.buildSuccess(ordersService.deleteOrdersByOrderId(orderId));
+    }
+    
 }

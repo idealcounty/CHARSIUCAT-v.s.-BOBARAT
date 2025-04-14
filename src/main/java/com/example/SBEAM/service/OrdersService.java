@@ -6,4 +6,6 @@ public interface OrdersService {
     Boolean createOrders(OrdersVO ordersVO);
     List<OrdersVO> getAllOrders();
     OrdersVO getOrdersById(int orderId);
+    Boolean deleteOrdersByOrderId(int orderId);
+
 }

@@ -44,5 +44,4 @@ public class UserController {
         userService.depositBalance(userId,amount);
         return ResultVO.buildSuccess();
     }
-    //尚未写路径
 }

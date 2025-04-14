@@ -34,4 +34,18 @@ public class OrdersServiceImpl implements OrdersService {
     public OrdersVO getOrdersById(int orderId) {
         return ordersRepository.findByOrdersId(orderId).toVO();
     }
+
+    @Override
+    public Boolean deleteOrdersByOrderId(int orderId){
+        Orders orders = ordersRepository.findByOrdersId(orderId);
+        if(orders==null){
+            throw SBEAMException.orderNotExists();
+        }
+        if(!ordersRepository.existsById(orderId)){
+            return false;
+        }
+        ordersRepository.delete(orders);
+        return true;
+    }
+
 }

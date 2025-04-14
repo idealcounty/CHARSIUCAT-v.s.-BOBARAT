@@ -3,8 +3,6 @@ import {ref, computed, onMounted} from 'vue'
 import {uploadImage} from "../../api/tools.ts";
 import {router} from '../../router'
 import {getProductByProductId, updateProductByProductId} from "../../api/product.ts";
-import {types} from "sass";
-import Null = types.Null;
 
 const productId = router.currentRoute.value.params.product_id
 const productVO = ref()
@@ -29,12 +27,16 @@ const loadData = async () => {
   description.value = productVO.value.productDescription
   logoUrl.value = productVO.value.productLogo
   imageUrlList.value = productVO.value.productImages
-  console.log(productVO.value)
+
 }
 
 onMounted(async () => {
   await loadData()
+  console.log(logoUrl.value)
+  console.log(imageUrlList.value)
 })
+
+
 
 // 商品名称是否为空
 const hasNameInput = computed(() => name.value != '')
@@ -47,7 +49,7 @@ const hasDescriptionInput = computed(() => description.value != '')
 // 商品logo是否为空
 const hasLogoUrl = computed(() => logoUrlList.value != '')
 // 商品图片是否达到4张
-const hasImageUrl = computed(() => imageUrlList.value.length != 4)
+const hasImageUrl = computed(() => rawImages.value.length != 4)
 
 // 创建按钮可用性
 const updateDisabled = computed(() => {
@@ -64,7 +66,7 @@ async function generateLogoUrl() {
   formData.append('file', logoUrlList.value[0].raw)
   const imageResponse = await uploadImage(formData);
   logoUrl.value = imageResponse.data.result;
-  // console.log(logoUrl.value)
+  console.log(logoUrl.value)
 }
 
 async function generateImageUrls() {
@@ -74,10 +76,10 @@ async function generateImageUrls() {
     const imageResponse = await uploadImage(formData);
     imageUrlList.value.push(imageResponse.data.result);
   }
-  // console.log(imageUrlList.value)
+  console.log(imageUrlList.value)
 }
 
-// 注册按钮触发
+// 更新按钮触发
 async function handleUpdateProduct() {
   // if (updateDisabled.value) {
   //   return
@@ -88,6 +90,7 @@ async function handleUpdateProduct() {
   if (imagesAreUpdated.value) {
     await generateImageUrls()
   }
+  console.log(logoUrl.value)
   await updateProductByProductId(Number(productId), {
     productName: name.value,
     productAmount: amount.value,
@@ -103,7 +106,7 @@ async function handleUpdateProduct() {
         type: 'success',
         center: true,
       })
-      router.push({path: "/admin"})
+      // router.push({path: "/admin"})
     } else if (res.data.code === '400') {
       ElMessage({
         message: res.data.msg,
@@ -242,7 +245,7 @@ function handleExceedImages() {
             </el-upload>
           </div>
           <div class="update-images-confirm" v-else>
-            <div v-loading="loading" class="buttons" @click="handleUpdateLogo">
+            <div v-loading="loading" class="update-button" @click="handleUpdateLogo">
               修改logo
             </div>
           </div>
@@ -274,13 +277,13 @@ function handleExceedImages() {
             </el-upload>
           </div>
           <div class="update-images-confirm" v-else>
-            <div v-loading="loading" class="buttons" @click="handleUpdateImages">
+            <div v-loading="loading" class="update-button" @click="handleUpdateImages">
               修改图片
             </div>
           </div>
         </div>
 
-        <div v-loading="loading" class="buttons" @click="handleUpdateProduct">
+        <div v-loading="loading" class="update-button" @click="handleUpdateProduct">
           完成
         </div>
 
@@ -379,7 +382,7 @@ function handleExceedImages() {
   color: #b8b6b4;
 }
 
-.buttons {
+.update-button {
   box-sizing: border-box;
   width: 130px;
   border-radius: 2px;

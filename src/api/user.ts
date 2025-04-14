@@ -54,3 +54,11 @@ export const userInfoUpdate = (updateInfo: UpdateInfo) => {
             return res
         })
 }
+
+//获取用户购物车
+export const getUserCart = (userId: number) => {
+    return axios.get(`${USER_MODULE}/${userId}/cart`)
+        .then(res => {
+            return res
+        })
+}

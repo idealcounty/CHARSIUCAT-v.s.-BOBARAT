@@ -28,9 +28,16 @@ public class UserController {
         return ResultVO.buildSuccess(userService.getInformation());
     }
 
+
     @PostMapping
     public ResultVO<Boolean> updateInformation(@RequestBody UserVO userVO){
-        return ResultVO.buildSuccess(userService.updateInformation(userVO));
+        boolean success = userService.updateInformation(userVO);
+        if (success) {
+            return ResultVO.buildSuccess(true);
+        }
+        else {
+            return ResultVO.buildFailure("请求信息失败");
+        }
     }
 
     @PutMapping("/{userId}")

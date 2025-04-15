@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import { userInfo, userLogin } from "../../api/user.ts"
 
 const tel = ref('')
@@ -9,7 +9,6 @@ const rememberMe = ref(true)
 const errMsg = ref('')
 const loading = ref(false)
 
-const route = useRoute()
 const router = useRouter()
 
 const hasTelInput = computed(() => tel.value != '')
@@ -34,7 +33,6 @@ function handleLogin() {
       userInfo().then(res => {
         sessionStorage.setItem('name', res.data.result.name)
         sessionStorage.setItem('role', res.data.result.role)
-        sessionStorage.setItem('storeId', res.data.result.storeId)
         if(res.data.result.role == "STAFF")
           router.push({path: "/admin"})
         else if(res.data.result.role == "CUSTOMER")

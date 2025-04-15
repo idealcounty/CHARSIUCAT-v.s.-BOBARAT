@@ -1,5 +1,6 @@
 <script setup>
-import { ref,onMounted } from 'vue'
+import { ref,onMounted,onBeforeUnmount } from 'vue'
+import { router } from "../router/index.ts";
 
 const storeMenuLocked = ref(false)
 const mineMenuLocked = ref(false)
@@ -18,28 +19,40 @@ const userAvatar = ref('')
 const current = ref('')
 const token = ref(false)
 
-onMounted(async () => {
+async function getUserInfo() {
   const { userInfo } = await import('../api/user.ts')
   const res = await userInfo()
-  if(res.data.code === '000')
+  if (res.data.code === '000') {
     token.value = true
-  else if(res.data.code === '400')
+  } else if (res.data.code === '400') {
     return
-  userId.value = res.data.result.id
-  userName.value = res.data.result.name
-  userPhone.value = res.data.result.userPhone
-  userPassword.value = res.data.result.password
-  userAddress.value = res.data.result.address
-  userRole.value = res.data.result.role
-  userCreateTime.value = res.data.result.createTime
-  userBalance.value = res.data.result.balance
-  userAvatar.value = res.data.result.avatar
+  }
+  const result = res.data.result
+  userId.value = result.id
+  userName.value = result.name
+  userPhone.value = result.userPhone
+  userPassword.value = result.password
+  userAddress.value = result.address
+  userRole.value = result.role
+  userCreateTime.value = result.createTime
+  userBalance.value = result.balance
+  userAvatar.value = result.avatar
+}
+
+onMounted(() => {
+  getUserInfo()
+  window.addEventListener('user-logged-in', getUserInfo)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('user-logged-in', getUserInfo)
 })
 
 function logout() {
   //待实现
+  sessionStorage.removeItem('token')
+  router.push({'path': '/login'})
 }
-
 </script>
 
 <template>
@@ -49,19 +62,19 @@ function logout() {
         <img src="../assets/logo_steam.svg" alt="steam" />
       </div>
       <div class="supernav_container">
-        <RouterLink class="menuitem supernav" :class="{ current: current === 0 }" to="/" @click="storeMenuLocked = true" @mouseenter="storeMenuLocked = false">
+        <RouterLink class="menuitem supernav store" :class="{ current: current === 0 }" to="/" @click="storeMenuLocked = true" @mouseenter="storeMenuLocked = false">
           商店
-          <div v-show="!storeMenuLocked" class="nav-menu">
-            <RouterLink class="nav-menu-item" to="/" @click="storeMenuLocked = true">主页</RouterLink>
-            <RouterLink class="nav-menu-item" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
+          <div class="submenu_Store">
+            <RouterLink class="submenuitem" to="/" @click="storeMenuLocked = true">主页</RouterLink>
+            <RouterLink class="submenuitem" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
           </div>
         </RouterLink>
         <RouterLink class="menuitem supernav" :class="{ current: current === 1 }" to="/community">社区</RouterLink>
-        <RouterLink v-if="token" class="menuitem supernav username" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
+        <RouterLink v-if="token" class="menuitem supernav nickname profile" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
           {{ userName }}
-          <div v-show="!mineMenuLocked" class="nav-menu">
-            <RouterLink class="nav-menu-item" :to="`/profile/${userId}`" @click="mineMenuLocked = true">个人资料</RouterLink>
-            <RouterLink class="nav-menu-item" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
+          <div class="submenu_Profile">
+            <RouterLink class="submenuitem" :to="`/profile/${userId}`" @click="mineMenuLocked = true">个人资料</RouterLink>
+            <RouterLink class="submenuitem" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
           </div>
         </RouterLink>
 <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
@@ -104,6 +117,7 @@ function logout() {
   background-color: #1f2428;
   font-family: "Motiva Sans", sans-serif;;
 }
+
 .content {
   position: relative;
   display: flex;
@@ -111,6 +125,7 @@ function logout() {
   width: 940px;
   height: 104px;
 }
+
 .logo {
   width: 176px;
   height: 44px;
@@ -129,7 +144,7 @@ function logout() {
 .menuitem {
   display: block;
   position: relative;
-  padding-top: 45px;
+  padding-top: 7px;
   padding-left: 7px;
   padding-right: 7px;
   padding-bottom: 7px;
@@ -144,12 +159,19 @@ function logout() {
   text-decoration: none;
 }
 
+.store {
+  &:hover>.submenu_Store {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .menuitem:hover {
   text-decoration: underline;
   color: #1a9fff
 }
 
-.username {
+.nickname {
   max-width: 250px;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -157,43 +179,69 @@ function logout() {
   font-weight: 600;
 }
 
-.nav-menu {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  background-color: #3D4450;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  &:hover {
-    opacity: 0;
-    pointer-events: none;
+.profile {
+  &:hover>.submenu_Profile {
+    opacity: 1;
+    pointer-events: auto;
   }
 }
-.nav-menu-item {
-  display: inline-block;
-  width: 48px;
-  padding: 6px 15px;
-  color: #dcdedf;
-  font-size: 12px;
+
+.submenu_Store {
+  width: 78px;
+  position: absolute;
+  z-index: 1500;
+  left: 1px;
+  top: 31px;
+  opacity: 0;
+  pointer-events: none;
+  background: #3D4450;
+  box-shadow: 3px 3px 5px -3px #000;
+  text-align: left;
+}
+
+.submenu_Profile {
+  width: 92.7px;
+  position: absolute;
+  z-index: 1500;
+  left: 1px;
+  top: 31px;
+  opacity: 0;
+  pointer-events: none;
+  background: #3D4450;
+  box-shadow: 3px 3px 5px -3px #000;
+  text-align: left;
+}
+
+.submenuitem {
   text-decoration: none;
+  text-transform: none;
+  font-size: 12px;
+  color: #dcdedf;
+  padding-right: 15px;
+  padding-left: 15px;
+  display: inline-block;
+  padding: 6px 15px;
+  text-align: center;
   &:hover {
     color: #171a21;
     background-color: #dcdedf;
   }
 }
+
 .actions {
   position: absolute;
   right: 0;
   top: 6px;
   display: flex;
 }
+
 .action-menu {
   display: flex;
   align-items: flex-start;
   gap: 8px;
   margin-right: 8px;
 }
+
 .install {
   display: flex;
   align-items: center;
@@ -215,6 +263,7 @@ function logout() {
     margin-right: 9px;
   }
 }
+
 .message {
   background-color: #5c7e10;
 

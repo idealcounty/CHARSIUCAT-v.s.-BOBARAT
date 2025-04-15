@@ -1,5 +1,5 @@
 <script setup>
-import { ref,onMounted,onBeforeUnmount } from 'vue'
+import { ref,onMounted } from 'vue'
 import { router } from "../router/index.ts";
 
 const storeMenuLocked = ref(false)
@@ -18,38 +18,36 @@ const userAvatar = ref('')
 
 const current = ref('')
 const token = ref(false)
+const isLoggedIn = !!sessionStorage.getItem('token')
 
 async function getUserInfo() {
   const { userInfo } = await import('../api/user.ts')
   const res = await userInfo()
+  console.log(res.data.code)
   if (res.data.code === '000') {
     token.value = true
+    const result = res.data.result
+    userId.value = result.id
+    userName.value = result.name
+    userPhone.value = result.userPhone
+    userPassword.value = result.password
+    userAddress.value = result.address
+    userRole.value = result.role
+    userCreateTime.value = result.createTime
+    userBalance.value = result.balance
+    userAvatar.value = result.avatar
   } else if (res.data.code === '400') {
-    return
+    console.log('未登录')
   }
-  const result = res.data.result
-  userId.value = result.id
-  userName.value = result.name
-  userPhone.value = result.userPhone
-  userPassword.value = result.password
-  userAddress.value = result.address
-  userRole.value = result.role
-  userCreateTime.value = result.createTime
-  userBalance.value = result.balance
-  userAvatar.value = result.avatar
 }
 
 onMounted(() => {
-  getUserInfo()
-  window.addEventListener('user-logged-in', getUserInfo)
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('user-logged-in', getUserInfo)
+  if(isLoggedIn) {
+    getUserInfo()
+  }
 })
 
 function logout() {
-  //待实现
   sessionStorage.removeItem('token')
   router.push({'path': '/login'})
 }

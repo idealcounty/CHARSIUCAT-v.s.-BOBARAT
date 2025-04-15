@@ -90,7 +90,8 @@ onMounted(async () => {
               <div class="game_description_snippet">{{ productDescription }}</div>
               <div class="glance_ctn_resposive_left">
                 <div class="product_amount">
-                  <div class="subtitle colomn"></div>
+                  <div class="subtitle colomn">剩余库存:</div>
+                  <div class="amount">{{ productAmount }}</div>
                 </div>
               </div>
             </div>
@@ -123,7 +124,13 @@ onMounted(async () => {
         </div>
       </div>
       <div class="queue_overflow_ctn">
-
+        <div class="queue_ctn">
+          <div class="queue_actions_ctn">
+            <div class="add_to_wishlist_area">
+              <div class="btnv6_blue_hoverfade btn_medium add_to_wishlist">添加至您的愿望单</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -376,5 +383,80 @@ img {
   -webkit-line-clamp: 6;
   -webkit-box-orient: vertical;
   color: #ffffff;
+}
+
+.glance_ctn_resposive_left {
+  display: flex;
+  line-height: 16px;
+  padding-top: 9px;
+  padding-bottom: 13px;
+}
+
+.product_amount {
+  display: flex;
+  line-height: 16px;
+  padding-top: 9px;
+  padding-bottom: 13px;
+}
+
+.subtitle {
+  color: #556772;
+  text-transform: uppercase;
+  font-size: 10px;
+  padding-right: 10px;
+  min-width: 94px;
+}
+
+.colomn {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.amount {
+  max-height: 30px;
+  overflow: hidden;
+  color: #8f98a0;
+  font-size: 12px;
+}
+
+.queue_ctn {
+  width: 940px;
+  background: rgba( 0, 0, 0, 0.2 );
+  margin: 0px auto;
+  margin-bottom: 16px;
+}
+
+.queue_actions_ctn {
+  padding: 16px;
+}
+
+.add_to_wishlist_area {
+  display: inline-block;
+  position: relative;
+}
+
+.btnv6_blue_hoverfade {
+  width: 152px;
+  height: 32px;
+  border-radius: 2px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+  color: #67c1f5;
+  background: rgba( 103, 193, 245, 0.2 );
+
+  &:hover {
+    color: #ffffff;
+    background: linear-gradient(to right,#66bff3,#437d9e);
+  }
+}
+
+.btn_medium {
+  margin-bottom: 4px;
 }
 </style>

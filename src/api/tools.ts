@@ -1,5 +1,5 @@
 import { axios } from '../utils/request'
-import {API_MODULE, TOOL_MODULE} from './_prefix'
+import { TOOL_MODULE } from './_prefix'
 
 // 上传图片文件
 export const uploadImage = (payload: FormData) => {

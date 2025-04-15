@@ -64,17 +64,17 @@ function logout() {
       <div class="supernav_container">
         <RouterLink class="menuitem supernav store" :class="{ current: current === 0 }" to="/" @click="storeMenuLocked = true" @mouseenter="storeMenuLocked = false">
           商店
-          <div class="submenu_Store">
-            <RouterLink class="submenuitem" to="/" @click="storeMenuLocked = true">主页</RouterLink>
-            <RouterLink class="submenuitem" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
+          <div v-show="!storeMenuLocked" class="submenu_Store">
+            <RouterLink class="store_item" to="/" @click="storeMenuLocked = true">主页</RouterLink>
+            <RouterLink class="store_item" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
           </div>
         </RouterLink>
         <RouterLink class="menuitem supernav" :class="{ current: current === 1 }" to="/community">社区</RouterLink>
         <RouterLink v-if="token" class="menuitem supernav nickname profile" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
           {{ userName }}
-          <div class="submenu_Profile">
-            <RouterLink class="submenuitem" :to="`/profile/${userId}`" @click="mineMenuLocked = true">个人资料</RouterLink>
-            <RouterLink class="submenuitem" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
+          <div v-show="!mineMenuLocked" class="submenu_Profile">
+            <RouterLink class="profile_item" :to="`/profile/${userId}`" @click="mineMenuLocked = true">个人资料</RouterLink>
+            <RouterLink class="profile_item" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
           </div>
         </RouterLink>
 <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
@@ -174,8 +174,6 @@ function logout() {
 .nickname {
   max-width: 250px;
   text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
   font-weight: 600;
 }
 
@@ -190,38 +188,64 @@ function logout() {
   width: 78px;
   position: absolute;
   z-index: 1500;
-  left: 1px;
-  top: 31px;
+  left: 0px;
+  top: 30px;
   opacity: 0;
   pointer-events: none;
   background: #3D4450;
   box-shadow: 3px 3px 5px -3px #000;
   text-align: left;
+  transition: opacity 0.2s;
+  &:hover {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
 .submenu_Profile {
   width: 92.7px;
   position: absolute;
   z-index: 1500;
-  left: 1px;
-  top: 31px;
+  left: 0px;
+  top: 30px;
   opacity: 0;
   pointer-events: none;
   background: #3D4450;
   box-shadow: 3px 3px 5px -3px #000;
   text-align: left;
+  transition: opacity 0.2s;
+  &:hover {
+    opacity: 0;
+    pointer-events: none;
+  }
 }
 
-.submenuitem {
+.store_item {
+  width: 78px;
   text-decoration: none;
   text-transform: none;
   font-size: 12px;
   color: #dcdedf;
-  padding-right: 15px;
-  padding-left: 15px;
   display: inline-block;
   padding: 6px 15px;
-  text-align: center;
+  text-align: left;
+  box-sizing: border-box;
+  &:hover {
+    color: #171a21;
+    background-color: #dcdedf;
+  }
+}
+
+.profile_item {
+  width: 92.7px;
+  text-decoration: none;
+  text-transform: none;
+  font-size: 12px;
+  color: #dcdedf;
+  display: inline-block;
+  padding: 6px 15px;
+  text-align: left;
+  box-sizing: border-box;
   &:hover {
     color: #171a21;
     background-color: #dcdedf;

@@ -88,6 +88,11 @@ onMounted(async () => {
                 <img class="game_header_image_full" :src="productLogo">
               </div>
               <div class="game_description_snippet">{{ productDescription }}</div>
+              <div class="glance_ctn_resposive_left">
+                <div class="product_amount">
+                  <div class="subtitle colomn"></div>
+                </div>
+              </div>
             </div>
           </div>
           <!--左栏-->
@@ -278,6 +283,10 @@ onMounted(async () => {
   padding-bottom: 1px;
   background-repeat: no-repeat;
   margin: 0px auto;
+}
+
+.block_content {
+  background: linear-gradient(to right,  rgba(0,0,0,0) 50%,rgba(0,0,0,0.4) 100%);
 }
 
 .leftcol {

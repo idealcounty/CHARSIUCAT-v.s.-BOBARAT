@@ -821,16 +821,16 @@ getAllProducts().then(res => {
 .tab_item {
   position: relative;
   display: block;
-  background: rgba(0, 0, 0, 0.2); /* 默认背景 */
+  background: rgba(0, 0, 0, 0.2);
   height: 69px;
   margin-bottom: 5px;
   padding-left: 198px;
   -webkit-text-size-adjust: none;
-  overflow: visible;     /* 让伪元素能扩展出组件本体 */
+  overflow: visible;
   z-index: 0;
+  text-decoration: none;
 }
 
-/* 背景伪元素 */
 .tab_item::before {
   content: "";
   position: absolute;

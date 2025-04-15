@@ -1,34 +1,45 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import {userInfo,getUserCart} from '../../api/user.ts'
-import {ProductInfo} from "../../api/product.ts";
+import {userInfo,getUserCart,CartItem} from '../../api/user.ts'
+import {getProductByProductId,ProductInfo} from "../../api/product.ts";
 
 const sortList = ref(false)
 const nickname = ref('')
 const userId=ref()
 const sortMethod=ref(1)
+const wishlistItem=ref<CartItem[]>([])
 const wishlist=ref<ProductInfo[]>([])
 
-getUserInfo()
-function getUserInfo() {
+
+/** 获取购物车 */
+
+const getUserInfo = async () => {
   userInfo().then(res => {
     nickname.value = res.data.result.name
     userId.value = res.data.result.id
     getUserCart(parseInt(userId.value)).then(res => {
-      console.log(res)
-      wishlist.value = res.data
+      wishlistItem.value = res.data
+      const productIds = wishlistItem.value.map(item => item.productId);
+      const productPromises = productIds.map(id => getProductByProductId(id));
+      Promise.all(productPromises).then(productList => {
+        wishlist.value = productList.map(item => item.data.result); // 将获取到的 product 列表赋值给 wishlist.value
+        console.log(wishlist.value[0]);
+      })
     })
   })
 }
 
-/** 获取购物车 */
-
+onMounted(() => {
+    getUserInfo(); // 获取用户信息和 wishlist
+});
 
 /** 打开排序菜单 */
 function openSortMenu() {
   if (!sortList.value)
     sortList.value = true
 }
+
+
 
 /** 关闭排序菜单 */
 function closeSortMenu() {
@@ -73,20 +84,20 @@ function changeSortType(type:number) {
         <p>您的愿望单里有 {{ wishlist.length }} 件物品，但均不匹配您在上方应用的筛选条件。</p>
       </div>
       <div v-else>
-        <div class="wishlist-item" v-for="item in wishlist" :key="item.id">
+        <div class="wishlist-item" v-for="item in wishlist" :key="item.productId">
           <div class="item-logo">
-            <img :src="item.logo" alt="商品logo">
+            <img :src="item.productLogo" alt="商品logo">
           </div>
           <div class="item-info">
-            <div class="item-name">{{ item.name }}</div>
+            <div class="item-name">{{ item.productName }}</div>
             <div class="item-meta">
               <div class="item-rating">
                 <span>总体评测：</span>
-                <span>{{ item.overallRating }}</span>
+                <span>{{ '好评如潮' }}</span>
               </div>
               <div class="item-release-date">
                 <span>发行日期：</span>
-                <span>{{ item.releaseDate }}</span>
+                <span>{{ '2025.4.15' }}</span>
               </div>
             </div>
             <div class="item-tags">
@@ -95,11 +106,11 @@ function changeSortType(type:number) {
           </div>
           <div class="item-price-action">
             <div class="item-price-container">
-              <div class="item-price">¥{{ item.price }}</div>
+              <div class="item-price">¥{{ item.productPrice }}</div>
               <button class="add-to-cart" @click="addToCart(item)">购买</button>
             </div>
             <div class="item-added-info">
-              <span>添加时间 {{ item.addedDate }} (</span>
+              <span>添加时间 {{ '2025.4.15' }} (</span>
               <a href="#" class="remove-link" @click.prevent="removeFromWishlist(item)">移除</a>
               <span>)</span>
             </div>

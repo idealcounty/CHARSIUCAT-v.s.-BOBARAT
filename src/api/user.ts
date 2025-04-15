@@ -18,11 +18,19 @@ type RegisterInfo = {
     userAvatar: string,
 }
 
+export type CartItem = {
+    cartId: number,
+    productId: number,
+    productQuantity: number,
+    productPrice: number,
+}
+
 type UpdateInfo = {
     name?: string,
     password?: string,
     address?: string,
 }
+
 
 // 如果有“Vue: This may be converted to an async function”警告，可以不管
 // 用户登录

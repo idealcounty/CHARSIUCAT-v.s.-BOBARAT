@@ -6,7 +6,7 @@ const router = createRouter({
         path: '/',
         component: () => import('../views/store/Store.vue'),
     }, {
-        path: '/:product_id',
+        path: '/product/:product_id',
         name: 'detail',
         component: () => import('../views/store/Detail.vue'),
     }, {
@@ -26,6 +26,9 @@ const router = createRouter({
         path: '/admin',
         component: () => import('../views/admin/Administrator.vue'),
         meta: {title: '管理商品'},
+    }, {
+        path: '/profile/:user_id',
+        component: () => import('../views/user/Profile.vue'),
     }, {
         path: '/createProduct',
         component: () => import('../views/admin/CreateProduct.vue'),

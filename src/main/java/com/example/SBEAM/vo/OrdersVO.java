@@ -17,7 +17,7 @@ public class OrdersVO {
     private String payMethod;
     private OrderStatus orderStatus;
     private Date createTime;
-
+    private String outTradeNo;
 
     public Orders toPO(){
         Orders orders = new Orders();
@@ -27,6 +27,7 @@ public class OrdersVO {
         orders.setPayMethod(payMethod);
         orders.setOrderStatus(orderStatus);
         orders.setCreateTime(createTime);
+        orders.setOutTradeNo(outTradeNo);
         return orders;
     }
 }

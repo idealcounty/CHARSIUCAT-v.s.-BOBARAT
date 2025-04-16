@@ -1,7 +1,9 @@
 package com.example.SBEAM.serviceImpl;
+import com.example.SBEAM.enums.OrderStatus;
 import com.example.SBEAM.exception.SBEAMException;
 import com.example.SBEAM.po.*;
 import com.example.SBEAM.repository.CartRepository;
+import com.example.SBEAM.repository.OrdersRepository;
 import com.example.SBEAM.repository.ProductRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.CartService;
@@ -12,8 +14,10 @@ import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 @Service
 public class CartServiceImpl implements CartService{
@@ -23,6 +27,8 @@ public class CartServiceImpl implements CartService{
     ProductRepository productRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    OrdersRepository ordersRepository;
     @Override
     public Boolean createCart(CartVO cartVO){
         Cart cart = cartRepository.findByCartId(cartVO.getCartId());
@@ -64,8 +70,11 @@ public class CartServiceImpl implements CartService{
         if(price>user.getBalance()){
             throw SBEAMException.priceNotEnough();
         }
-        user.setBalance(user.getBalance()-price);
-        userRepository.save(user);
+        Orders order = new Orders(userId, price);
+        order.setCreateTime(new Date());
+        order.setOrderStatus(OrderStatus.PENDING);
+        order.setOutTradeNo(UUID.randomUUID().toString().replace("-", ""));
+        ordersRepository.save(order);
 
         cart.getCartItems().clear();
         cartRepository.save(cart);

@@ -41,6 +41,10 @@ public class Orders {
     @Column(name = "create_time")
     private Date createTime;
 
+    @Basic
+    @Column(name = "out_trade_no")
+    private String outTradeNo;
+
     public Orders(int userId, Double totalPrice){
         this.userId = userId;
         this.totalPrice = totalPrice;
@@ -54,6 +58,7 @@ public class Orders {
         orderVO.setPayMethod(payMethod);
         orderVO.setOrderStatus(orderStatus);
         orderVO.setCreateTime(createTime);
+        orderVO.setOutTradeNo(outTradeNo);
         return orderVO;
     }
 }

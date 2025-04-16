@@ -28,8 +28,6 @@ public class Cart {
     public Cart(Integer userId) {
         this.userId = userId;
         this.cartItems=new ArrayList<CartItem>();
-        CartItem cartItem=new CartItem(this,0,1,0.0);
-        this.cartItems.add(cartItem);
     }
     public CartVO toVO(){
         CartVO cartVO = new CartVO();

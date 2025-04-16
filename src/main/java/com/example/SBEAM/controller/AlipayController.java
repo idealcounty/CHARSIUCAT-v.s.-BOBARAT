@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 @RestController
-@RequestMapping("/alipay")
+@RequestMapping("/api/alipay")
 public class AlipayController {
 
     @Autowired

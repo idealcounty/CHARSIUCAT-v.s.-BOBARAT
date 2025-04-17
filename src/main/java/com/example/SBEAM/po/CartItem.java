@@ -1,6 +1,7 @@
 package com.example.SBEAM.po;
 
 import com.example.SBEAM.vo.CartItemVO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +20,7 @@ public class CartItem {
 
     @ManyToOne
     @JoinColumn(name = "cart_id", nullable = false)
+    @JsonIgnore
     private Cart cart;
 
     @Column(name = "product_id",nullable = false)

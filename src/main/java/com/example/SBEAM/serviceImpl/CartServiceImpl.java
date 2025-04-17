@@ -38,6 +38,11 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
+    public CartVO getCart(int userId){
+        return cartRepository.findByUserId(userId);
+    }
+
+    @Override
     public Boolean updateCart(int productId,int numberOfProduct,CartVO cartVO){
         Cart cart = cartRepository.findByCartId(cartVO.getCartId());
         Product product = productRepository.findByProductId(productId);
@@ -49,7 +54,8 @@ public class CartServiceImpl implements CartService{
         if (optional.isPresent()) {
             CartItem existing = optional.get();
             existing.setProductQuantity(numberOfProduct);
-
+            if(numberOfProduct == 0)
+                cart.getCartItems().remove(existing);
         }
         else {
             CartItem cartItem = new CartItem(cart, productId, numberOfProduct, product.getProductPrice());

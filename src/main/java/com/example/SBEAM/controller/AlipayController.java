@@ -3,7 +3,7 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.OrderVO;
 import com.alipay.api.request.AlipayTradePagePayRequest;
-import com.example.SBEAM.configure.AliPayConfig;
+import com.example.SBEAM.configure.AlipayConfig;
 import com.example.SBEAM.enums.OrderStatus;
 import com.example.SBEAM.po.Orders;
 import com.example.SBEAM.repository.OrdersRepository;
@@ -23,12 +23,13 @@ import java.util.UUID;
 public class AlipayController {
 
     @Autowired
-    private AliPayConfig aliPayConfig;
+    private AlipayConfig alipayConfig;
     @Autowired
     private OrdersRepository ordersRepository;
 
     @GetMapping("/pay")
     public void pay(@RequestParam("orderId") int orderId, HttpServletResponse response) throws Exception {
+
         Orders order = ordersRepository.findById(orderId).orElse(null);
         if (order == null || order.getOrderStatus() != OrderStatus.PENDING) {
             response.setContentType("text/html;charset=UTF-8");
@@ -41,16 +42,16 @@ public class AlipayController {
             ordersRepository.save(order);
         }
         AlipayClient alipayClient = new DefaultAlipayClient(
-                aliPayConfig.getGatewayUrl(),
-                aliPayConfig.getAppId(),
-                aliPayConfig.getAppPrivateKey(),
+                alipayConfig.getGatewayUrl(),
+                alipayConfig.getAppId(),
+                alipayConfig.getAlipayPrivateKey(),
                 "json", "UTF-8",
-                aliPayConfig.getAlipayPublicKey(),
+                alipayConfig.getAlipayPublicKey(),
                 "RSA2"
         );
         AlipayTradePagePayRequest alipayRequest = new AlipayTradePagePayRequest();
-        alipayRequest.setReturnUrl(aliPayConfig.getReturnUrl());
-        alipayRequest.setNotifyUrl(aliPayConfig.getNotifyUrl());
+        alipayRequest.setReturnUrl(alipayConfig.getReturnUrl());
+        alipayRequest.setNotifyUrl(alipayConfig.getNotifyUrl());
         JSONObject bizContent = new JSONObject();
         bizContent.put("out_trade_no", order.getOutTradeNo());
         bizContent.put("total_amount", order.getTotalPrice().toString());
@@ -74,7 +75,7 @@ public class AlipayController {
             valueStr = new String(valueStr.getBytes("ISO-8859-1"), "UTF-8");
             params.put(name, valueStr);
         }
-        boolean signVerified = AlipayUtils.verifySignature(params, aliPayConfig.getAlipayPublicKey());
+        boolean signVerified = AlipayUtils.verifySignature(params, alipayConfig.getAlipayPublicKey());
         String outTradeNo = params.get("out_trade_no");
         String tradeNo = params.get("trade_no");
         String totalAmount = params.get("total_amount");
@@ -105,7 +106,7 @@ public class AlipayController {
             valueStr = new String(valueStr.getBytes("ISO-8859-1"), "UTF-8"); // 字符编码处理
             params.put(name, valueStr);
         }
-        boolean signVerified = AlipayUtils.verifySignature(params, aliPayConfig.getAlipayPublicKey());
+        boolean signVerified = AlipayUtils.verifySignature(params, alipayConfig.getAlipayPublicKey());
         if (signVerified) {
             String outTradeNo = params.get("out_trade_no");
             String tradeStatus = params.get("trade_status");

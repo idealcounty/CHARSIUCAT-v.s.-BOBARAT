@@ -22,6 +22,11 @@ public class CartController {
         return ResultVO.buildSuccess(cartService.getCart(userId));
     }
 
+    @GetMapping("/product/productDetail/{productId}/cart")
+    public boolean judgeCartItemExist(@PathVariable int productId, @RequestBody CartVO cartVO) {
+        return cartService.judgeCartItemExist(productId,cartVO);
+    }
+
     @PutMapping("/product/productDetail/{productId}/cart")
     public ResultVO<Boolean> updateCart(@PathVariable("productId") int productId,@RequestParam int numberOfProduct, @RequestBody CartVO cartVO) {
         return ResultVO.buildSuccess(cartService.updateCart(productId,numberOfProduct,cartVO));

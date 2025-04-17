@@ -39,7 +39,7 @@ public class CartServiceImpl implements CartService{
 
     @Override
     public CartVO getCart(int userId){
-        return cartRepository.findByUserId(userId);
+        return cartRepository.findByUserId(userId).toVO();
     }
 
     @Override
@@ -54,7 +54,7 @@ public class CartServiceImpl implements CartService{
         if (optional.isPresent()) {
             CartItem existing = optional.get();
             existing.setProductQuantity(numberOfProduct);
-            if(numberOfProduct == 0)
+            if(numberOfProduct == 0 )
                 cart.getCartItems().remove(existing);
         }
         else {

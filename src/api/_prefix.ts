@@ -6,3 +6,4 @@ export const USER_MODULE = `${API_MODULE}/users`
 export const PRODUCT_MODULE = `${API_MODULE}/product`
 //工具模块
 export const TOOL_MODULE = `${API_MODULE}/tools`
+

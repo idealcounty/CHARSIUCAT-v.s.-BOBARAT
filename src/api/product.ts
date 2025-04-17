@@ -12,6 +12,11 @@ export type ProductInfo = {
     productImages: string[],
 }
 
+export type Cart={
+    cartId: number,
+    userId: number,
+}
+
 // 创建商品
 export const createProduct = (productInfo: ProductInfo) => {
     return axios.post(`${PRODUCT_MODULE}/createProduct`, productInfo,
@@ -56,5 +61,13 @@ export const deleteProductById = (productId: number) => {
         })
 }
 
-
+export const updateCart = (productId: number, numberOfProduct: number, cartVO: Cart) => {
+    return axios.put(
+        `${PRODUCT_MODULE}/productDetail/${productId}/cart?numberOfProduct=${numberOfProduct}`,
+        cartVO,
+        {
+            headers: {'Content-Type': 'application/json'}
+        }
+    );
+};
 

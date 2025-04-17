@@ -1,72 +1,107 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import {userInfo,getUserCart,CartItem} from '../../api/user.ts'
-import {getProductByProductId,ProductInfo} from "../../api/product.ts";
+import { userInfo, getUserCart,getUserCartVO,CartItem} from '../../api/user.ts'
+import { getProductByProductId, ProductInfo,updateCart,Cart } from '../../api/product.ts'
 
 const sortList = ref(false)
 const nickname = ref('')
-const userId=ref()
-const sortMethod=ref(1)
-const wishlistItem=ref<CartItem[]>([])
-const wishlist=ref<ProductInfo[]>([])
-
+const userId = ref()
+const sortMethod = ref(1)
+const cart=ref<Cart>(null)
+const wishlistItem = ref<CartItem[]>([])
+const wishlist = ref<ProductInfo[]>([])
 
 /** 获取购物车 */
-
 const getUserInfo = async () => {
   userInfo().then(res => {
     nickname.value = res.data.result.name
     userId.value = res.data.result.id
+    getUserCartVO(parseInt(userId.value)).then(res=>{
+      cart.value = res.data.result
+      console.log(cart.value)
+    })
     getUserCart(parseInt(userId.value)).then(res => {
       wishlistItem.value = res.data
-      const productIds = wishlistItem.value.map(item => item.productId);
-      const productPromises = productIds.map(id => getProductByProductId(id));
+      const productIds = wishlistItem.value.map(item => item.productId)
+      const productPromises = productIds.map(id => getProductByProductId(id))
       Promise.all(productPromises).then(productList => {
-        wishlist.value = productList.map(item => item.data.result); // 将获取到的 product 列表赋值给 wishlist.value
-        console.log(wishlist.value[0]);
+        wishlist.value = productList.map(item => item.data.result)
       })
     })
   })
 }
 
 onMounted(() => {
-    getUserInfo(); // 获取用户信息和 wishlist
-});
+  getUserInfo() // 获取用户信息和 wishlist
+})
 
 /** 打开排序菜单 */
 function openSortMenu() {
-  if (!sortList.value)
-    sortList.value = true
+  if (!sortList.value) sortList.value = true
 }
-
-
 
 /** 关闭排序菜单 */
 function closeSortMenu() {
-  if (sortList.value)
-    sortList.value = false
+  if (sortList.value) sortList.value = false
 }
 
-function changeSortType(type:number) {
+function changeSortType(type: number) {
   closeSortMenu()
   sortMethod.value = type
-  localStorage.setItem('steamWishlistSort', type)
+  localStorage.setItem('steamWishlistSort', type.toString())
 }
+
+/**增加物品数量 */
+function addToCart(item: CartItem,now_cart: Cart) {
+  console.log(now_cart)
+  updateCart(item.productId,item.productQuantity+1,now_cart).then(res =>{
+    console.log(res)
+    getUserCart(parseInt(userId.value)).then(res => {
+      wishlistItem.value = res.data
+      const productIds = wishlistItem.value.map(item => item.productId)
+      const productPromises = productIds.map(id => getProductByProductId(id))
+      Promise.all(productPromises).then(productList => {
+        wishlist.value = productList.map(item => item.data.result)
+      })
+    })
+  })
+}
+
+/**减少物品数量 */
+function deleteToCart(item: CartItem,now_cart: Cart) {
+  console.log(now_cart)
+  updateCart(item.productId,item.productQuantity-1,now_cart).then(res =>{
+    console.log(res)
+    getUserCart(parseInt(userId.value)).then(res => {
+      wishlistItem.value = res.data
+      const productIds = wishlistItem.value.map(item => item.productId)
+      const productPromises = productIds.map(id => getProductByProductId(id))
+      Promise.all(productPromises).then(productList => {
+        wishlist.value = productList.map(item => item.data.result)
+      })
+    })
+  })
+}
+/** 计算总价格 */
+const totalPrice = computed(() => {
+  return wishlistItem.value.reduce((sum, item, index) => {
+    const product = wishlist.value[index]
+    return sum + (product?.productPrice*(1-0.01*product?.productDiscount) || 0) * item.productQuantity
+  }, 0)
+})
 </script>
 
 <template>
-  <div class="app" >
+  <div class="app">
     <div class="header">
-      <div class="header-avatar">
-      </div>
+      <div class="header-avatar"></div>
       {{ nickname }} 的愿望单
     </div>
 
     <div class="filter">
-      <div class="sort" :class="{ focus: sortList }" tabindex="0"
-           @click="openSortMenu()" @mouseleave="closeSortMenu()">
+      <div class="sort" :class="{ focus: sortList }" tabindex="0" @click="openSortMenu()" @mouseleave="closeSortMenu()">
         排序依据：
-        <div class="sort-type">{{ ['名称', '价格', '折扣', '添加日期', '发行日期'].at(sortMethod-1) }}</div>
+        <div class="sort-type">{{ ['名称', '价格', '折扣', '添加日期', '发行日期'].at(sortMethod - 1) }}</div>
         <img src="../../assets/btn_arrow_down_padded_white.png" alt="">
         <div class="sort-menu">
           <div class="sort-menu-item" @click.stop="changeSortType(1)">名称</div>
@@ -84,7 +119,7 @@ function changeSortType(type:number) {
         <p>您的愿望单里有 {{ wishlist.length }} 件物品，但均不匹配您在上方应用的筛选条件。</p>
       </div>
       <div v-else>
-        <div class="wishlist-item" v-for="item in wishlist" :key="item.productId">
+        <div class="wishlist-item" v-for="(item, index) in wishlist" :key="item.productId">
           <div class="item-logo">
             <img :src="item.productLogo" alt="商品logo">
           </div>
@@ -106,24 +141,34 @@ function changeSortType(type:number) {
           </div>
           <div class="item-price-action">
             <div class="item-price-container">
-              <div class="item-price">¥{{ item.productPrice }}</div>
-              <button class="add-to-cart" @click="addToCart(item)">购买</button>
+              <div class="item-price">原价：¥{{ item.productPrice }}</div>
+              <div class="item-price">折后：¥{{ item.productPrice*(1-0.01*item.productDiscount) }}</div>
+              <div class="item-price">数量：{{ wishlistItem[index].productQuantity }}</div>
+            </div>
+            <div>
+              <button class="add-to-cart" @click="addToCart(wishlistItem[index],cart)">+1</button>
+              <button class="add-to-cart" @click="deleteToCart(wishlistItem[index],cart)">-1</button>
             </div>
             <div class="item-added-info">
-              <span>添加时间 {{ '2025.4.15' }} (</span>
-              <a href="#" class="remove-link" @click.prevent="removeFromWishlist(item)">移除</a>
-              <span>)</span>
+              <a href="#" class="remove-link" @click.prevent="removeFromWishlist(item)">(移除)</a>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- 添加总价格和购买按钮 -->
+    <div class="footer" v-if="wishlist.length > 0">
+      <div class="total-price">
+        总价格：¥{{ totalPrice }}
+      </div>
+      <button class="buy-button">购买</button>
+    </div>
   </div>
-
-
 </template>
 
 <style scoped>
+/* 保持原有样式 */
 .app {
   display: flex;
   flex-direction: column;
@@ -164,16 +209,16 @@ function changeSortType(type:number) {
   letter-spacing: 1px;
   cursor: pointer;
   transition: color 0.2s, background-color 0.2s;
+}
 
-  &:hover {
-    color: #ffffff;
-    background-color: rgba(255, 255, 255, 0.1);
-  }
+.sort:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+}
 
-  &.focus {
-    color: #ffffff;
-    background-color: #808a9c;
-  }
+.sort.focus {
+  color: #ffffff;
+  background-color: #808a9c;
 }
 
 .sort-type {
@@ -190,11 +235,11 @@ function changeSortType(type:number) {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s;
+}
 
-  .sort.focus > & {
-    opacity: 1;
-    pointer-events: auto;
-  }
+.sort.focus > .sort-menu {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .sort-menu-item {
@@ -205,10 +250,10 @@ function changeSortType(type:number) {
   color: #ffffff;
   font-size: 12px;
   transition: background-color 0.1s;
+}
 
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
+.sort-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .list {
@@ -222,10 +267,10 @@ function changeSortType(type:number) {
   color: #e5e5e5;
   font-size: 14px;
   text-align: center;
+}
 
-  :last-child {
-    font-size: 12px;
-  }
+.empty :last-child {
+  font-size: 12px;
 }
 
 .wishlist-item {
@@ -268,7 +313,8 @@ function changeSortType(type:number) {
   margin-bottom: 12px;
 }
 
-.item-rating, .item-release-date {
+.item-rating,
+.item-release-date {
   font-size: 14px;
   color: #9099a1;
 }
@@ -291,7 +337,7 @@ function changeSortType(type:number) {
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
-  width: 200px;
+  width: 300px;
 }
 
 .item-price-container {
@@ -307,6 +353,7 @@ function changeSortType(type:number) {
 }
 
 .add-to-cart {
+  margin-right: 10px;
   padding: 8px 16px;
   background-color: #4caf50;
   color: white;
@@ -335,5 +382,37 @@ function changeSortType(type:number) {
 
 .remove-link:hover {
   text-decoration: underline;
+}
+
+/* 新增的总价格和购买按钮样式 */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 940px;
+  padding: 20px 0;
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.total-price {
+  font-size: 20px;
+  font-weight: bold;
+  color: #ffffff;
+}
+
+.buy-button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.2s;
+}
+
+.buy-button:hover {
+  background-color: #3d9c40;
 }
 </style>

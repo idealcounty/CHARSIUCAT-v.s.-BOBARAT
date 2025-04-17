@@ -73,3 +73,10 @@ export const getUserCart = (userId: number) => {
             return res
         })
 }
+
+export const getUserCartVO = (userId: number) => {
+    return axios.get(`${USER_MODULE}/${userId}`)
+        .then(res => {
+            return res
+        })
+}

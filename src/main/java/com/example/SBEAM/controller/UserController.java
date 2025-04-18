@@ -28,7 +28,7 @@ public class UserController {
         return ResultVO.buildSuccess(userService.getInformation());
     }
 
-    @PostMapping
+    @PutMapping
     public ResultVO<Boolean> updateInformation(@RequestBody UserVO userVO){
         boolean success = userService.updateInformation(userVO);
         if (success) {

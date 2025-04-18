@@ -13,12 +13,12 @@ public class OrdersController {
     @Autowired
     OrdersService ordersService;
 
-    @PostMapping("/users/{userId}/cart")
+    @PostMapping("/charge")//这里对应充值
     public ResultVO<Boolean> createOrder(OrdersVO ordersVO) {
         return ResultVO.buildSuccess(ordersService.createOrders(ordersVO));
     }
 
-    @DeleteMapping("/user/{userId}/orders/{orderId}")
+    @DeleteMapping("/user/{userId}/orders/{orderId}")//暂时可能用不到
     public ResultVO<Boolean> deleteOrders(@PathVariable int orderId) {
         return ResultVO.buildSuccess(ordersService.deleteOrdersByOrderId(orderId));
     }

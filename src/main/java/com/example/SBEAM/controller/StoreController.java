@@ -17,12 +17,10 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/store")
 public class StoreController {
-        @Autowired
-        StoreService storeService;
-
+    @Autowired
+    StoreService storeService;
     @PostMapping("/createStore")
     public ResultVO<Boolean> createStore(@RequestBody StoreVO storeVO) {
-        System.out.println("接收到的 storeVO: " + storeVO);
         return ResultVO.buildSuccess(storeService.createStore(storeVO));
     }
 

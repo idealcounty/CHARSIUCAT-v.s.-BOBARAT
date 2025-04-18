@@ -1,12 +1,37 @@
 package com.example.SBEAM.controller;
 import com.example.SBEAM.service.AdvertisementService;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.SBEAM.vo.AdvertisementVO;
+import com.example.SBEAM.vo.ResultVO;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
+
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/advertisement")
 public class AdvertisementController {
     @Autowired
     AdvertisementService advertisementService;
+
+    @PostMapping
+    public ResultVO<Boolean>createAdvertisement(@RequestBody AdvertisementVO advertisementVO) {
+        return ResultVO.buildSuccess(advertisementService.createAdvertisement(advertisementVO));
+    }
+    @DeleteMapping
+    public ResultVO<Boolean>deleteAdvertisement(@RequestParam int advertisementId) {
+        return ResultVO.buildSuccess(advertisementService.deleteAdvertisement(advertisementId));
+    }
+    @PutMapping
+    public ResultVO<Boolean>updateAdvertisement(@RequestBody AdvertisementVO advertisementVO) {
+        return ResultVO.buildSuccess(advertisementService.updateAdvertisement(advertisementVO));
+    }
+    @GetMapping
+    public ResultVO<List<AdvertisementVO>>getAllAdvertisement() {
+        return ResultVO.buildSuccess(advertisementService.showAllAdvertisements());
+    }
+    @GetMapping("/{advertisementId}")
+    public ResultVO<AdvertisementVO>getAdvertisement(@PathVariable int advertisementId) {
+        return ResultVO.buildSuccess(advertisementService.getAdvertisementByAdvertisementId(advertisementId));
+    }
 
 }

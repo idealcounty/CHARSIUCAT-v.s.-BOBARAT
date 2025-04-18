@@ -1,5 +1,7 @@
 package com.example.SBEAM.exception;
 
+import org.omg.CORBA.PUBLIC_MEMBER;
+
 /**
  * @Author: DingXiaoyu
  * @Date: 0:26 2023/11/26
@@ -34,4 +36,6 @@ public class SBEAMException extends RuntimeException{
     public static SBEAMException productNotExists(){return new SBEAMException("商品不存在!");}
     public static SBEAMException productNotEnough(){return new SBEAMException("商品数量不足!");}
     public static SBEAMException priceNotEnough(){return new SBEAMException("账户余额不足!");}
+    public static SBEAMException advertisementAlreadyExist(){return new SBEAMException("广告已经存在");}
+    public static SBEAMException advertisementNotExist(){return new SBEAMException("广告已经存在");}
 }

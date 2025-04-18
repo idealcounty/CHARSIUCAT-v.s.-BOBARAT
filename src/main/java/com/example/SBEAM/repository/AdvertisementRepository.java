@@ -4,4 +4,5 @@ import com.example.SBEAM.po.Advertisement;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AdvertisementRepository extends JpaRepository<Advertisement, Integer> {
+    Advertisement findByAdvertisementId(int id);
 }

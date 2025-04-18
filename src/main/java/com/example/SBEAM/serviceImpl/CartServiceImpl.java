@@ -77,7 +77,7 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public Boolean settleAccount(int userId,CartVO cartVO){
+    public Orders settleAccount(int userId,CartVO cartVO){
         Cart cart = cartRepository.findByCartId(cartVO.getCartId());
         User user = userRepository.findById(userId).get();
         double price=0;
@@ -96,7 +96,7 @@ public class CartServiceImpl implements CartService{
         cart.getCartItems().clear();
         cartRepository.save(cart);
 
-        return true;
+        return order;
     }
 
     @Override

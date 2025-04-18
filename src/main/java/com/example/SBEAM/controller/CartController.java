@@ -1,4 +1,5 @@
 package com.example.SBEAM.controller;
+import com.example.SBEAM.po.Orders;
 import com.example.SBEAM.service.CartService;
 import com.example.SBEAM.vo.CartItemVO;
 import com.example.SBEAM.vo.ProductVO;
@@ -37,7 +38,7 @@ public class CartController {
     }
 
     @PutMapping("/users/{userId}/cart")
-    public ResultVO<Boolean> settleAccount(@PathVariable("userId") int userId,@RequestBody CartVO cartVO){
+    public ResultVO<Orders> settleAccount(@PathVariable("userId") int userId, @RequestBody CartVO cartVO){
         return ResultVO.buildSuccess(cartService.settleAccount(userId,cartVO));
     }
 

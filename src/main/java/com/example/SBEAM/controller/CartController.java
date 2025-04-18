@@ -22,9 +22,9 @@ public class CartController {
         return ResultVO.buildSuccess(cartService.getCart(userId));
     }
 
-    @GetMapping("/product/productDetail/{productId}/cart")
-    public boolean judgeCartItemExist(@PathVariable int productId, @RequestBody CartVO cartVO) {
-        return cartService.judgeCartItemExist(productId,cartVO);
+    @PostMapping("/product/productDetail/{productId}/{cartId}")
+    public boolean judgeCartItemExist(@PathVariable("productId") int productId, @PathVariable("cartId") int cartId) {
+        return cartService.judgeCartItemExist(productId,cartId);
     }
 
     @PutMapping("/product/productDetail/{productId}/cart")

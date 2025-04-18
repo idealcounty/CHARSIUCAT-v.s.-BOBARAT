@@ -43,8 +43,8 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public Boolean judgeCartItemExist(Integer productId,CartVO cartVO){
-        Cart cart = cartRepository.findByCartId(cartVO.getCartId());
+    public Boolean judgeCartItemExist(Integer productId,Integer cartId){
+        Cart cart = cartRepository.findByCartId(cartId);
         Product product = productRepository.findByProductId(productId);
         Optional<CartItem> optional = cart.getCartItems().stream().filter(item -> item.getProductId().equals(productId)).findFirst();
         if (optional.isPresent()) {

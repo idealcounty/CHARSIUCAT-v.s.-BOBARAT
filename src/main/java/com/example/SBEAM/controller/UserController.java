@@ -28,7 +28,7 @@ public class UserController {
         return ResultVO.buildSuccess(userService.getInformation());
     }
 
-    @PutMapping ("/{userId}")
+    @PostMapping ("/{userId}")
     public ResultVO<Boolean> updateInformation(@PathVariable int userId,@RequestBody UserVO userVO){
         boolean success = userService.updateInformation(userId,userVO);
         if (success) {

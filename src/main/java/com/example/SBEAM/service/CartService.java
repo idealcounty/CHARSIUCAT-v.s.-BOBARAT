@@ -11,4 +11,5 @@ public interface CartService {
     Boolean updateCart(int productId,int numberOfProduct,CartVO cartVO);
     OrdersVO settleAccount(int userId, CartVO cartVO);
     List<CartItemVO> showAllCartItems(int userId);
+    int getCartItemCount(int cartId);
 }

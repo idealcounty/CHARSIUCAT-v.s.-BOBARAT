@@ -106,4 +106,10 @@ public class CartServiceImpl implements CartService{
         List<CartItem> cartItems = cart.getCartItems();
         return cartItems.stream().map(CartItem::toVO).collect(Collectors.toList());
     }
+
+    @Override
+    public int getCartItemCount(int cartId){
+        Cart cart = cartRepository.findByCartId(cartId);
+        return cart.getCartItems().size();
+    }
 }

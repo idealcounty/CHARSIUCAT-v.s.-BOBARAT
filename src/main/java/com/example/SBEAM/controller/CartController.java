@@ -38,4 +38,8 @@ public class CartController {
         return ResultVO.buildSuccess(cartService.settleAccount(userId,cartVO));
     }
 
+    @GetMapping("/user/{userId}/cart/{cartId}")
+    public int getCartItemCount(@PathVariable("userId") int userId, @PathVariable("cartId") int cartId) {
+        return cartService.getCartItemCount(cartId);
+    }
 }

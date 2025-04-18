@@ -1,10 +1,6 @@
 package com.example.SBEAM.controller;
-import com.example.SBEAM.po.Orders;
 import com.example.SBEAM.service.CartService;
-import com.example.SBEAM.vo.CartItemVO;
-import com.example.SBEAM.vo.ProductVO;
-import com.example.SBEAM.vo.ResultVO;
-import com.example.SBEAM.vo.CartVO;
+import com.example.SBEAM.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,7 +34,7 @@ public class CartController {
     }
 
     @PutMapping("/users/{userId}/cart")
-    public ResultVO<Orders> settleAccount(@PathVariable("userId") int userId, @RequestBody CartVO cartVO){
+    public ResultVO<OrdersVO> settleAccount(@PathVariable("userId") int userId, @RequestBody CartVO cartVO){
         return ResultVO.buildSuccess(cartService.settleAccount(userId,cartVO));
     }
 

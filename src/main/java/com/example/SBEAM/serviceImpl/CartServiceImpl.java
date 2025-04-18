@@ -10,6 +10,7 @@ import com.example.SBEAM.service.CartService;
 import com.example.SBEAM.service.CartItemService;
 import com.example.SBEAM.vo.CartVO;
 import com.example.SBEAM.vo.CartItemVO;
+import com.example.SBEAM.vo.OrdersVO;
 import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,7 @@ public class CartServiceImpl implements CartService{
     }
 
     @Override
-    public Orders settleAccount(int userId,CartVO cartVO){
+    public OrdersVO settleAccount(int userId, CartVO cartVO){
         Cart cart = cartRepository.findByCartId(cartVO.getCartId());
         User user = userRepository.findById(userId).get();
         double price=0;
@@ -96,7 +97,7 @@ public class CartServiceImpl implements CartService{
         cart.getCartItems().clear();
         cartRepository.save(cart);
 
-        return order;
+        return order.toVO();
     }
 
     @Override

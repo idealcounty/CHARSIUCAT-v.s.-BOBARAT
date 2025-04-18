@@ -53,9 +53,7 @@ function changeSortType(type: number) {
 
 /**增加物品数量 */
 function addToCart(item: CartItem,now_cart: Cart) {
-  console.log(now_cart)
   updateCart(item.productId,item.productQuantity+1,now_cart).then(res =>{
-    console.log(res)
     getUserCart(parseInt(userId.value)).then(res => {
       wishlistItem.value = res.data
       const productIds = wishlistItem.value.map(item => item.productId)
@@ -69,9 +67,21 @@ function addToCart(item: CartItem,now_cart: Cart) {
 
 /**减少物品数量 */
 function deleteToCart(item: CartItem,now_cart: Cart) {
-  console.log(now_cart)
   updateCart(item.productId,item.productQuantity-1,now_cart).then(res =>{
-    console.log(res)
+    getUserCart(parseInt(userId.value)).then(res => {
+      wishlistItem.value = res.data
+      const productIds = wishlistItem.value.map(item => item.productId)
+      const productPromises = productIds.map(id => getProductByProductId(id))
+      Promise.all(productPromises).then(productList => {
+        wishlist.value = productList.map(item => item.data.result)
+      })
+    })
+  })
+}
+
+/**删除购物车物品*/
+function removeFromWishlist(item: CartItem,now_cart: Cart) {
+  updateCart(item.productId,0,now_cart).then(res =>{
     getUserCart(parseInt(userId.value)).then(res => {
       wishlistItem.value = res.data
       const productIds = wishlistItem.value.map(item => item.productId)
@@ -150,7 +160,7 @@ const totalPrice = computed(() => {
               <button class="add-to-cart" @click="deleteToCart(wishlistItem[index],cart)">-1</button>
             </div>
             <div class="item-added-info">
-              <a href="#" class="remove-link" @click.prevent="removeFromWishlist(item)">(移除)</a>
+              <a href="#" class="remove-link" @click.prevent="removeFromWishlist(wishlistItem[index],cart)">(移除)</a>
             </div>
           </div>
         </div>

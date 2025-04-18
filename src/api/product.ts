@@ -1,5 +1,6 @@
 import {axios} from '../utils/request'
 import {PRODUCT_MODULE} from './_prefix'
+import { CartItem } from './user'
 
 export type ProductInfo = {
     productId: number,
@@ -15,6 +16,7 @@ export type ProductInfo = {
 export type Cart={
     cartId: number,
     userId: number,
+    cartItems: CartItem[],
 }
 
 // 创建商品
@@ -70,4 +72,11 @@ export const updateCart = (productId: number, numberOfProduct: number, cartVO: C
         }
     );
 };
+
+export const productExists = (productId: number, cartId: number) => {
+    return axios.post(`${PRODUCT_MODULE}/productDetail/${productId}/${cartId}`)
+        .then(res => {
+            return res
+        })
+}
 

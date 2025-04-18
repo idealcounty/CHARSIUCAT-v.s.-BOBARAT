@@ -1,44 +1,99 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue"
-import { router } from '../../router'
-import { getProductByProductId } from "../../api/product.ts";
+import { onMounted, ref, watch } from "vue";
+import { router } from "../../router";
+import { Cart, getProductByProductId, updateCart, productExists } from "../../api/product.ts";
+import { CartItem, getUserCartVO, userInfo } from "../../api/user.ts";
 
-const product_id = router.currentRoute.value.params.product_id
-const productVO = ref()
-const productId = ref('')
-const productName = ref('')
-const productAmount = ref('')
-const productPrice = ref('')
-const productDiscount = ref('')
-const productDescription = ref('')
-const productLogo = ref('')
-const productImages = ref([])
+const product_id = router.currentRoute.value.params.product_id;
+const productVO = ref();
+const productId = ref('');
+const productName = ref('');
+const productAmount = ref('');
+const productPrice = ref('');
+const productDiscount = ref('');
+const productDescription = ref('');
+const productLogo = ref('');
+const productImages = ref([]);
+const userId = ref();
+const cartId = ref();
+const cart = ref<Cart>(null);
 
-const activeImage = ref(1)
+const existsResult = ref<boolean | null>(null);
+
+const activeImage = ref(1);
+
 
 const loadData = async () => {
-  const res = await getProductByProductId(Number(product_id))
-  productVO.value = res.data.result
-  productId.value = productVO.value.productId
-  productName.value = productVO.value.productName
-  productAmount.value = productVO.value.productAmount
-  productPrice.value = productVO.value.productPrice
-  productDiscount.value = productVO.value.productDiscount
-  productDescription.value = productVO.value.productDescription
-  productLogo.value = productVO.value.productLogo
-  productImages.value = productVO.value.productImages
-  console.log(productVO.value)
-}
+  const res = await getProductByProductId(Number(product_id));
+  productVO.value = res.data.result;
+  productId.value = productVO.value.productId;
+  productName.value = productVO.value.productName;
+  productAmount.value = productVO.value.productAmount;
+  productPrice.value = productVO.value.productPrice;
+  productDiscount.value = productVO.value.productDiscount;
+  productDescription.value = productVO.value.productDescription;
+  productLogo.value = productVO.value.productLogo;
+  productImages.value = productVO.value.productImages;
+};
 
 onMounted(async () => {
-  await loadData()
-})
+  await loadData();
+  const userRes = await userInfo();
+  userId.value = userRes.data.result.id;
+  const cartRes = await getUserCartVO(userId.value);
+  cart.value = cartRes.data.result;
+  cartId.value = cartRes.data.result.cartId;
+  checkExistence();
+});
+
+const checkExistence = async () => {
+  if (!productId.value || !cartId.value) {
+    existsResult.value = null; // 参数未准备好
+    return;
+  }
+  try {
+    const res = await productExists(Number(productId.value), cartId.value); // 转换productId为数字
+    existsResult.value = res.data; // 假设接口返回布尔值
+  } catch (error) {
+    console.error("检查失败", error);
+    existsResult.value = false;
+  }
+};
+
+watch([productId, cartId], () => {
+  checkExistence();
+});
+
+function addToCart(product_id:number,now_cart: Cart) {
+  updateCart(product_id,1,now_cart).then( res => {
+    if(res.data.code==='000'){
+      ElMessage({
+        message: "添加成功！",
+        type: 'success',
+        center: true,
+      })
+    }
+    existsResult.value = true;
+  })
+}
+function deleteToCart(product_id:number,now_cart: Cart) {
+  updateCart(product_id,0,now_cart).then( res => {
+    if(res.data.code==='000'){
+      ElMessage({
+        message: "移除成功！",
+        type: 'success',
+        center: true,
+      })
+    }
+  })
+  existsResult.value = false;
+}
 </script>
 
 <template>
   <div class="app">
     <div class="app-background"></div>
-    <!-- 导航栏 -->
+    <!-- 导航栏（完全保留原有代码） -->
     <div class="store-header">
       <div class="content">
         <div class="store_controls">
@@ -68,7 +123,7 @@ onMounted(async () => {
         </div>
       </div>
     </div>
-    <!--标题-->
+    <!-- 标题（完全保留原有代码） -->
     <div class="page_title_area game_title_area page_content">
       <div class="apphub_HomeHeaderContent">
         <div class="apphub_HeaderStandardTop">
@@ -77,11 +132,11 @@ onMounted(async () => {
       </div>
     </div>
     <div style="clear: left;"></div>
-    <!--主体-->
+    <!-- 主体内容（完全保留原有代码，仅修改按钮部分） -->
     <div class="block game_media_and_summary_ctn">
       <div class="game_background_glow">
         <div class="block_content page_content">
-          <!--右栏-->
+          <!-- 右栏 -->
           <div class="rightcol">
             <div class="glance_ctn">
               <div class="game_header_image_ctn">
@@ -96,7 +151,7 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <!--左栏-->
+          <!-- 左栏 -->
           <div class="leftcol">
             <div class="highlight_ctn">
               <div class="highlight_overflow">
@@ -127,7 +182,18 @@ onMounted(async () => {
         <div class="queue_ctn">
           <div class="queue_actions_ctn">
             <div class="add_to_wishlist_area">
-              <div class="btnv6_blue_hoverfade btn_medium add_to_wishlist">添加至您的愿望单</div>
+              <!-- 原有v-if改为基于existsResult -->
+              <div
+                  class="btnv6_blue_hoverfade btn_medium add_to_wishlist"
+                  v-if="existsResult === false"
+                  @click="addToCart(product_id, cart)"
+              >添加至您的愿望单</div>
+
+              <div
+                  class="btnv6_blue_hoverfade btn_medium add_to_wishlist"
+                  v-if="existsResult === true"
+                  @click="deleteToCart(product_id, cart)"
+              >从愿望单中移除</div>
             </div>
           </div>
         </div>

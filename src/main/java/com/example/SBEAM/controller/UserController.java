@@ -28,9 +28,9 @@ public class UserController {
         return ResultVO.buildSuccess(userService.getInformation());
     }
 
-    @PutMapping
-    public ResultVO<Boolean> updateInformation(@RequestBody String avatar,@RequestBody String userName,@RequestBody String password,@RequestBody String address){
-        boolean success = userService.updateInformation(avatar,userName,password,address);
+    @PutMapping ("/{userId}")
+    public ResultVO<Boolean> updateInformation(@PathVariable int userId,@RequestBody UserVO userVO){
+        boolean success = userService.updateInformation(userId,userVO);
         if (success) {
             return ResultVO.buildSuccess(true);
         }
@@ -39,9 +39,9 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{userId}")
-    public ResultVO<Void> deposit(@PathVariable int userId, @RequestParam double amount){
-        userService.depositBalance(userId,amount);
-        return ResultVO.buildSuccess();
-    }
+//    @PutMapping("/{userId}")
+//    public ResultVO<Void> deposit(@PathVariable int userId, @RequestParam double amount){
+//        userService.depositBalance(userId,amount);
+//        return ResultVO.buildSuccess();
+//    }
 }

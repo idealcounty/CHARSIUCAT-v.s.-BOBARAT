@@ -60,12 +60,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean updateInformation(String avatar, String userName,String password,String address) {
-        User user=securityUtil.getCurrentUser();
-        user.setPassword(password);
-        user.setName(userName);
-        user.setAddress(address);
-        user.setAvatar(avatar);
+    public Boolean updateInformation(int userId,UserVO userVO) {
+        User user=userRepository.findById(userId).get();
+        user.setPassword(userVO.getPassword());
+        user.setName(userVO.getName());
+        user.setAddress(userVO.getAddress());
+        user.setAvatar(userVO.getAvatar());
         userRepository.save(user);
         return true;
     }

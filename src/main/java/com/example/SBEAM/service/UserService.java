@@ -9,7 +9,7 @@ public interface UserService {
 
     UserVO getInformation();
 
-    Boolean updateInformation(String avatar, String userName,String password,String address);
+    Boolean updateInformation(int userId,UserVO userVO);
 
     void depositBalance(Integer userId, double amount);
 }

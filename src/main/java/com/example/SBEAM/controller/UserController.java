@@ -29,8 +29,8 @@ public class UserController {
     }
 
     @PutMapping
-    public ResultVO<Boolean> updateInformation(@RequestBody UserVO userVO){
-        boolean success = userService.updateInformation(userVO);
+    public ResultVO<Boolean> updateInformation(@RequestBody String avatar,@RequestBody String userName,@RequestBody String password,@RequestBody String address){
+        boolean success = userService.updateInformation(avatar,userName,password,address);
         if (success) {
             return ResultVO.buildSuccess(true);
         }

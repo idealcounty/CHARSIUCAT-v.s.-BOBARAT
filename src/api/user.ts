@@ -29,6 +29,7 @@ type UpdateInfo = {
     name?: string,
     password?: string,
     address?: string,
+    avatar?: string,
 }
 
 
@@ -59,8 +60,9 @@ export const userInfo = () => {
 }
 
 // 更新用户信息
-export const userInfoUpdate = (updateInfo: UpdateInfo) => {
-    return axios.post(`${USER_MODULE}`, updateInfo, {headers: {'Content-Type': 'application/json'}})
+export const userInfoUpdate = (userId: number, updateInfo: UpdateInfo) => {
+    return axios.post(`${USER_MODULE}/${userId}`, updateInfo,
+        {headers: {'Content-Type': 'application/json'}})
         .then(res => {
             return res
         })

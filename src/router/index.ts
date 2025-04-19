@@ -28,6 +28,7 @@ const router = createRouter({
         meta: {title: '管理商品'},
     }, {
         path: '/profile/:user_id',
+        name: 'profile',
         component: () => import('../views/user/Profile.vue'),
     }, {
         path: '/createProduct',

@@ -71,11 +71,15 @@ function logout() {
         <RouterLink v-if="token" class="menuitem supernav nickname profile" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
           {{ userName }}
           <div v-show="!mineMenuLocked" class="submenu_Profile">
-            <RouterLink class="profile_item" :to="`/profile/${userId}`" @click="mineMenuLocked = true">个人资料</RouterLink>
+            <RouterLink
+                class="profile_item"
+                :to="{ name:'profile',params:{ user_id:userId }}"
+                @click="mineMenuLocked = true"
+            >个人资料</RouterLink>
             <RouterLink class="profile_item" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
           </div>
         </RouterLink>
-<!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
+        <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
         <RouterLink v-if="token" class="menuitem" :class="{ current: current === 4 }" to="/chat">聊天</RouterLink>
         <RouterLink class="menuitem" :class="{ current: current === 5 }" to="">客服</RouterLink>
       </div>
@@ -95,7 +99,11 @@ function logout() {
           </div>
         </div>
 
-        <RouterLink v-if="token" class="user-avatar" :to="`/profile/${userId}`">
+        <RouterLink
+            v-if="token"
+            class="user-avatar"
+            :to="{ name:'profile',params:{ user_id:userId }}"
+        >
           <img :src="userAvatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'" alt="">
         </RouterLink>
         <RouterLink v-else class="login" to="/login">登录</RouterLink>

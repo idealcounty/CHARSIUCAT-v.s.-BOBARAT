@@ -38,8 +38,8 @@ public class AdvertisementServiceImpl implements AdvertisementService{
     }
 
     @Override
-    public Boolean updateAdvertisement(AdvertisementVO advertisementVO){
-        Advertisement advertisement=advertisementRepository.findByAdvertisementId(advertisementVO.getAdvertisementId());
+    public Boolean updateAdvertisement(int advertisementId,AdvertisementVO advertisementVO){
+        Advertisement advertisement=advertisementRepository.findByAdvertisementId(advertisementId);
         if(advertisement==null){
             throw SBEAMException.advertisementNotExist();
         }

@@ -2,6 +2,7 @@ package com.example.SBEAM.controller;
 import com.example.SBEAM.service.AdvertisementService;
 import com.example.SBEAM.vo.AdvertisementVO;
 import com.example.SBEAM.vo.ResultVO;
+import org.hibernate.boot.jaxb.internal.stax.JpaOrmXmlEventReader;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,9 +22,9 @@ public class AdvertisementController {
     public ResultVO<Boolean>deleteAdvertisement(@RequestParam int advertisementId) {
         return ResultVO.buildSuccess(advertisementService.deleteAdvertisement(advertisementId));
     }
-    @PutMapping
-    public ResultVO<Boolean>updateAdvertisement(@RequestBody AdvertisementVO advertisementVO) {
-        return ResultVO.buildSuccess(advertisementService.updateAdvertisement(advertisementVO));
+    @PutMapping("/{advertisementId}")
+    public ResultVO<Boolean>updateAdvertisement(@PathVariable  int advertisementId,@RequestBody AdvertisementVO advertisementVO) {
+        return ResultVO.buildSuccess(advertisementService.updateAdvertisement(advertisementId,advertisementVO));
     }
     @GetMapping
     public ResultVO<List<AdvertisementVO>>getAllAdvertisement() {

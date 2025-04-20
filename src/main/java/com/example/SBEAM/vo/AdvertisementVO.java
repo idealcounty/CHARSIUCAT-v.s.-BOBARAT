@@ -14,14 +14,14 @@ public class AdvertisementVO {
     private String advertisementTitle;
     private String advertisementContent;
     private String advertisementImageUrl;
-    private Product product;
+    private Integer productId;
     public Advertisement toPO(){
         Advertisement advertisement = new Advertisement();
         advertisement.setAdvertisementId(this.advertisementId);
         advertisement.setAdvertisementTitle(this.advertisementTitle);
         advertisement.setAdvertisementContent(this.advertisementContent);
         advertisement.setAdvertisementImageUrl(this.advertisementImageUrl);
-        advertisement.setProduct(this.product);
+        advertisement.setProductId(this.productId);
         return advertisement;
     }
 }

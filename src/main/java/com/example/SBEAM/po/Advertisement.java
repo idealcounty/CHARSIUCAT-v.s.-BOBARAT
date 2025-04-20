@@ -25,9 +25,8 @@ public class Advertisement {
     @Column(name = "advertisement_image_url", nullable = false, length = 500, columnDefinition = "VARCHAR(500) COMMENT '广告图片url'")
     private String advertisementImageUrl;
 
-    @ManyToOne
-    @JoinColumn(name = "product_id", nullable = false, foreignKey = @ForeignKey(name = "fk_advertisement_product"))
-    private Product product;
+    @Column(name="product_id", nullable = false)
+    private Integer productId;
 
     public AdvertisementVO toVO(){
         AdvertisementVO advertisementVO = new AdvertisementVO();
@@ -35,7 +34,7 @@ public class Advertisement {
         advertisementVO.setAdvertisementTitle(advertisementTitle);
         advertisementVO.setAdvertisementContent(advertisementContent);
         advertisementVO.setAdvertisementImageUrl(advertisementImageUrl);
-        advertisementVO.setProduct(product);
+        advertisementVO.setProductId(productId);
         return advertisementVO;
     }
 }

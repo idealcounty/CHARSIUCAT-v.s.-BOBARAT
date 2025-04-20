@@ -76,7 +76,7 @@ async function handleCreateProduct() {
         type: 'success',
         center: true,
       })
-      // router.push({path: "/admin"})
+      router.push({path:'./admin'})
     } else if (res.data.code === '400') {
       ElMessage({
         message: res.data.msg,

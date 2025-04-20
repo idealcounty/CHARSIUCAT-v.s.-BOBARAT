@@ -1,29 +1,50 @@
 <script setup lang="ts">
-import {ref} from 'vue'
-import {router} from '../../router'
-import {getAllProducts, ProductInfo} from "../../api/product.ts";
-import {deleteProductById} from "../../api/product.ts";
+import { ref } from 'vue'
+import { router } from '../../router'
+import { getAllProducts, ProductInfo, getProductByProductId } from "../../api/product.ts";
+import { deleteProductById } from "../../api/product.ts";
+import { AdvertisementInfo, getAllAdvertisements, deleteAdvertisementById } from "../../api/advertisement.ts";
 
 const activeTab = ref(0)
 const productList = ref<ProductInfo[]>([])
+const advertisementList = ref<AdvertisementInfo[]>([])
 const loading = ref(false)
+const isProductSelected = ref(false)
 
 getAllProducts().then(res => {
   productList.value = res.data.result
 })
 
-function jumpToUpdate(product_id: number) {
+getAllAdvertisements().then(res => {
+  advertisementList.value = res.data.result
+})
+
+function jumpToUpdateProduct(product_id: number) {
   router.push({path: '/updateProduct/' + product_id})
 }
 
-function jumpToCreate() {
+function jumpToCreateProduct() {
   router.push({path: '/createProduct'})
+}
+
+function jumpToUpdateAdvertisement(advertisement_id: number) {
+  router.push({path: '/updateAdvertisement/' + advertisement_id})
+}
+
+function jumpToCreateAdvertisement() {
+  router.push({path: '/createAdvertisement'})
 }
 
 async function deleteProduct(product_id: number) {
   await deleteProductById(product_id)
   const res = await getAllProducts()
   productList.value = res.data.result
+}
+
+async function deleteAdvertisement(advertisement_id: number) {
+  await deleteAdvertisementById(advertisement_id)
+  const res = await getAllAdvertisements()
+  advertisementList.value = res.data.result
 }
 </script>
 
@@ -35,17 +56,31 @@ async function deleteProduct(product_id: number) {
         <div class="store_horizontal_minislider_ctn" style="height: 31px;">
           <div class="home_tabs_row store_horizontal_minislider">
             <div class="home_tab">
-              <div class="tab_content">商品列表</div>
+              <div v-if="!isProductSelected" class="tab_content">商品列表</div>
+              <div v-else class="tab_content">广告列表</div>
             </div>
           </div>
         </div>
-        <div v-loading="loading" class="create-button" @click.prevent="jumpToCreate">
-          创建商品
+        <div v-if="!isProductSelected" style="display: flex;">
+          <div v-loading="loading" class="switch-button" @click.prevent="isProductSelected = true">
+            管理广告
+          </div>
+          <div v-loading="loading" class="create-button" @click.prevent="jumpToCreateProduct">
+            创建商品
+          </div>
+        </div>
+        <div v-else style="display: flex;">
+          <div v-loading="loading" class="switch-button" @click.prevent="isProductSelected = false">
+            管理商品
+          </div>
+          <div v-loading="loading" class="create-button" @click.prevent="jumpToCreateAdvertisement">
+            创建广告
+          </div>
         </div>
       </div>
       <div class="home_page_content flex_cols">
         <div class="home_leftcol home_tab_col">
-          <div class="home_tabs_content">
+          <div v-if="!isProductSelected" class="home_tabs_content">
             <router-link
                 v-for="(product, index) in productList"
                 :key="index"
@@ -68,11 +103,46 @@ async function deleteProduct(product_id: number) {
               <div class="tab_item_content">
                 <div class="tab_item_name">{{ product.productName }}</div>
               </div>
-              <div v-loading="loading" class="update-button" @click.prevent="jumpToUpdate(product.productId)">
+              <div v-loading="loading" class="update-button" @click.prevent="jumpToUpdateProduct(product.productId)">
                 更新信息
               </div>
               <div v-loading="loading" class="delete-button" @click.prevent="deleteProduct(product.productId)">
                 删除商品
+              </div>
+              <div style="clear: both;"></div>
+              <div class="ds_options">
+                <div></div>
+              </div>
+            </router-link>
+          </div>
+          <div v-else class="home_tabs_content">
+            <router-link
+                v-for="(advertisement, index) in advertisementList"
+                :key="index"
+                class="tab_item"
+                @mouseenter="activeTab = index"
+                :to="{name:'updateAdvertisement',params:{ advertisement_id:advertisement.advertisementId }}"
+            >
+              <div class="tab_item_cap">
+                <img class="tab_item_cap_img" :src="productList[advertisement.productId-1].productLogo">
+              </div>
+              <div class="discount_block tab_item_discount">
+                <div class="discount_pct">-{{ productList[advertisement.productId-1].productDiscount }}%</div>
+                <div class="discount_prices">
+                  <div class="discount_original_price">{{ (productList[advertisement.productId-1].productPrice).toFixed(2) }}</div>
+                  <div class="discount_final_price">
+                    {{ (productList[advertisement.productId-1].productPrice * (1 - productList[advertisement.productId-1].productDiscount / 100)).toFixed(2) }}
+                  </div>
+                </div>
+              </div>
+              <div class="tab_item_content">
+                <div class="tab_item_name">{{ productList[advertisement.productId-1].productName }}</div>
+              </div>
+              <div v-loading="loading" class="update-button" @click.prevent="jumpToUpdateAdvertisement(advertisement.advertisementId)">
+                更新信息
+              </div>
+              <div v-loading="loading" class="delete-button" @click.prevent="deleteAdvertisement(advertisement.advertisementId)">
+                删除广告
               </div>
               <div style="clear: both;"></div>
               <div class="ds_options">
@@ -212,6 +282,7 @@ async function deleteProduct(product_id: number) {
   -webkit-text-size-adjust: none;
   overflow: visible; /* 让伪元素能扩展出组件本体 */
   z-index: 0;
+  text-decoration: none;
 }
 
 /* 背景伪元素 */
@@ -432,5 +503,20 @@ h2 {
   cursor: pointer;
 }
 
-
+.switch-button{
+  box-sizing: border-box;
+  width: 100px;
+  border-radius: 2px;
+  position: absolute;
+  right: 110px;
+  top: 100%;
+  transform: translateY(-50%);
+  z-index: 2;
+  color: #ffffff;
+  font-size: 14px;
+  line-height: 35px;
+  text-align: center;
+  background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+  cursor: pointer;
+}
 </style>

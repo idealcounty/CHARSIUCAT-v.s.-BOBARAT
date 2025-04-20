@@ -39,6 +39,15 @@ const router = createRouter({
         component: () => import('../views/admin/UpdateProduct.vue'),
         meta: {title: '更新商品信息'}
     }, {
+        path: '/createAdvertisement',
+        component: () => import('../views/admin/CreateAdvertisement.vue'),
+        meta: {title: '创建商品'}
+    }, {
+        path: '/updateAdvertisement/:advertisement_id',
+        name: 'updateAdvertisement',
+        component: () => import('../views/admin/UpdateAdvertisement.vue'),
+        meta: {title: '更新广告信息'}
+    }, {
         path: '/wishlist',
         component: () => import('../views/user/WishList.vue'),
         meta: {title: '创建商品'}

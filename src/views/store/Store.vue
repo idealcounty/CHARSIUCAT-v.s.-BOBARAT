@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { getAllProducts, ProductInfo } from "../../api/product.ts";
+import { AdvertisementInfo,getAllAdvertisements } from "../../api/advertisement.ts";
 
 const currentHour = ref(new Date().getHours())
 const activeTab = ref(0)
+const activeScreenshot = ref(-1)
 const productList = ref<ProductInfo[]>([])
+const advertisementList = ref<AdvertisementInfo[]>([])
+const advertisementListsz = ref(0)
+const current = ref(0)
+
+getAllAdvertisements().then(res => {
+  advertisementList.value = res.data.result
+  advertisementListsz.value = advertisementList.value.length
+})
 
 getAllProducts().then(res => {
   productList.value = res.data.result
@@ -17,7 +27,6 @@ getAllProducts().then(res => {
     <div class="store-background"
          :class="{ 'store-background_day': currentHour >= 6 && currentHour < 18, 'store-background_night': currentHour < 6 || currentHour >= 18 }"></div>
     <!-- 导航栏 -->
-    <!-- 导航栏 -->
     <div class="store-header">
       <div class="content">
         <div class="store_controls">
@@ -26,7 +35,7 @@ getAllProducts().then(res => {
               <div class="store_header_btn_caps store_header_btn_leftcap"></div>
               <div class="store_header_btn_caps store_header_btn_rightcap"></div>
               <router-link class="store_header_btn_content" to="/wishlist">
-                愿望单（24)
+                愿望单（24）
               </router-link>
             </div>
           </div>
@@ -45,98 +54,9 @@ getAllProducts().then(res => {
           </div>
           <div class="store_nav_rightcap"></div>
         </div>
-<!--        <div class="search">-->
-<!--          <input v-model="keyword" class="search-input" placeholder="搜索" @input="getSearchSuggestionsDebounce()">-->
-<!--          <RouterLink class="search-button" to=""/>-->
-<!--          &lt;!&ndash; 搜索建议 &ndash;&gt;-->
-<!--          <div class="search-suggestions">-->
-<!--            <RouterLink v-for="(item, index) in suggestions" :key="index" class="search-suggestion" :to="`/app/${item.appId}`">-->
-<!--              <div class="search-suggestion-image">-->
-<!--                <img :src="item.header" alt="">-->
-<!--              </div>-->
-<!--              <div class="search-suggestion-info">-->
-<!--                <div class="search-suggestion-name">{{ item.name }}</div>-->
-<!--                <div class="search-suggestion-price">{{ getPriceStr(item.finalPrice) }}</div>-->
-<!--              </div>-->
-<!--              <div v-if="item.status === 1" class="search-suggestion-on-wishlist">-->
-<!--                <img src="../../assets/on_wishlist.png" alt="">-->
-<!--                <span>已在愿望单中</span>-->
-<!--              </div>-->
-<!--            </RouterLink>-->
-<!--          </div>-->
-<!--        </div>-->
       </div>
     </div>
-<!--    &lt;!&ndash; 精选与推荐 &ndash;&gt;-->
-<!--    <div class="store-section">-->
-<!--      <div class="store-section-title">精选与推荐</div>-->
-<!--      <Swiper class="recommendations" :num="recommendations.length">-->
-<!--        <template v-for="(item, index) in recommendations" :key="index" #[index]>-->
-<!--          <RouterLink class="recommendation" :to="`/app/${item.appId}`"-->
-<!--                      @mouseenter="recommendationHovered = true" @mouseleave="recommendationHovered = false">-->
-<!--            <div class="recommendation-cover">-->
-<!--              <img class="current" v-lazy="item.cover" alt="">-->
-<!--              <template v-for="(item, index) in item.images" :key="index">-->
-<!--                <img :class="{ current: recommendationImageIndex === index }" v-lazy="item" alt="">-->
-<!--              </template>-->
-<!--              <ExpandButton v-if="token" v-model:status="item.status" :app-id="item.appId"-->
-<!--                            :show="recommendationHovered" @update:status="getWishlistSize()"/>-->
-<!--              <div class="recommendation-on-wishlist" :class="{ show: item.status === 1 }">-->
-<!--                <img src="../../assets/on_wishlist.png" alt="">-->
-<!--                <span>已在愿望单中</span>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--            <div class="recommendation-info">-->
-<!--              <div v-trunc class="recommendation-name">{{ item.name }}</div>-->
-<!--              <div class="recommendation-images">-->
-<!--                <div v-for="(item, index) in item.images.slice(0, 4)" :key="index" class="recommendation-image"-->
-<!--                     @mouseenter="recommendationImageIndex = index" @mouseleave="recommendationImageIndex = -1">-->
-<!--                  <img v-lazy="item" alt="">-->
-<!--                </div>-->
-<!--              </div>-->
-<!--              <div>-->
-<!--                <div class="recommendation-reason">现已推出</div>-->
-<!--                <div class="recommendation-tags">-->
-<!--                  <div class="recommendation-tag">热销商品</div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--              <div class="recommendation-price-area">-->
-<!--                <div v-if="item.discount === 0" class="recommendation-price">{{ getPriceStr(item.price) }}</div>-->
-<!--                <div v-else class="recommendation-price_discounted">-->
-<!--                  <span class="recommendation-discount">{{ getDiscountStr(item.discount) }}</span>-->
-<!--                  <span class="recommendation-origin-price">{{ getPriceStr(item.price) }}</span>-->
-<!--                  <span class="recommendation-final-price">{{ getPriceStr(item.finalPrice) }}</span>-->
-<!--                </div>-->
-<!--                <div class="recommendation-platforms">-->
-<!--                  <div v-if="item.win" class="recommendation-platform" title="Windows">-->
-<!--                    <img src="../../assets/icon_platform_win.png" alt="">-->
-<!--                  </div>-->
-<!--                  <div v-if="item.mac" class="recommendation-platform" title="MacOS">-->
-<!--                    <img src="../../assets/icon_platform_mac.png" alt="">-->
-<!--                  </div>-->
-<!--                  <div v-if="item.linux" class="recommendation-platform" title="Linux">-->
-<!--                    <img src="../../assets/icon_platform_linux.png" alt="">-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--          </RouterLink>-->
-<!--        </template>-->
-<!--      </Swiper>-->
-<!--    </div>-->
-    <!-- 按类别浏览 -->
-    <!--    <div class="store-section">-->
-    <!--      <div class="store-section-title">按类别浏览</div>-->
-    <!--      <Swiper class="categories">-->
-    <!--        <template>-->
-    <!--          <div>-->
-    <!--            <div>开放世界</div>-->
-    <!--            <div>科幻及赛博朋克</div>-->
-    <!--          </div>-->
-    <!--        </template>-->
-    <!--      </Swiper>-->
-    <!--    </div>-->
-    <!-- 浏览Steam -->
+    <!-- 浏览SBEAM -->
     <div class="store-section">
       <div class="store-section-title">浏览 SBEAM</div>
       <div class="browses">
@@ -146,6 +66,81 @@ getAllProducts().then(res => {
         <RouterLink class="browse" to="">按用户标签</RouterLink>
       </div>
     </div>
+    <!-- 精选和推荐 -->
+    <div class="home_cluster_ctn home_ctn">
+      <div class="home_page_content">
+        <h2 class="home_page_content_title">精选与推荐</h2>
+        <div class="carousel_container maincap">
+          <div class="carousel_items reponsive_scroll_snap_ctn">
+            <router-link
+                :to="{ name:'detail',params:{ product_id:advertisementList[current].productId }}"
+                class="store_main_capsule responsive_scroll_snap_start broadcast_capsule app_impression_tracked"
+            >
+              <div class="capsule main_capsule">
+                <img v-if="activeScreenshot == -1" class="screenshot" :src="advertisementList[current].advertisementImageUrl">
+                <img v-else class="screenshot" :src="productList[advertisementList[current].productId-1].productImages[activeScreenshot]">
+              </div>
+              <div class="info">
+                <div class="app_name">
+                  <div>{{ productList[advertisementList[current].productId-1].productName }}</div>
+                </div>
+                <div class="screenshots">
+                  <div
+                      v-for="(img, index) in productList[advertisementList[current].productId-1].productImages"
+                      :key="index"
+                      @mouseenter="activeScreenshot = index"
+                      @mouseleave="activeScreenshot = -1"
+                  >
+                    <img :src="img">
+                  </div>
+                </div>
+                <div class="reason">{{ advertisementList[current].advertisementContent }}</div>
+                <div v-if="productList[advertisementList[current].productId-1].productDiscount == 0">
+                  <div class="discount_block_ca discount_block_inline_ca">
+                    <div class="discount_prices_ca">
+                      <div class="discount_final_price_ca_nodiscount">¥ {{ (productList[advertisementList[current].productId-1].productPrice * (1 - productList[advertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
+                    </div>
+                  </div>
+                </div>
+                <div v-else>
+                  <div class="discount_block_ca discount_block_inline_ca" style="display: flex; ">
+                    <div class="discount_pct_ca">-{{ productList[advertisementList[current].productId-1].productDiscount }}%</div>
+                    <div class="discount_prices_cap">
+                      <div class="discount_original_price_ca">¥ {{ productList[advertisementList[current].productId-1].productPrice.toFixed(2) }}</div>
+                      <div class="discount_final_price_ca">¥ {{ (productList[advertisementList[current].productId-1].productPrice * (1 - productList[advertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ds_options"></div>
+            </router-link>
+          </div>
+          <div class="carousel_thumbs">
+            <div
+                v-for="(item, index) in advertisementList"
+                :key="index"
+                @click = "current = index"
+            >
+              <div
+                  v-if="current != index"
+                  class="thumbs"
+              ></div>
+              <div
+                  v-if="current == index"
+                  class="thumbs_focus"
+              ></div>
+            </div>
+          </div>
+          <div class="arrow left" @click="current = (current + advertisementListsz - 1) % advertisementListsz">
+            <div class="left_arrow"></div>
+          </div>
+          <div class="arrow right" @click="current = (current + 1) % advertisementListsz">
+            <div class="right_arrow"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 商品列表 -->
     <div class="home_ctn tab_container" style="overflow: visible;">
       <div class="home_page_content home_tabs_row_ctn">
         <div class="store_horizontal_minislider_ctn" style="height: 31px;">
@@ -172,8 +167,8 @@ getAllProducts().then(res => {
               <div class="discount_block tab_item_discount">
                 <div class="discount_pct">-{{ product.productDiscount }}%</div>
                 <div class="discount_prices">
-                  <div class="discount_original_price">{{ (product.productPrice).toFixed(2) }}</div>
-                  <div class="discount_final_price">{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
+                  <div class="discount_original_price">¥{{ (product.productPrice).toFixed(2) }}</div>
+                  <div class="discount_final_price">¥{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
                 </div>
               </div>
               <div class="tab_item_content">
@@ -500,213 +495,6 @@ getAllProducts().then(res => {
   font-size: 14px;
 }
 
-.recommendations {
-  height: 353px;
-  box-shadow: 0 0 7px 0 #000000;
-}
-
-.recommendation {
-  display: flex;
-  width: 940px;
-  height: 353px;
-  background-color: #000000;
-  text-decoration: none;
-}
-
-.recommendation-cover {
-  position: relative;
-  box-shadow: 0 0 10px 5px #000000;
-  width: 616px;
-  height: 353px;
-  overflow: hidden;
-
-  & > img {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background-color: #000000;
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-
-    &.current {
-      opacity: 1;
-      transition: opacity 0s;
-      pointer-events: auto;
-    }
-  }
-}
-
-.recommendation-on-wishlist {
-  position: absolute;
-  left: -50px;
-  top: 28px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px;
-  box-shadow: 0 0 6px 0 #000000;
-  color: #111111;
-  background-color: #d3deea;
-  font-size: 11px;
-  line-height: 1;
-  opacity: 0;
-  transition: opacity 0.2s, left 0.2s;
-
-  &.show {
-    left: 0;
-    opacity: 1;
-  }
-}
-
-.recommendation-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  box-sizing: border-box;
-  width: 324px;
-  height: 353px;
-  padding: 0 12px 12px 12px;
-  background: url("../../assets/background_maincap_2.jpg") right no-repeat;
-}
-
-.recommendation-name {
-  display: flex;
-  align-items: center;
-  height: 69px;
-  color: #ffffff;
-  font-size: 24px;
-  font-weight: lighter;
-  text-overflow: ellipsis;
-}
-
-.recommendation-images {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 12px;
-}
-
-.recommendation-image {
-  position: relative;
-  height: 69px;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.2);
-  }
-
-  &:hover::after {
-    background-color: transparent;
-  }
-}
-
-.recommendation-reason {
-  margin-bottom: 4px;
-  color: #ffffff;
-  font-size: 21px;
-  font-weight: lighter;
-}
-
-.recommendation-tags {
-  display: flex;
-  flex-flow: wrap;
-  row-gap: 4px;
-  column-gap: 2px;
-}
-
-.recommendation-tag {
-  padding: 0 7px;
-  border-radius: 2px;
-  color: #ffffff;
-  background-color: rgba(255, 255, 255, 0.2);
-  font-size: 11px;
-  line-height: 20px;
-  white-space: nowrap;
-}
-
-.recommendation-price-area {
-  margin-top: auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.recommendation-price {
-  color: #ffffff;
-  font-size: 11px;
-}
-
-.recommendation-price_discounted {
-  display: flex;
-  height: 16px;
-}
-
-.recommendation-discount {
-  padding: 0 4px;
-  color: #beee11;
-  background-color: #4c6b22;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.recommendation-origin-price {
-  position: relative;
-  padding: 0 4px;
-  color: #738895;
-  background-color: #344654;
-  font-size: 11px;
-  line-height: 16px;
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: 6px;
-    right: 4px;
-    top: 50%;
-    height: 1px;
-    background-color: #738895;
-    box-shadow: 0 0 2px #000000;
-    transform: rotate(-8deg);
-  }
-}
-
-.recommendation-final-price {
-  padding-right: 4px;
-  color: #beee11;
-  background-color: #344654;
-  font-size: 11px;
-  line-height: 16px;
-}
-
-.recommendation-platforms {
-  display: flex;
-  opacity: 0.7;
-}
-
-.recommendation-platform {
-  width: 20px;
-  height: 20px;
-
-  img {
-    width: 100%;
-    height: 100%;
-  }
-}
-
 .browses {
   align-self: center;
   display: grid;
@@ -729,6 +517,288 @@ getAllProducts().then(res => {
   &:hover {
     background: linear-gradient(90deg, #06BFFF 30%, #2D73FF 100%);
   }
+}
+
+.home_cluster_ctn {
+  background: url( '../../assets/cluster_bg.png' ) bottom center no-repeat;
+  position: relative;
+}
+
+.home_page_content_title {
+  font-family: "Motiva Sans", Sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0 0 10px;
+  letter-spacing: 0.03em;
+  font-weight: normal;
+  padding-top: 2px;
+  display: block;
+  margin-block-start: 0.83em;
+  margin-block-end: 0.83em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+
+.carousel_container {
+  position: relative;
+}
+
+.maincap {
+  height: 380px;
+  margin-top: 5px;
+}
+
+.carousel_items {
+  height: 353px;
+  overflow: hidden;
+  box-shadow: 0 0 7px 0px #000;
+  position: relative;
+  clear: both;
+}
+
+.store_main_capsule, .store_main_capsule:hover {
+  background-image: url( '../../assets/background_maincap_2.jpg');
+  background-repeat: no-repeat;
+  background-position: right;
+  color: #fff;
+  display: flex;
+  text-decoration: none;
+}
+
+.store_main_capsule .capsule {
+  flex-shrink: 0;
+  background-color: #000;
+  position: relative;
+  z-index: 2;
+  margin-right: 10px;
+  width: 616px;
+  height: 353px;
+  background-position: center center;
+  background-size: cover;
+  box-shadow: 0 0 10px 5px #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.capsule > .screenshot {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.store_main_capsule .info {
+  flex-shrink: 1;
+}
+
+.app_name {
+  display: flex;
+  align-items: center;
+  padding-top: 0px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: 300;
+  height: 69px;
+  padding-left: 6px;
+  padding-right: 6px;
+}
+
+.store_main_capsule .app_name > div {
+  max-height: 62px;
+  font-size: 24px;
+  padding-bottom: 4px;
+  padding-top: 4px;
+  line-height: 28px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.store_main_capsule .screenshots {
+  width: 344px;
+  display: inline-block;
+  margin-left: -30px;
+  max-height: 176px;
+  position: relative;
+}
+
+.store_main_capsule .screenshots > div {
+  width: 162px;
+  height: 69px;
+  padding: 10px 10px 0 0;
+  display: inline-block;
+}
+
+.store_main_capsule .screenshots > div > img {
+  width: 162px;
+  height: 69px;
+  background-size: cover;
+  background-position: center center;
+  display: inline-block;
+  opacity: 0.6;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.store_main_capsule .reason {
+  margin-top: 8px;
+  padding-left: 6px;
+  display: inline-block;
+  width: 298px;
+  font-size: 14px;
+}
+
+.store_main_capsule .discount_block_ca {
+  position: absolute;
+  bottom: 10px;
+  left: 632px;
+  font-family: sans-serif;
+}
+
+.discount_block_inline_ca {
+  line-height: 15px;
+}
+
+.discount_pct_ca {
+  padding: 0 3px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: 500;
+  color: #BEEE11;
+  background: #4c6b22;
+  display: inline-block;
+  font-size: 11px;
+}
+
+.discount_original_price_ca {
+  position: relative;
+  width: fit-content;
+  color: #738895;
+  font-size: 11px;
+  line-height: 12px;
+  margin-left: 4px;
+}
+
+.discount_original_price_ca:before {
+  content: '';
+  left: 0px;
+  right: 0px;
+  position: absolute;
+  top: 43%;
+  border-bottom: 1.5px solid #738895;
+  transform: skewY(-8deg);
+  box-shadow: 0 0 2px black;
+}
+
+.discount_prices_ca {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-shrink: 1;
+  overflow: hidden;
+  justify-content: end;
+}
+
+.discount_prices_cap {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  flex-shrink: 1;
+  overflow: hidden;
+  justify-content: end;
+  background: #344654;
+}
+
+.discount_final_price_ca_nodiscount {
+  background: none;
+  padding: 0 6px;
+  color: white;
+  font-size: 11px;
+  line-height: 12px;
+}
+
+.discount_final_price_ca {
+  color: #BEEE11;
+  font-size: 11px;
+  line-height: 12px;
+  margin-left: 4px;
+  margin-right: 4px;
+}
+
+.carousel_thumbs {
+  text-align: center;
+  min-height: 37px;
+  padding: 4px;
+}
+
+.thumbs {
+  display: inline-block;
+  margin: 12px 2px;
+  width: 15px;
+  height: 9px;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+  background-color: hsla(202,60%,100%,0.2);
+  cursor: pointer;
+
+  &:hover {
+    background-color: hsla(202,60%,100%,0.3);
+  }
+}
+
+.thumbs_focus {
+  display: inline-block;
+  margin: 12px 2px;
+  width: 15px;
+  height: 9px;
+  border-radius: 2px;
+  transition: background-color 0.2s;
+  background-color: hsla(202,60%,100%,0.4);
+  cursor: pointer;
+}
+
+.arrow {
+  top: 122px;
+  position: absolute;
+  width: 23px;
+  height: 36px;
+  padding: 36px 11px;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.left {
+  left: -46px;
+  background: linear-gradient( to right, rgba( 0, 0, 0, 0.3) 5%,rgba( 0, 0, 0, 0) 95%);
+
+  &:hover {
+    background: linear-gradient( to right, #48617b ,rgba( 0, 0, 0, 0) 95%);
+  }
+}
+
+.right {
+  right: -46px;
+  background: linear-gradient( to right, rgba( 0, 0, 0, 0) 5%,rgba( 0, 0, 0, 0.3) 95%);
+
+  &:hover {
+    background: linear-gradient( to right, rgba( 0, 0, 0, 0) 5%, #48617b);
+  }
+}
+
+.left_arrow {
+  background-position-x: 23px;
+  background-image: url('../../assets/arrows.png');
+  width: 23px;
+  height: 36px;
+}
+
+.right_arrow {
+  background-image: url('../../assets/arrows.png');
+  width: 23px;
+  height: 36px;
 }
 
 .home_ctn {

@@ -91,12 +91,21 @@ async function deleteAdvertisement(advertisement_id: number) {
               <div class="tab_item_cap">
                 <img class="tab_item_cap_img" :src="product.productLogo">
               </div>
-              <div class="discount_block tab_item_discount">
-                <div class="discount_pct">-{{ product.productDiscount }}%</div>
-                <div class="discount_prices">
-                  <div class="discount_original_price">{{ (product.productPrice).toFixed(2) }}</div>
-                  <div class="discount_final_price">
-                    {{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}
+              <div v-if="product.productDiscount!=0">
+                <div class="discount_block tab_item_discount">
+                  <div class="discount_pct">-{{ product.productDiscount }}%</div>
+                  <div class="discount_prices">
+                    <div class="discount_original_price">¥{{ (product.productPrice).toFixed(2) }}</div>
+                    <div class="discount_final_price">¥{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="discount_block tab_item_discount">
+                  <div class="discount_pct_nodiscount"></div>
+                  <div class="discount_prices">
+                    <div class="discount_original_price_nodiscount"></div>
+                    <div class="discount_final_price_nodiscount">¥{{ (product.productPrice).toFixed(2) }}</div>
                   </div>
                 </div>
               </div>
@@ -126,12 +135,23 @@ async function deleteAdvertisement(advertisement_id: number) {
               <div class="tab_item_cap">
                 <img class="tab_item_cap_img" :src="productList[advertisement.productId-1].productLogo">
               </div>
-              <div class="discount_block tab_item_discount">
-                <div class="discount_pct">-{{ productList[advertisement.productId-1].productDiscount }}%</div>
-                <div class="discount_prices">
-                  <div class="discount_original_price">{{ (productList[advertisement.productId-1].productPrice).toFixed(2) }}</div>
-                  <div class="discount_final_price">
-                    {{ (productList[advertisement.productId-1].productPrice * (1 - productList[advertisement.productId-1].productDiscount / 100)).toFixed(2) }}
+              <div v-if="productList[advertisement.productId-1].productDiscount!=0">
+                <div class="discount_block tab_item_discount">
+                  <div class="discount_pct">-{{ productList[advertisement.productId-1].productDiscount }}%</div>
+                  <div class="discount_prices">
+                    <div class="discount_original_price">{{ (productList[advertisement.productId-1].productPrice).toFixed(2) }}</div>
+                    <div class="discount_final_price">
+                      {{ (productList[advertisement.productId-1].productPrice * (1 - productList[advertisement.productId-1].productDiscount / 100)).toFixed(2) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="discount_block tab_item_discount">
+                  <div class="discount_pct_nodiscount"></div>
+                  <div class="discount_prices">
+                    <div class="discount_original_price_nodiscount"></div>
+                    <div class="discount_final_price_nodiscount">¥{{ (productList[advertisement.productId-1].productPrice).toFixed(2) }}</div>
                   </div>
                 </div>
               </div>
@@ -518,5 +538,26 @@ h2 {
   text-align: center;
   background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
   cursor: pointer;
+}
+
+.discount_pct_nodiscount {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 18px;
+  padding: 0 4px;
+  border-radius: 1px;
+}
+
+.discount_original_price_nodiscount {
+  position: relative;
+  width: fit-content;
+  height: 12px;
+}
+
+.discount_final_price_nodiscount {
+  color: white;
+  line-height: 16px;
+  font-size: 15px;
 }
 </style>

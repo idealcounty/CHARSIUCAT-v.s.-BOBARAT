@@ -164,11 +164,22 @@ getAllProducts().then(res => {
               <div class="tab_item_cap">
                 <img class="tab_item_cap_img" :src="product.productLogo">
               </div>
-              <div class="discount_block tab_item_discount">
-                <div class="discount_pct">-{{ product.productDiscount }}%</div>
-                <div class="discount_prices">
-                  <div class="discount_original_price">¥{{ (product.productPrice).toFixed(2) }}</div>
-                  <div class="discount_final_price">¥{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
+              <div v-if="product.productDiscount!=0">
+                <div class="discount_block tab_item_discount">
+                  <div class="discount_pct">-{{ product.productDiscount }}%</div>
+                  <div class="discount_prices">
+                    <div class="discount_original_price">¥{{ (product.productPrice).toFixed(2) }}</div>
+                    <div class="discount_final_price">¥{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
+                  </div>
+                </div>
+              </div>
+              <div v-else>
+                <div class="discount_block tab_item_discount">
+                  <div class="discount_pct_nodiscount"></div>
+                  <div class="discount_prices">
+                    <div class="discount_original_price_nodiscount"></div>
+                    <div class="discount_final_price_nodiscount">¥{{ (product.productPrice).toFixed(2) }}</div>
+                  </div>
                 </div>
               </div>
               <div class="tab_item_content">
@@ -989,6 +1000,15 @@ img {
   background: #4c6b22;
 }
 
+.discount_pct_nodiscount {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 18px;
+  padding: 0 4px;
+  border-radius: 1px;
+}
+
 .discount_prices {
   display: flex;
   flex-direction: column;
@@ -1016,8 +1036,20 @@ img {
   box-shadow: 0 0 2px black;
 }
 
+.discount_original_price_nodiscount {
+  position: relative;
+  width: fit-content;
+  height: 12px;
+}
+
 .discount_final_price {
   color: #BEEE11;
+  line-height: 16px;
+  font-size: 15px;
+}
+
+.discount_final_price_nodiscount {
+  color: white;
   line-height: 16px;
   font-size: 15px;
 }

@@ -115,7 +115,7 @@ getAllProducts().then(res => {
               <div class="ds_options"></div>
             </router-link>
           </div>
-          <div class="carousel_thumbs">
+          <div class="carousel_thumbs" style="display: flex; justify-content: center;">
             <div
                 v-for="(item, index) in advertisementList"
                 :key="index"
@@ -647,9 +647,15 @@ getAllProducts().then(res => {
 .store_main_capsule .reason {
   margin-top: 8px;
   padding-left: 6px;
-  display: inline-block;
+  display: -webkit-box;
   width: 298px;
   font-size: 14px;
+
+  max-height: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
 }
 
 .store_main_capsule .discount_block_ca {

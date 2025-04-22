@@ -11,7 +11,6 @@ const cart=ref<Cart>(null)
 const wishlistItem = ref<CartItem[]>([])
 const wishlist = ref<ProductInfo[]>([])
 
-/** 获取购物车 */
 const getUserInfo = async () => {
   userInfo().then(res => {
     nickname.value = res.data.result.name
@@ -32,15 +31,13 @@ const getUserInfo = async () => {
 }
 
 onMounted(() => {
-  getUserInfo() // 获取用户信息和 wishlist
+  getUserInfo()
 })
 
-/** 打开排序菜单 */
 function openSortMenu() {
   if (!sortList.value) sortList.value = true
 }
 
-/** 关闭排序菜单 */
 function closeSortMenu() {
   if (sortList.value) sortList.value = false
 }
@@ -51,7 +48,6 @@ function changeSortType(type: number) {
   localStorage.setItem('steamWishlistSort', type.toString())
 }
 
-/**增加物品数量 */
 function addToCart(item: CartItem,now_cart: Cart) {
   updateCart(item.productId,item.productQuantity+1,now_cart).then(res =>{
     getUserCart(parseInt(userId.value)).then(res => {
@@ -65,7 +61,6 @@ function addToCart(item: CartItem,now_cart: Cart) {
   })
 }
 
-/**减少物品数量 */
 function deleteToCart(item: CartItem,now_cart: Cart) {
   updateCart(item.productId,item.productQuantity-1,now_cart).then(res =>{
     getUserCart(parseInt(userId.value)).then(res => {
@@ -79,7 +74,6 @@ function deleteToCart(item: CartItem,now_cart: Cart) {
   })
 }
 
-/**删除购物车物品*/
 function removeFromWishlist(item: CartItem,now_cart: Cart) {
   updateCart(item.productId,0,now_cart).then(res =>{
     getUserCart(parseInt(userId.value)).then(res => {
@@ -92,7 +86,7 @@ function removeFromWishlist(item: CartItem,now_cart: Cart) {
     })
   })
 }
-/** 计算总价格 */
+
 const totalPrice = computed(() => {
   return wishlistItem.value.reduce((sum, item, index) => {
     const product = wishlist.value[index]
@@ -107,7 +101,6 @@ const totalPrice = computed(() => {
       <div class="header-avatar"></div>
       {{ nickname }} 的愿望单
     </div>
-
     <div class="filter">
       <div class="sort" :class="{ focus: sortList }" tabindex="0" @click="openSortMenu()" @mouseleave="closeSortMenu()">
         排序依据：
@@ -122,7 +115,6 @@ const totalPrice = computed(() => {
         </div>
       </div>
     </div>
-
     <div ref="wishlistRef" class="list" :style="{ minHeight: wishlist.length * 180 + 'px' }">
       <div v-if="wishlist.length === 0" class="empty">
         <p>哎呀，这里无内容可显示</p>
@@ -151,9 +143,11 @@ const totalPrice = computed(() => {
           </div>
           <div class="item-price-action">
             <div class="item-price-container">
-              <div class="item-price">原价：¥{{ item.productPrice }}</div>
-              <div class="item-price">折后：¥{{ item.productPrice*(1-0.01*item.productDiscount) }}</div>
-              <div class="item-price">数量：{{ wishlistItem[index].productQuantity }}</div>
+              <div class="discount_original_price">¥{{ item.productPrice }}</div>
+              <div class="price-and-quantity">
+                <div class="discount_final_price">¥{{ item.productPrice*(1-0.01*item.productDiscount) }}</div>
+                <div class="item—quantity">数量：{{ wishlistItem[index].productQuantity }}</div>
+              </div>
             </div>
             <div>
               <button class="add-to-cart" @click="addToCart(wishlistItem[index],cart)">+1</button>
@@ -166,8 +160,6 @@ const totalPrice = computed(() => {
         </div>
       </div>
     </div>
-
-    <!-- 添加总价格和购买按钮 -->
     <div class="footer" v-if="wishlist.length > 0">
       <div class="total-price">
         总价格：¥{{ totalPrice }}
@@ -178,63 +170,60 @@ const totalPrice = computed(() => {
 </template>
 
 <style scoped>
-/* 保持原有样式 */
 .app {
   display: flex;
   flex-direction: column;
   align-items: center;
   min-height: calc(100vh - 104px);
-  background-color: #202326;
+  background-color: #2c2f33;
 }
-
 .header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 940px;
+  padding: 20px 0;
+  color: #ffffff;
+  font-size: 24px;
+}
+.filter {
   display: flex;
   align-items: center;
   gap: 16px;
   width: 940px;
-  padding: 25px 0;
-  color: #ffffff;
-  font-size: 26px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-.filter {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  width: 940px;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-}
-
 .sort {
   position: relative;
   z-index: 100;
   display: flex;
   align-items: center;
-  height: 38px;
-  padding: 0 12px;
+  height: 34px;
+  padding: 0 10px;
   margin-right: 12px;
   color: #9099a1;
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 1px;
   cursor: pointer;
   transition: color 0.2s, background-color 0.2s;
 }
-
 .sort:hover {
   color: #ffffff;
   background-color: rgba(255, 255, 255, 0.1);
 }
-
 .sort.focus {
   color: #ffffff;
   background-color: #808a9c;
 }
-
 .sort-type {
-  color: #ffffff;
+  color: #b5babc;
+  margin-right: 8px;
 }
-
+.sort img {
+  width: 16px;
+  height: 16px;
+}
 .sort-menu {
   position: absolute;
   left: 0;
@@ -246,171 +235,149 @@ const totalPrice = computed(() => {
   pointer-events: none;
   transition: opacity 0.2s;
 }
-
 .sort.focus > .sort-menu {
   opacity: 1;
   pointer-events: auto;
 }
-
 .sort-menu-item {
   display: flex;
   align-items: center;
-  height: 32px;
+  height: 30px;
   padding: 0 12px;
   color: #ffffff;
   font-size: 12px;
   transition: background-color 0.1s;
 }
-
 .sort-menu-item:hover {
   background-color: rgba(255, 255, 255, 0.2);
 }
-
 .list {
   position: relative;
   width: 940px;
-  padding: 12px 0 80px 0;
+  padding: 10px 0 60px 0;
 }
-
 .empty {
   padding: 80px 0;
   color: #e5e5e5;
   font-size: 14px;
   text-align: center;
 }
-
 .empty :last-child {
   font-size: 12px;
 }
-
 .wishlist-item {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 12px;
-  margin-bottom: 12px;
-  background-color: #2a2e32;
+  padding: 10px;
+  margin-bottom: 10px;
+  background-color: #363a40;
   border-radius: 4px;
 }
-
 .item-logo {
-  width: 200px;
-  height: 120px;
-  margin-right: 16px;
+  width: 180px;
+  height: 100px;
+  margin-right: 12px;
 }
-
 .item-logo img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 4px;
 }
-
 .item-info {
   flex: 1;
 }
-
 .item-name {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   color: #ffffff;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
-
 .item-meta {
   display: flex;
-  gap: 24px;
-  margin-bottom: 12px;
+  gap: 16px;
+  margin-bottom: 8px;
 }
-
 .item-rating,
 .item-release-date {
-  font-size: 14px;
-  color: #9099a1;
+  font-size: 12px;
+  color: #8e9297;
 }
-
 .item-tags {
   display: flex;
   gap: 8px;
 }
-
 .tag {
-  font-size: 12px;
+  font-size: 11px;
   color: #9099a1;
   background-color: rgba(255, 255, 255, 0.1);
-  padding: 4px 8px;
+  padding: 3px 6px;
   border-radius: 12px;
 }
-
-.item-price-action {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8px;
-  width: 300px;
+.discount_original_price {
+  position: relative;
+  width: fit-content;
+  color: #738895;
+  font-size: 11px;
+  line-height: 12px;
+  text-decoration: line-through;
 }
-
-.item-price-container {
+.price-and-quantity {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
-
-.item-price {
-  font-size: 18px;
-  font-weight: bold;
-  color: #4caf50;
+.discount_final_price {
+  color: #BEEE11;
+  line-height: 16px;
+  font-size: 15px;
 }
-
+.item—quantity {
+  color: #ffffff;
+  font-size: 12px;
+}
 .add-to-cart {
   margin-right: 10px;
-  padding: 8px 16px;
+  padding: 6px 12px;
   background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 12px;
 }
-
 .add-to-cart:hover {
   background-color: #3d9c40;
 }
-
 .item-added-info {
-  font-size: 12px;
+  font-size: 11px;
   color: #9099a1;
   display: flex;
   align-items: center;
   gap: 4px;
 }
-
 .remove-link {
   color: #9099a1;
   text-decoration: none;
 }
-
 .remove-link:hover {
   text-decoration: underline;
 }
-
-/* 新增的总价格和购买按钮样式 */
 .footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 940px;
-  padding: 20px 0;
+  padding: 16px 0;
   margin-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
-
 .total-price {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
   color: #ffffff;
 }
-
 .buy-button {
   padding: 10px 20px;
   background-color: #4caf50;
@@ -421,7 +388,6 @@ const totalPrice = computed(() => {
   font-size: 16px;
   transition: background-color 0.2s;
 }
-
 .buy-button:hover {
   background-color: #3d9c40;
 }

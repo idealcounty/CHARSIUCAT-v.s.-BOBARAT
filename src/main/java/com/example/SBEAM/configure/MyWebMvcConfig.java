@@ -18,6 +18,7 @@ public class MyWebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/api/users/login")
                 .excludePathPatterns("/api/stores/all")
                 .excludePathPatterns("/api/ali/*")
+                .excludePathPatterns("/api/alipay/**")
                 .order(1);
     }
 

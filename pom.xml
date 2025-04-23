@@ -77,13 +77,25 @@
     		<version>3.15.1</version>
 		</dependency>
 
-        <!-- 支付宝支付依赖 -->
+<!--        &lt;!&ndash; 支付宝支付依赖 &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.alipay.sdk</groupId>-->
+<!--            <artifactId>alipay-sdk-java</artifactId>-->
+<!--            <version>4.31.56.ALL</version>-->
+<!--        </dependency>-->
+<!--        支付宝依赖沙箱支付 -->
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-easysdk</artifactId>
+            <version>2.2.0</version>
+        </dependency>
+
+        <!--        支付宝相关-->
         <dependency>
             <groupId>com.alipay.sdk</groupId>
             <artifactId>alipay-sdk-java</artifactId>
-            <version>4.31.56.ALL</version>
+            <version>4.34.0.ALL</version>
         </dependency>
-
     </dependencies>
     <dependencyManagement>
         <dependencies>

@@ -85,9 +85,9 @@ public class CartServiceImpl implements CartService{
         for (CartItem cartItem : cart.getCartItems()) {
             price+=cartItem.getProductQuantity()*cartItem.getProductPrice();
         }
-        if(price>user.getBalance()){
-            throw SBEAMException.priceNotEnough();
-        }
+//        if(price>user.getBalance()){
+//            throw SBEAMException.priceNotEnough();
+//        }
         Orders order = new Orders(userId, price);
         order.setCreateTime(new Date());
         order.setOrderStatus(OrderStatus.PENDING);

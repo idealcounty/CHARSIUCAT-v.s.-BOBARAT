@@ -1,4 +1,5 @@
 package com.example.SBEAM.serviceImpl;
+import com.example.SBEAM.enums.OrderStatus;
 import com.example.SBEAM.exception.SBEAMException;
 import com.example.SBEAM.po.Orders;
 import com.example.SBEAM.repository.OrdersRepository;
@@ -47,5 +48,12 @@ public class OrdersServiceImpl implements OrdersService {
         ordersRepository.delete(orders);
         return true;
     }
-
+    @Override
+    public OrderStatus getOrderStatusById(int orderId){
+        Orders orders = ordersRepository.findByOrdersId(orderId);
+        if(orders==null){
+            throw SBEAMException.orderNotExists();
+        }
+        return orders.getOrderStatus();
+    }
 }

@@ -70,7 +70,7 @@ public class CartServiceImpl implements CartService{
                 cart.getCartItems().remove(existing);
         }
         else {
-            CartItem cartItem = new CartItem(cart, productId, numberOfProduct, product.getProductPrice()*(1-product.getProductDiscount()));
+            CartItem cartItem = new CartItem(cart, productId, numberOfProduct, product.getProductPrice());
             cart.getCartItems().add(cartItem);
         }
         cartRepository.save(cart);

@@ -49,8 +49,8 @@ public class OrdersServiceImpl implements OrdersService {
         return true;
     }
     @Override
-    public OrderStatus getOrderStatusById(int orderId){
-        Orders orders = ordersRepository.findByOrdersId(orderId);
+    public OrderStatus getOrderStatus(int ordersId){
+        Orders orders = ordersRepository.findByOrdersId(ordersId);
         if(orders==null){
             throw SBEAMException.orderNotExists();
         }

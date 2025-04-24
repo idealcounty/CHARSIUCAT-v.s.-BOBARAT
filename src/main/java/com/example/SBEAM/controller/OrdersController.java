@@ -25,6 +25,7 @@ public class OrdersController {
 
     @GetMapping("/orders/{ordersId}")
     public ResultVO<OrderStatus> getOrderStatus(@PathVariable int ordersId) {
-        return ResultVO.buildSuccess(ordersService.getOrderStatusById(ordersId));
+        return ResultVO.buildSuccess(ordersService.getOrderStatus(ordersId));
     }
+
 }

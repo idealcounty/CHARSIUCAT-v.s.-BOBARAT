@@ -94,9 +94,6 @@ public class CartServiceImpl implements CartService{
         order.setOutTradeNo(UUID.randomUUID().toString().replace("-", ""));
         ordersRepository.save(order);
 
-        cart.getCartItems().clear();
-        cartRepository.save(cart);
-
         return order.toVO();
     }
 

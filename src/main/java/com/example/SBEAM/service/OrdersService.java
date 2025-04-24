@@ -8,5 +8,5 @@ public interface OrdersService {
     List<OrdersVO> getAllOrders();
     OrdersVO getOrdersById(int orderId);
     Boolean deleteOrdersByOrderId(int orderId);
-    OrderStatus getOrderStatusById(int orderId);
+    OrderStatus getOrderStatus(int ordersId);
 }

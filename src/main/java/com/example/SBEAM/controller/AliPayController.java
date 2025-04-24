@@ -99,7 +99,9 @@ import com.alipay.api.domain.OrderVO;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.example.SBEAM.configure.AliPayConfig;
 import com.example.SBEAM.enums.OrderStatus;
+import com.example.SBEAM.po.Cart;
 import com.example.SBEAM.po.Orders;
+import com.example.SBEAM.repository.CartRepository;
 import com.example.SBEAM.repository.OrdersRepository;
 import com.example.SBEAM.util.AlipayUtils;
 import org.codehaus.jettison.json.JSONObject;
@@ -120,7 +122,8 @@ public class AliPayController {
     private AliPayConfig aliPayConfig;
     @Autowired
     private OrdersRepository ordersRepository;
-
+    @Autowired
+    private CartRepository cartRepository;
     @GetMapping("/pay")
     public void pay(@RequestParam("orderId") int orderId, HttpServletResponse response) throws Exception {
         Orders order = ordersRepository.findById(orderId).orElse(null);
@@ -174,10 +177,13 @@ public class AliPayController {
         String totalAmount = params.get("total_amount");
         if (signVerified) {
             Orders order = ordersRepository.findByOutTradeNo(outTradeNo);
+            Cart cart = cartRepository.findByUserId(order.getUserId());
             if (order != null && order.getOrderStatus() == OrderStatus.PENDING) {
                 order.setOrderStatus(OrderStatus.SUCCESS);
                 order.setPayMethod("支付宝");
                 ordersRepository.save(order);
+                cart.getCartItems().clear();
+                cartRepository.save(cart);
             }
             return "支付成功，订单号：" + outTradeNo + "，支付宝交易号：" + tradeNo + "，金额：" + totalAmount;
         } else {
@@ -205,6 +211,8 @@ public class AliPayController {
             String tradeStatus = params.get("trade_status");
             String totalAmount = params.get("total_amount");
             Orders order = ordersRepository.findByOutTradeNo(outTradeNo);
+            Cart cart = cartRepository.findByUserId(order.getUserId());
+            System.out.println(order.getOutTradeNo());
             if (order == null) {
                 System.out.println("【异步通知】订单不存在：" + outTradeNo);
                 return "fail";
@@ -221,6 +229,8 @@ public class AliPayController {
                     System.out.println("【异步通知】订单支付成功：" + outTradeNo);
                 }
             }
+            cart.getCartItems().clear();
+            cartRepository.save(cart);
             return "success";
         } else {
             System.out.println("【异步通知】验签失败");

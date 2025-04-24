@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory} from "vue-router"
+import { createRouter, createWebHashHistory } from "vue-router"
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -13,19 +13,19 @@ const router = createRouter({
         path: '/404',
         name: '404',
         component: () => import('../views/NotFound.vue'),
-        meta: {title: '404'}
+        meta: { title: '404' }
     }, {
         path: '/register',
         component: () => import('../views/user/Register.vue'),
-        meta: {title: '用户注册'}
+        meta: { title: '用户注册' }
     }, {
         path: '/login',
         component: () => import('../views/user/Login.vue'),
-        meta: {title: '用户登录'}
+        meta: { title: '用户登录' }
     }, {
         path: '/admin',
         component: () => import('../views/admin/Administrator.vue'),
-        meta: {title: '管理商品'},
+        meta: { title: '管理商品' },
     }, {
         path: '/profile/:user_id',
         name: 'profile',
@@ -33,24 +33,28 @@ const router = createRouter({
     }, {
         path: '/createProduct',
         component: () => import('../views/admin/CreateProduct.vue'),
-        meta: {title: '创建商品'}
+        meta: { title: '创建商品' }
     }, {
         path: '/updateProduct/:product_id',
         component: () => import('../views/admin/UpdateProduct.vue'),
-        meta: {title: '更新商品信息'}
+        meta: { title: '更新商品信息' }
     }, {
         path: '/createAdvertisement',
         component: () => import('../views/admin/CreateAdvertisement.vue'),
-        meta: {title: '创建商品'}
+        meta: { title: '创建商品' }
     }, {
         path: '/updateAdvertisement/:advertisement_id',
         name: 'updateAdvertisement',
         component: () => import('../views/admin/UpdateAdvertisement.vue'),
-        meta: {title: '更新广告信息'}
+        meta: { title: '更新广告信息' }
     }, {
         path: '/wishlist',
         component: () => import('../views/user/WishList.vue'),
-        meta: {title: '创建商品'}
+        meta: { title: '创建商品' }
+    }, {
+        path: '/cart',
+        component: () => import('../views/cart/Cart.vue'),
+        meta: { title: '购物车' }
     }, {
         path: '/:catchAll(.*)',
         redirect: '/404'
@@ -86,4 +90,4 @@ router.beforeEach((to, _, next) => {
     }
 })
 
-export {router}
+export { router }

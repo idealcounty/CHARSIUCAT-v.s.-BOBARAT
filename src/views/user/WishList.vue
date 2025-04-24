@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { userInfo, getUserCart,getUserCartVO,CartItem} from '../../api/user.ts'
 import { getProductByProductId, ProductInfo,updateCart,Cart } from '../../api/product.ts'
-
+import { router } from '../../router/index.ts'
 const sortList = ref(false)
 const nickname = ref('')
 const userId = ref()
@@ -93,6 +93,10 @@ const totalPrice = computed(() => {
     return sum + (product?.productPrice*(1-0.01*product?.productDiscount) || 0) * item.productQuantity
   }, 0)
 })
+
+const jumpToCart = () => {
+  router.push('/cart')
+}
 </script>
 
 <template>
@@ -164,7 +168,7 @@ const totalPrice = computed(() => {
       <div class="total-price">
         总价格：¥{{ totalPrice }}
       </div>
-      <button class="buy-button">购买</button>
+      <button class="buy-button" @click="jumpToCart">购买</button>
     </div>
   </div>
 </template>

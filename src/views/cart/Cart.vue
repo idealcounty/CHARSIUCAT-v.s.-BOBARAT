@@ -4,7 +4,7 @@ import { router } from '../../router/index.ts';
 import { getUserCart, CartItem, userInfo, getUserCartVO } from "../../api/user.ts";
 import { Cart, getProductByProductId, ProductInfo } from "../../api/product.ts";
 import { createOrder, goToPayment } from '../../api/alipay.ts';
-
+import { getOrderStatus } from '../../api/alipay.ts';
 
 const loading = ref(true);
 const nickname = ref('')
@@ -13,6 +13,64 @@ const cart = ref<Cart>()
 const wishlistItem = ref<CartItem[]>([])
 const cartProducts = ref<ProductInfo[]>([])
 const orderId = ref()
+// 订单状态相关
+const orderStatus = ref<'PENDING' | 'SUCCESS' | 'FAILED' | 'TIMEOUT' | null>(null);
+const showOrderStatus = ref(false);
+const isPolling = ref(false);
+const pollingInterval = ref<number | null>(null);
+
+// 开始轮询订单状态
+const startPollingOrderStatus = (id: string) => {
+  isPolling.value = true;
+  showOrderStatus.value = true;
+  
+  // 立即检查一次
+  checkOrderStatus(id);
+  
+  // 设置轮询间隔（每3秒检查一次）
+  pollingInterval.value = window.setInterval(() => {
+    checkOrderStatus(id);
+  }, 3000) as unknown as number;
+};
+
+// 停止轮询
+const stopPollingOrderStatus = () => {
+  if (pollingInterval.value) {
+    clearInterval(pollingInterval.value);
+    pollingInterval.value = null;
+  }
+  isPolling.value = false;
+};
+
+// 检查订单状态
+const checkOrderStatus = (id: string) => {
+  getOrderStatus(parseInt(id)).then(res => {
+    if (res.data && res.data.result) {
+      orderStatus.value = res.data.result;
+      console.log(orderStatus.value)
+      // 如果状态不是PENDING，停止轮询
+      if (orderStatus.value !== 'PENDING') {
+        stopPollingOrderStatus();
+      }
+    }
+  }).catch(err => {
+    console.error('获取订单状态失败:', err);
+  });
+};
+
+// 关闭订单状态页面
+const closeOrderStatus = () => {
+  showOrderStatus.value = false;
+  orderStatus.value = null;
+  stopPollingOrderStatus();
+};
+
+// 重试支付
+const retryPayment = () => {
+  if (orderId.value) {
+    goToPayment(parseInt(orderId.value));
+  }
+};
 
 const purchaseItems = () => {
     if (selectedPayment.value != 'alipay') {
@@ -32,8 +90,12 @@ const purchaseItems = () => {
         return
     }
     createOrder(userId.value, cart.value).then(res => {
+        console.log(res)
         orderId.value = res.data.result.ordersId
-        goToPayment(orderId.value)
+        goToPayment(orderId.value).then(() => {
+          // 开始轮询订单状态
+          startPollingOrderStatus(orderId.value);
+        });
     })
 }
 
@@ -109,7 +171,7 @@ onMounted(() => {
                 <div class="loading-text">加载中...</div>
             </div>
 
-            <div class="cart-items-container" v-else-if="cartProducts.length > 0">
+            <div class="cart-items-container" v-else-if="cartProducts.length > 0 && !showOrderStatus">
                 <div class="home_tabs_content">
                     <div v-for="item in cartProducts" :key="item.productId" class="tab_item">
                         <div class="tab_item_cap">
@@ -185,21 +247,111 @@ onMounted(() => {
                 </div>
             </div>
 
+            <!-- 订单状态页面 -->
+            <div class="order-status-container" v-else-if="showOrderStatus">
+                <div class="order-status-header">
+                    <div class="order-status-title">订单支付状态</div>
+                    <div class="close-button" @click="closeOrderStatus">&times;</div>
+                </div>
+
+                <!-- 处理中状态 -->
+                <div class="order-status-content" v-if="orderStatus === 'PENDING'">
+                    <div class="status-icon pending">
+                        <div class="loading-spinner"></div>
+                    </div>
+                    <div class="status-title pending">处理中</div>
+                    <div class="status-message">
+                        您的订单正在处理中，请等待...
+                    </div>
+                    <div class="status-details">
+                        <div class="detail-item">
+                            <span class="detail-label">订单号:</span>
+                            <span class="detail-value">{{ orderId }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">总金额:</span>
+                            <span class="detail-value">¥{{ totalPrice.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                    <div class="status-actions">
+                        <button class="action-button" @click="backToStore">返回商店</button>
+                    </div>
+                </div>
+
+                <!-- 成功状态 -->
+                <div class="order-status-content" v-else-if="orderStatus === 'SUCCESS'">
+                    <div class="status-icon success">✓</div>
+                    <div class="status-title success">支付成功</div>
+                    <div class="status-message">
+                        您的订单已成功支付，感谢您的购买！
+                    </div>
+                    <div class="status-details">
+                        <div class="detail-item">
+                            <span class="detail-label">订单号:</span>
+                            <span class="detail-value">{{ orderId }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">总金额:</span>
+                            <span class="detail-value">¥{{ totalPrice.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                    <div class="status-actions">
+                        <button class="action-button success" @click="backToStore">返回商店</button>
+                    </div>
+                </div>
+
+                <!-- 失败状态 -->
+                <div class="order-status-content" v-else-if="orderStatus === 'FAILED'">
+                    <div class="status-icon failed">✗</div>
+                    <div class="status-title failed">支付失败</div>
+                    <div class="status-message">
+                        很遗憾，您的订单支付失败，请重试或选择其他支付方式。
+                    </div>
+                    <div class="status-details">
+                        <div class="detail-item">
+                            <span class="detail-label">订单号:</span>
+                            <span class="detail-value">{{ orderId }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">总金额:</span>
+                            <span class="detail-value">¥{{ totalPrice.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                    <div class="status-actions">
+                        <button class="action-button" @click="retryPayment">重新支付</button>
+                        <button class="action-button" @click="closeOrderStatus">返回购物车</button>
+                    </div>
+                </div>
+
+                <!-- 超时状态 -->
+                <div class="order-status-content" v-else-if="orderStatus === 'TIMEOUT'">
+                    <div class="status-icon timeout">⏱</div>
+                    <div class="status-title timeout">支付超时</div>
+                    <div class="status-message">
+                        您的支付请求已超时，请重试。
+                    </div>
+                    <div class="status-details">
+                        <div class="detail-item">
+                            <span class="detail-label">订单号:</span>
+                            <span class="detail-value">{{ orderId }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">总金额:</span>
+                            <span class="detail-value">¥{{ totalPrice.toFixed(2) }}</span>
+                        </div>
+                    </div>
+                    <div class="status-actions">
+                        <button class="action-button" @click="retryPayment">重新支付</button>
+                        <button class="action-button" @click="closeOrderStatus">返回购物车</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="empty-cart" v-else>
                 <div class="empty-message">您的购物车内没有物品</div>
                 <button class="continue-shopping" @click="backToStore">浏览商店</button>
             </div>
         </div>
-
-        <!-- <div class="payment-modal" v-if="showPaymentModal">
-            <div class="payment-modal-content">
-                <div class="payment-modal-header">
-                    <span class="close" @click="showPaymentModal = false">&times;</span>
-                    <h2>支付宝付款</h2>
-                </div>
-                <div class="payment-modal-body" v-html="paymentFormHtml"></div>
-            </div>
-        </div> -->
     </div>
 </template>
 
@@ -613,48 +765,151 @@ onMounted(() => {
     margin-bottom: 20px;
 }
 
-.payment-modal {
-    position: fixed;
-    z-index: 1000;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+/* 订单状态样式 */
+.order-status-container {
+    padding: 30px;
 }
 
-.payment-modal-content {
-    background-color: #1b2838;
-    border-radius: 5px;
-    width: 80%;
-    max-width: 600px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-.payment-modal-header {
-    padding: 15px;
-    border-bottom: 1px solid #2a3f5a;
+.order-status-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: 30px;
 }
 
-.payment-modal-header h2 {
-    margin: 0;
-    color: #fff;
+.order-status-title {
+    font-size: 24px;
+    color: #ffffff;
 }
 
-.close {
-    color: #67c1f5;
+.close-button {
     font-size: 28px;
-    font-weight: bold;
+    color: #67c1f5;
     cursor: pointer;
 }
 
-.payment-modal-body {
-    padding: 20px;
+.close-button:hover {
+    color: #00aff0;
+}
+
+.order-status-content {
+    background-color: #1a3353;
+    border-radius: 3px;
+    padding: 30px;
+    text-align: center;
+}
+
+.status-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 36px;
+}
+
+.status-icon.pending {
+    background-color: #2a3f5a;
+}
+
+.status-icon.success {
+    background-color: #4c6b22;
+    color: #BEEE11;
+}
+
+.status-icon.failed {
+    background-color: #892020;
+    color: #ff7b7b;
+}
+
+.status-icon.timeout {
+    background-color: #7e5f20;
+    color: #ffcb41;
+}
+
+.status-title {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.status-title.pending {
+    color: #67c1f5;
+}
+
+.status-title.success {
+    color: #BEEE11;
+}
+
+.status-title.failed {
+    color: #ff7b7b;
+}
+
+.status-title.timeout {
+    color: #ffcb41;
+}
+
+.status-message {
+    color: #c7d5e0;
+    font-size: 16px;
+    margin-bottom: 25px;
+}
+
+.status-details {
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 3px;
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-label {
+    color: #8f98a0;
+}
+
+.detail-value {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.status-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.action-button {
+    padding: 10px 20px;
+    border-radius: 2px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background-color: #2b4157;
+    color: #67c1f5;
+}
+
+.action-button:hover {
+    background-color: #386088;
+    color: #ffffff;
+}
+
+.action-button.success {
+    background: linear-gradient(to right, #75b022, #588a1b);
+    color: #ffffff;
+}
+
+.action-button.success:hover {
+    background: linear-gradient(to right, #8ed629, #6db320);
 }
 </style>

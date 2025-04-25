@@ -229,8 +229,8 @@ public class AliPayController {
                     System.out.println("【异步通知】订单支付成功：" + outTradeNo);
                 }
             }
-            cart.getCartItems().clear();
-            cartRepository.save(cart);
+                cart.getCartItems().clear();
+                cartRepository.save(cart);
             return "success";
         } else {
             System.out.println("【异步通知】验签失败");

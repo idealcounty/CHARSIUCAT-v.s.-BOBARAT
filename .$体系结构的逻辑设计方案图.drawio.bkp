@@ -1,0 +1,46 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/26.1.1 Chrome/132.0.6834.210 Electron/34.3.3 Safari/537.36" version="26.1.1">
+  <diagram name="第 1 页" id="CnoPUEgVfkvRUzwycw_W">
+    <mxGraphModel dx="2165" dy="812" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-1" value="" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-130" y="100" width="1090" height="390" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-2" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-90" y="180" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-4" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="300" y="180" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-5" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="690" y="180" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-6" value="" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="680" y="350" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-7" value="Actor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry y="350" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-8" value="体系结构的逻辑设计方案图" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="289" y="120" width="250" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-10" value="" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.twoWayArrow;dy=0.65;dx=22;" vertex="1" parent="1">
+          <mxGeometry x="140" y="210" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-11" value="" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.twoWayArrow;dy=0.65;dx=22;" vertex="1" parent="1">
+          <mxGeometry x="530" y="210" width="160" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-12" value="" style="html=1;shadow=0;dashed=0;align=center;verticalAlign=middle;shape=mxgraph.arrows2.twoWayArrow;dy=0.65;dx=22;rotation=90;" vertex="1" parent="1">
+          <mxGeometry x="765" y="300" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="IWllaKrl0WF6QZfQ6tQY-14" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;entryX=0.452;entryY=0.989;entryDx=0;entryDy=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryPerimeter=0;" edge="1" parent="1" source="IWllaKrl0WF6QZfQ6tQY-7" target="IWllaKrl0WF6QZfQ6tQY-2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-10" y="335" as="sourcePoint" />
+            <mxPoint x="40" y="285" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

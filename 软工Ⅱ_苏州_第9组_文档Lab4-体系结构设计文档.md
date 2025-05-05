@@ -89,7 +89,11 @@ SBEAM 游戏商城
 
 体系结构的逻辑视角图
 
+![体系结构的逻辑视角图.drawio](https://s2.loli.net/2025/04/27/RedyUxSt349uTzV.png)
+
 体系结构的逻辑方案图
+
+![体系结构的逻辑设计方案图.drawio](https://s2.loli.net/2025/04/27/Ta9JYVilSN24UHo.png)
 
 ## 4.组合视角
 
@@ -97,19 +101,27 @@ SBEAM 游戏商城
 
 体系结构的开发包图
 
+![体系结构的进程图.drawio](https://s2.loli.net/2025/04/27/dZ75V3Qer6PNB8w.png)
+
 ### **4.2 运行时进程**
 
 体系结构的进程图
 
+![体系结构的进程图.drawio](https://s2.loli.net/2025/04/27/dZ75V3Qer6PNB8w.png)
+
 ### **4.3 物理部署**
 
 体系结构的部署图
+
+![体系结构的部署图.drawio](https://s2.loli.net/2025/04/27/c2OVhNnsxLuzIat.png)
 
 ## 5.**接口视角**
 
 ### **5.1 模块的职责**
 
 体系结构的接口图
+
+![体系结构的接口视角图.drawio](https://s2.loli.net/2025/04/27/hLsp2D5Jg7KAPIy.png)
 
 ### **5.2** **用户界面**层的分解
 

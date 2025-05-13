@@ -39,6 +39,10 @@ public class ProductController {
         public ResultVO<ProductVO> getProductByProductId(@PathVariable int productId) {
                 return ResultVO.buildSuccess(productService.getProductByProductId(productId));
         }
+        @GetMapping("/product/search")
+        public ResultVO<List<ProductVO>> searchProduct(@RequestParam("productName") String productName) {
+                return ResultVO.buildSuccess(productService.searchProduct(productName));
+        }
         @PutMapping("/product/productDetail/{productId}")
                 public ResultVO<Boolean> updateProduct(@PathVariable int productId, @RequestBody ProductVO productVO) {
                 boolean success = productService.updateProduct(productId, productVO);
@@ -57,4 +61,5 @@ public class ProductController {
         public ResultVO<Boolean> updateProductDiscount(@PathVariable int productId,@RequestBody Double productDiscount) {
                 return ResultVO.buildSuccess(productService.updateProductDiscount(productId,productDiscount));
         }
+
 }

@@ -44,6 +44,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductVO> searchProduct(String productName){
+        List<Product> list = productRepository.findByProductNameContainingIgnoreCase(productName);
+        return list.stream().map(Product::toVO).collect(Collectors.toList());
+    }
+    @Override
     public ProductVO getProductByProductId(Integer productId) {
         return productRepository.findByProductId(productId).toVO();
     }

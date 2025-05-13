@@ -1,6 +1,7 @@
 package com.example.SBEAM.serviceImpl;
 
 import com.example.SBEAM.exception.SBEAMException;
+import com.example.SBEAM.po.CartItem;
 import com.example.SBEAM.po.Inventory;
 import com.example.SBEAM.po.User;
 import com.example.SBEAM.po.Cart;
@@ -8,6 +9,7 @@ import com.example.SBEAM.repository.CartRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.util.TokenUtil;
+import com.example.SBEAM.vo.InventoryVO;
 import com.example.SBEAM.vo.UserVO;
 import com.example.SBEAM.util.SecurityUtil;
 
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -79,9 +82,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Inventory> getInventory(int userId){
+    public List<InventoryVO> getInventory(int userId){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        return user.getInventories();
+        return user.getInventories().stream().map(Inventory::toVO).collect(Collectors.toList());
     }
 }
 

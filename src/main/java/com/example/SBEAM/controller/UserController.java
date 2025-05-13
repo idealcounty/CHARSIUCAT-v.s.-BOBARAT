@@ -1,6 +1,7 @@
 package com.example.SBEAM.controller;
 import com.example.SBEAM.po.Inventory;
 import com.example.SBEAM.service.UserService;
+import com.example.SBEAM.vo.InventoryVO;
 import com.example.SBEAM.vo.ResultVO;
 import com.example.SBEAM.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class UserController {
         }
     }
     @GetMapping("/{userId}/Inventory")
-    public ResultVO<List<Inventory>> getInventory(@PathVariable int userId){
+    public ResultVO<List<InventoryVO>> getInventory(@PathVariable int userId){
         return ResultVO.buildSuccess(userService.getInventory(userId));
     }
 //    @PutMapping("/{userId}")

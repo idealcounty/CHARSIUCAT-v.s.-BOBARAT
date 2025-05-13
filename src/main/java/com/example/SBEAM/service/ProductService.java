@@ -7,8 +7,10 @@ public interface ProductService {
     List<ProductVO> getAllProductsByStoreId(Integer storeId);
     List<ProductVO> getAllProducts();
     ProductVO getProductByProductId(Integer productId);
+    List<ProductVO> searchProduct(String productName);
     Boolean deleteProduct(Integer productId);
     Boolean updateProduct(Integer productId,ProductVO productVO);
     Boolean updateProductAmount(Integer productId,Integer amount);
     Boolean updateProductDiscount(Integer productId,Double productDiscount);
+
 }

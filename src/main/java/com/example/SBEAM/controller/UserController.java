@@ -40,7 +40,7 @@ public class UserController {
             return ResultVO.buildFailure("请求信息失败");
         }
     }
-    @GetMapping("/{userId}")
+    @GetMapping("/{userId}/Inventory")
     public ResultVO<List<Inventory>> getInventory(@PathVariable int userId){
         return ResultVO.buildSuccess(userService.getInventory(userId));
     }

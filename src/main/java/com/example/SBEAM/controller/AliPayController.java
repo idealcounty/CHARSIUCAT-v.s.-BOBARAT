@@ -95,14 +95,13 @@
 package com.example.SBEAM.controller;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.domain.OrderVO;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import com.example.SBEAM.configure.AliPayConfig;
 import com.example.SBEAM.enums.OrderStatus;
-import com.example.SBEAM.po.Cart;
-import com.example.SBEAM.po.Orders;
+import com.example.SBEAM.po.*;
 import com.example.SBEAM.repository.CartRepository;
 import com.example.SBEAM.repository.OrdersRepository;
+import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.util.AlipayUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +123,8 @@ public class AliPayController {
     private OrdersRepository ordersRepository;
     @Autowired
     private CartRepository cartRepository;
+    @Autowired
+    private UserRepository userRepository;
     @GetMapping("/pay")
     public void pay(@RequestParam("orderId") int orderId, HttpServletResponse response) throws Exception {
         Orders order = ordersRepository.findById(orderId).orElse(null);
@@ -159,6 +160,13 @@ public class AliPayController {
         response.getWriter().write(form);
         response.getWriter().flush();
         response.getWriter().close();
+        User user = userRepository.findById(order.getUserId()).get();
+        Cart cart = cartRepository.findByUserId(order.getUserId());
+        for (CartItem cartItem : cart.getCartItems()) {
+            Inventory inventory = new Inventory(user,cartItem.getProductId(),cartItem.getProductQuantity(),cartItem.getProductPrice());
+            user.getInventories().add(inventory);
+        }
+        userRepository.save(user);
     }
     @GetMapping("/return")
     public String returnUrl(HttpServletRequest request) throws UnsupportedEncodingException {
@@ -178,6 +186,13 @@ public class AliPayController {
         if (signVerified) {
             Orders order = ordersRepository.findByOutTradeNo(outTradeNo);
             Cart cart = cartRepository.findByUserId(order.getUserId());
+            User user = userRepository.findById(order.getUserId()).get();
+            for (CartItem cartItem : cart.getCartItems()) {
+                Inventory inventory = new Inventory(user,cartItem.getProductId(),cartItem.getProductQuantity(),cartItem.getProductPrice());
+                user.getInventories().add(inventory);
+            }
+            userRepository.save(user);
+
             if (order != null && order.getOrderStatus() == OrderStatus.PENDING) {
                 order.setOrderStatus(OrderStatus.SUCCESS);
                 order.setPayMethod("支付宝");

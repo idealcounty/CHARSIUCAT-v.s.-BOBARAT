@@ -1,5 +1,8 @@
 package com.example.SBEAM.service;
+import com.example.SBEAM.po.Inventory;
 import com.example.SBEAM.vo.UserVO;
+
+import java.util.List;
 
 
 public interface UserService {
@@ -8,4 +11,5 @@ public interface UserService {
     UserVO getInformation();
     Boolean updateInformation(int userId,UserVO userVO);
     void depositBalance(Integer userId, double amount);
+    List<Inventory> getInventory(int userId);
 }

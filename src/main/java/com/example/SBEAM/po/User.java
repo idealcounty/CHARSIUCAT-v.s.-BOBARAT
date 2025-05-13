@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -58,6 +58,10 @@ public class User {
     @Column(name="avatar")
     private String avatar;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name="inventory")
+    private List<Inventory> inventories;
+
     public UserVO toVO(){
         UserVO userVO=new UserVO();
         userVO.setId(this.id);
@@ -70,6 +74,7 @@ public class User {
         userVO.setCreateTime(this.createTime);
         userVO.setBalance(this.balance);
         userVO.setAvatar(this.avatar);
+        userVO.setInventories(this.inventories);
         return userVO;
     }
 }

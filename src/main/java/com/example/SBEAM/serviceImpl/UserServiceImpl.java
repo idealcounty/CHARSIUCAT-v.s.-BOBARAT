@@ -1,6 +1,7 @@
 package com.example.SBEAM.serviceImpl;
 
 import com.example.SBEAM.exception.SBEAMException;
+import com.example.SBEAM.po.Inventory;
 import com.example.SBEAM.po.User;
 import com.example.SBEAM.po.Cart;
 import com.example.SBEAM.repository.CartRepository;
@@ -13,8 +14,9 @@ import com.example.SBEAM.util.SecurityUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -74,6 +76,12 @@ public class UserServiceImpl implements UserService {
     public void depositBalance(Integer userId, double amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         user.setBalance(user.getBalance()+amount);
+    }
+
+    @Override
+    public List<Inventory> getInventory(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getInventories();
     }
 }
 

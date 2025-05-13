@@ -1,4 +1,5 @@
 package com.example.SBEAM.controller;
+import com.example.SBEAM.po.Inventory;
 import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.vo.ResultVO;
 import com.example.SBEAM.vo.UserVO;
@@ -6,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -38,7 +40,10 @@ public class UserController {
             return ResultVO.buildFailure("请求信息失败");
         }
     }
-
+    @GetMapping("/{userId}")
+    public ResultVO<List<Inventory>> getInventory(@PathVariable int userId){
+        return ResultVO.buildSuccess(userService.getInventory(userId));
+    }
 //    @PutMapping("/{userId}")
 //    public ResultVO<Void> deposit(@PathVariable int userId, @RequestParam double amount){
 //        userService.depositBalance(userId,amount);

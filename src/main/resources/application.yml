@@ -25,6 +25,9 @@ alipay:
   notifyUrl: http://r9exwp.natappfree.cc/api/alipay/notify
   gateway-url: https://openapi-sandbox.dl.alipaydev.com/gateway.do
   return-url: http://r9exwp.natappfree.cc/api/alipay/return
+dashscope:
+  api-key: sk-9fecf88080a4456f9b52dd0ba03e74c0
+  model-endpoint: https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation
 
 
 server:

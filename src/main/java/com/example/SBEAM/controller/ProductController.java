@@ -61,5 +61,8 @@ public class ProductController {
         public ResultVO<Boolean> updateProductDiscount(@PathVariable int productId,@RequestBody Double productDiscount) {
                 return ResultVO.buildSuccess(productService.updateProductDiscount(productId,productDiscount));
         }
-
+        @GetMapping("/product/productDetail/{productId}/comment")
+        public ResultVO<Boolean> judgeOwnProduct(@PathVariable int productId,@RequestParam int userId) {
+                return ResultVO.buildSuccess(productService.judgeOwnProduct(productId,userId));
+        }
 }

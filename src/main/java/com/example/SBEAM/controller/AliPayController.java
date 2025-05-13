@@ -160,13 +160,6 @@ public class AliPayController {
         response.getWriter().write(form);
         response.getWriter().flush();
         response.getWriter().close();
-        User user = userRepository.findById(order.getUserId()).get();
-        Cart cart = cartRepository.findByUserId(order.getUserId());
-        for (CartItem cartItem : cart.getCartItems()) {
-            Inventory inventory = new Inventory(user,cartItem.getProductId(),cartItem.getProductQuantity(),cartItem.getProductPrice());
-            user.getInventories().add(inventory);
-        }
-        userRepository.save(user);
     }
     @GetMapping("/return")
     public String returnUrl(HttpServletRequest request) throws UnsupportedEncodingException {

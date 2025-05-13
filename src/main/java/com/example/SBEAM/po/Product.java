@@ -51,6 +51,9 @@ public class Product {
     @Column(name = "product_images")
     private List<String> productImages;
 
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name="product_comment")
+    private List<Comment> productComments;
 
     public ProductVO toVO() {
         ProductVO productVO = new ProductVO();
@@ -63,6 +66,7 @@ public class Product {
         productVO.setProductDescription(this.productDescription);
         productVO.setProductImages(this.productImages);
         productVO.setProductLogo(this.productLogo);
+        productVO.setProductComments(this.productComments);
         return productVO;
     }
 }

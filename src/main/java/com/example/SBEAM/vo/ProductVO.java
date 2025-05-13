@@ -1,5 +1,6 @@
 package com.example.SBEAM.vo;
 
+import com.example.SBEAM.po.Comment;
 import com.example.SBEAM.po.Product;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class ProductVO {
     private List<String> productImages;
     private String productLogo;
     private Double productDiscount;
-
+    private List<Comment> productComments;
     public Product toPO(){
         Product product = new Product();
         product.setProductId(productId);
@@ -32,6 +33,7 @@ public class ProductVO {
         product.setProductImages(this.productImages);
         product.setProductLogo(this.productLogo);
         product.setProductDiscount(this.productDiscount);
+        product.setProductComments(this.productComments);
         return product;
     }
 }

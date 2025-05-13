@@ -1,6 +1,10 @@
 package com.example.SBEAM.service;
+import com.example.SBEAM.po.Comment;
+import com.example.SBEAM.po.Product;
+import com.example.SBEAM.vo.CommentVO;
 import com.example.SBEAM.vo.ProductVO;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.List;
 
 public interface ProductService {
@@ -14,4 +18,7 @@ public interface ProductService {
     Boolean updateProductAmount(Integer productId,Integer amount);
     Boolean updateProductDiscount(Integer productId,Double productDiscount);
     Boolean judgeOwnProduct(int productId,int userId);
+    List<CommentVO> getCommentsByProductId(Product product);
+    List<CommentVO> getGoodCommentsByProductId(Product product);
+    List<CommentVO> getBadCommentsByProductId(Product product);
 }

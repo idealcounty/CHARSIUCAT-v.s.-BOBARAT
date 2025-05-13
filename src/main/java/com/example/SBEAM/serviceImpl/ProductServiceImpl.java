@@ -1,14 +1,13 @@
 package com.example.SBEAM.serviceImpl;
 
 import com.example.SBEAM.exception.SBEAMException;
-import com.example.SBEAM.po.Inventory;
-import com.example.SBEAM.po.Product;
-import com.example.SBEAM.po.Store;
-import com.example.SBEAM.po.User;
+import com.example.SBEAM.po.*;
+import com.example.SBEAM.repository.CommentRepository;
 import com.example.SBEAM.repository.ProductRepository;
 import com.example.SBEAM.repository.StoreRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.ProductService;
+import com.example.SBEAM.vo.CommentVO;
 import com.example.SBEAM.vo.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,8 @@ public class ProductServiceImpl implements ProductService {
     private StoreRepository storeRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CommentRepository commentRepository;
     @Override
     public Boolean createProduct(ProductVO productVO) {
         Product product = productRepository.findByProductId(productVO.getProductId());
@@ -120,5 +121,17 @@ public class ProductServiceImpl implements ProductService {
             }
         }
         return false;
+    }
+    @Override
+    public  List<CommentVO> getCommentsByProductId(Product product){
+        return commentRepository.findCommentsByProduct(product).stream().map(Comment::toVO).collect(Collectors.toList());
+    }
+    @Override
+    public List<CommentVO> getGoodCommentsByProductId(Product product){
+        return commentRepository.findByProductAndCommentScoreGreaterThanEqual(product,4).stream().map(Comment::toVO).collect(Collectors.toList());
+    }
+    @Override
+    public List<CommentVO> getBadCommentsByProductId(Product product){
+        return commentRepository.findByProductAndCommentScoreLessThanEqual(product,2).stream().map(Comment::toVO).collect(Collectors.toList());
     }
 }

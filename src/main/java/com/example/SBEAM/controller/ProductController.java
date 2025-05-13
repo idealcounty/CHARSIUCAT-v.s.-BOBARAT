@@ -1,6 +1,8 @@
 package com.example.SBEAM.controller;
-
+import com.example.SBEAM.po.Product;
+import com.example.SBEAM.repository.ProductRepository;
 import com.example.SBEAM.service.ProductService;
+import com.example.SBEAM.vo.CommentVO;
 import com.example.SBEAM.vo.ResultVO;
 import com.example.SBEAM.vo.ProductVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,8 @@ import java.util.List;
 public class ProductController {
         @Autowired
         ProductService productService;
+        @Autowired
+        ProductRepository productRepository;
         @PostMapping("/product/createProduct")
         public ResultVO<Boolean> createProduct(@RequestBody ProductVO productVO) {
             return ResultVO.buildSuccess(productService.createProduct(productVO));
@@ -61,8 +65,23 @@ public class ProductController {
         public ResultVO<Boolean> updateProductDiscount(@PathVariable int productId,@RequestBody Double productDiscount) {
                 return ResultVO.buildSuccess(productService.updateProductDiscount(productId,productDiscount));
         }
-        @GetMapping("/product/productDetail/{productId}/comment")
+        @PutMapping("/product/productDetail/{productId}/comment")
         public ResultVO<Boolean> judgeOwnProduct(@PathVariable int productId,@RequestParam int userId) {
                 return ResultVO.buildSuccess(productService.judgeOwnProduct(productId,userId));
+        }
+        @GetMapping("/product/productDetail/{productId}/comment")
+        public ResultVO<List<CommentVO>> getProductComments(@PathVariable int productId) {
+                Product product =productRepository.findByProductId(productId);
+                return ResultVO.buildSuccess(productService.getCommentsByProductId(product));
+        }
+        @GetMapping("/product/productDetail/{productId}/comment/good")
+        public ResultVO<List<CommentVO>> getProductGoodComments(@PathVariable int productId) {
+                Product product =productRepository.findByProductId(productId);
+                return ResultVO.buildSuccess(productService.getGoodCommentsByProductId(product));
+        }
+        @GetMapping("/product/productDetail/{productId}/comment/bad")
+        public ResultVO<List<CommentVO>> getProductBadComments(@PathVariable int productId) {
+                Product product =productRepository.findByProductId(productId);
+                return ResultVO.buildSuccess(productService.getBadCommentsByProductId(product));
         }
 }

@@ -37,5 +37,7 @@ public class SBEAMException extends RuntimeException{
     public static SBEAMException productNotEnough(){return new SBEAMException("商品数量不足!");}
     public static SBEAMException priceNotEnough(){return new SBEAMException("账户余额不足!");}
     public static SBEAMException advertisementAlreadyExist(){return new SBEAMException("广告已经存在");}
-    public static SBEAMException advertisementNotExist(){return new SBEAMException("广告已经存在");}
+    public static SBEAMException advertisementNotExist(){return new SBEAMException("广告不存在");}
+    public static SBEAMException commentAlreadyExist(){return new SBEAMException("评论已经存在");}
+    public static SBEAMException commentNotExist(){return new SBEAMException("评论不存在");}
 }

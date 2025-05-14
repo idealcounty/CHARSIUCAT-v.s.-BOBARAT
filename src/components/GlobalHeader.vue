@@ -77,6 +77,7 @@ function logout() {
                 @click="mineMenuLocked = true"
             >个人资料</RouterLink>
             <RouterLink class="profile_item" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
+            <RouterLink class="profile_item" to="/games" @click="mineMenuLocked = true">游戏</RouterLink>
           </div>
         </RouterLink>
         <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
@@ -115,12 +116,12 @@ function logout() {
 <style scoped>
 .global-header {
   position: relative;
-  z-index: 100;
+  z-index: 400;
   display: flex;
   justify-content: center;
   width: 100%;
   min-width: 940px;
-  background-color: #1f2428;
+  background-color: #171D25;
   font-family: "Motiva Sans", sans-serif;;
 }
 
@@ -211,7 +212,7 @@ function logout() {
 .submenu_Profile {
   width: 92.7px;
   position: absolute;
-  z-index: 1500;
+  z-index: 1800;
   left: 0px;
   top: 30px;
   opacity: 0;

@@ -32,6 +32,12 @@ type UpdateInfo = {
     avatar?: string,
 }
 
+export type InventoryInfo = {
+    cartItemId: number,
+    productId: number,
+    productQuantity: number,
+    productPrice: number,
+}
 
 // 如果有“Vue: This may be converted to an async function”警告，可以不管
 // 用户登录
@@ -78,6 +84,13 @@ export const getUserCart = (userId: number) => {
 
 export const getUserCartVO = (userId: number) => {
     return axios.get(`${USER_MODULE}/${userId}`)
+        .then(res => {
+            return res
+        })
+}
+
+export const getInventory = (userId: number) => {
+    return axios.get(`${USER_MODULE}/${userId}/Inventory`)
         .then(res => {
             return res
         })

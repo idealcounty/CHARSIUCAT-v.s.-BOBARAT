@@ -56,6 +56,10 @@ const router = createRouter({
         component: () => import('../views/cart/Cart.vue'),
         meta: { title: '购物车' }
     }, {
+        path: '/games',
+        component: () => import('../views/user/Game.vue'),
+        meta: { title: '游戏' }
+    }, {
         path: '/:catchAll(.*)',
         redirect: '/404'
     },]

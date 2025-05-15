@@ -123,7 +123,7 @@ function deleteToCart(product_id:number,now_cart: Cart) {
         </div>
       </div>
     </div>
-    <!-- 标题（完全保留原有代码） -->
+    <!-- 标题 -->
     <div class="page_title_area game_title_area page_content">
       <div class="apphub_HomeHeaderContent">
         <div class="apphub_HeaderStandardTop">
@@ -132,7 +132,7 @@ function deleteToCart(product_id:number,now_cart: Cart) {
       </div>
     </div>
     <div style="clear: left;"></div>
-    <!-- 主体内容（完全保留原有代码，仅修改按钮部分） -->
+    <!-- 主体内容 -->
     <div class="block game_media_and_summary_ctn">
       <div class="game_background_glow">
         <div class="block_content page_content">
@@ -195,6 +195,81 @@ function deleteToCart(product_id:number,now_cart: Cart) {
                   @click="deleteToCart(product_id, cart)"
               >从愿望单中移除</div>
             </div>
+          </div>
+        </div>
+      </div>
+      <!--库中已有-->
+      <div class="game_area_already_owned page_content">
+        <div class="game_area_already_owned_ctn">
+          <div class="ds_owned_flag ds_flag">在库中&nbsp;&nbsp;</div>
+          <div class="already_in_library">您的 Steam 库中已有《{{ productName }}》</div>
+        </div>
+      </div>
+      <!--撰写评测-->
+      <div class="game_area_play_stats">
+        <div class="review_container">
+          <div class="review_create">
+            <h1 class="review_title">为 {{ productName }} 撰写一篇评测</h1>
+            <p id="review_describe">
+              您认为这款游戏有什么优点或缺点？您是否会将这款游戏推荐给他人？请写下您的看法。<br>请注意保持礼貌并遵守
+              <a class="review_rules" href="https://help.steampowered.com/zh-cn/faqs/view/6862-8119-C23E-EA7B">《规则及指引》</a>。
+            </p>
+            <div style=" display: flex; align-items: flex-start;">
+              <div class="avatar_block">
+                <router-link to="">
+                  <div class="avatar avatar_block_status_online">
+                    <img src="">
+                  </div>
+                </router-link>
+              </div>
+              <div class="content">
+                <textarea class="input_box" maxlength="8000"></textarea>
+                <div class="controls">
+                  <div class="writeReviewTable">
+                    <div class="review_controls">
+                      <div class="controlblock has_dselect">
+                        <span class="controltext">可见性：公开</span>
+                      </div>
+                      <div class="controlblock has_dselect">
+                        <span class="controltext">语言：简体中文</span>
+                      </div>
+                      <div class="controlblock enable_review_comments">
+                        <input type="checkbox" id="EnableReviewComments"><label for="EnableReviewComments">允许留言</label>
+                      </div>
+                      <div class="controlblock formattinghelp">
+                        <a onclick="window.open( 'https://steamcommunity.com/comment/Recommendation/formattinghelp','formattinghelp','height=640,width=640,resize=yes,scrollbars=yes' );">格式帮助</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="review_controls_row">
+                    <div class="review_controls_left">
+                      <div class="review_control_didyouenjoy">
+                        您推荐这款游戏吗？							</div>
+                      <div class="controlblock review_create_vote_controls" id="VoteUpDownBtnCtn">
+                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " onclick="">
+                          <span>
+                            <i class="ico18 thumb_up"></i>
+                            是
+                          </span>
+                        </div>
+                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " onclick="">
+                          <span>
+                            <i class="ico18 thumb_down"></i>
+                            否
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="review_controls_right">
+                      <div class="btnv6_lightblue_blue btnv6_border_2px btn_medium" onclick="">
+                        <span>发布评测</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="clear: both"></div>
           </div>
         </div>
       </div>
@@ -524,5 +599,291 @@ img {
 
 .btn_medium {
   margin-bottom: 4px;
+}
+
+.game_area_already_owned.page_content {
+  height: 40px;
+  padding: 0px 15px 0px 0px;
+  position: relative;
+  background: linear-gradient(to right, rgba(163, 207, 6, 0.6) 0%, rgba(75, 106, 33, 0.6) 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#99a3cf06', endColorstr='#994b6a21',GradientType=1 );
+  font-size: 18px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: 300;
+  line-height: 40px;
+  color: #a3cf06;
+  margin-bottom: 1px;
+  width: 925px;
+}
+
+.game_area_already_owned .ds_flag {
+  position: relative;
+  float: left;
+  top: 10px;
+  left: -8px;
+  box-shadow: 1px 1px 2px #000000;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAKCAYAAABi8KSDAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoV2luZG93cykiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OUNDNzBFNTUyMUM0MTFFNDk1REVFODRBNUU5RjA2MUYiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OUNDNzBFNTYyMUM0MTFFNDk1REVFODRBNUU5RjA2MUYiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5Q0M3MEU1MzIxQzQxMUU0OTVERUU4NEE1RTlGMDYxRiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5Q0M3MEU1NDIxQzQxMUU0OTVERUU4NEE1RTlGMDYxRiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pv3vUKAAAAAlSURBVHjaYvz//z8DsYARpFhISAivjnfv3jGSp3jUGeQ4AyDAADZHNe2nyOBrAAAAAElFTkSuQmCC') no-repeat 4px 4px #a3cf06;
+}
+
+.ds_flag {
+  position: absolute;
+  left: 0;
+  top: 14px;
+  font-size: 10px;
+  color: #111111;
+  box-shadow: 0 0 10px rgba(0,0,0,0.9);
+  height: 18px;
+  line-height: 19px;
+  padding: 0 0 0 18px;
+  white-space: nowrap;
+  z-index: 5;
+}
+
+.game_area_already_owned .already_in_library {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.game_area_play_stats {
+  background: linear-gradient(135deg,  rgba(97,100,101,0.3) 0%,rgba(226,244,255,0.3) 100%);
+  padding: 0px 16px 16px 16px;
+  margin: 0px auto;
+  margin-bottom: 40px;
+  max-width: 908px;
+}
+
+.review_create {
+  max-width: 908px;
+  position: relative;
+  overflow: visible;
+  padding-top: 16px;
+}
+
+.review_title {
+  font-size: 18px;
+  margin-bottom: 3px;
+  color: #66c0f4;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: 300;
+  width: 100%;
+  border-top: 1px solid #212c3d;
+  padding-top: 10px;
+  display: block;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+
+.review_create p {
+  font-size: 13px;
+  margin-bottom: 15px;
+  line-height: 17px;
+  color: #8f98a0;
+}
+
+p {
+  display: block;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  unicode-bidi: isolate;
+}
+
+.review_rules {
+  text-decoration: none;
+  color: #ffffff;
+
+  &:hover {
+    color: #66c0f4;
+  }
+}
+
+.avatar {
+  width: 94px;
+  height: 94px;
+  background-repeat: no-repeat;
+  padding: 1px;
+  margin-right: 16px;
+  border-radius: 0px;
+  float: left;
+}
+
+.avatar_block_status_online {
+  background: linear-gradient( to bottom, rgba(83,164,196,1) 5%, rgba(69,128,151,1) 95%);
+  filter: none;
+}
+
+.review_create .content {
+  height: auto;
+  overflow: visible;
+  width: 796px;
+  margin: 0px;
+}
+
+.input_box {
+  border: 1px solid #233c51;
+  border-radius: 3px;
+  width: 100%;
+  max-width: 765px;
+  height: 112px;
+  background-color: #222b35;
+  color: #d6d7d8;
+  padding: 10px 11px;
+  font-size: 13px;
+  font-family: "Motiva Sans", sans-serif;
+  font-weight: normal;
+  box-shadow: inset 0px 0px 7px rgba( 0, 0, 0, 0.5 );
+}
+
+.controls {
+  margin-top: 4px;
+}
+
+.review_controls {
+  padding: 8px;
+  background-color: rgba( 0, 0, 0, 0.2 );
+  margin-bottom: 10px;
+  max-width: 772px;
+}
+
+.review_controls .controlblock {
+  display: inline-block;
+  margin-right: 30px;
+  position: relative;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #c6d4df;
+  font-size: 12px;
+}
+
+.content .controls .dselect_container {
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  margin-top: -3px;
+  color: #acb2b8;
+  font-size: 12px;
+}
+
+.review_controls .controlblock .dselect_container {
+  background: rgba( 103, 193, 245, 0.1 );
+  border-radius: 3px;
+  padding: 0px 0px 0px 0px;
+}
+
+.review_controls .formattinghelp {
+  padding: 4px;
+  float: right;
+  margin-right: 0px;
+  position: relative;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #ffffff;
+  font-size: 12px;
+  text-decoration: none;
+}
+
+.review_controls_row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-content: flex-end;
+}
+
+.review_controls_left {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 100%;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #c6d4df;
+  font-size: 12px;
+  max-width: 150px;
+}
+
+.review_control_didyouenjoy {
+  margin-bottom: 4px;
+}
+
+.review_create_vote_controls {
+  color: #acb2b8;
+  font-size: 13px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+  display: flex;
+}
+
+.btnv6_blue_hoverfade {
+  border-radius: 2px;
+  border: none;
+  padding: 1px;
+  margin-right: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #67c1f5;
+  font-size: 13px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba( 103, 193, 245, 0.2 );
+  width: 69.32px;
+  height: 32px;
+}
+
+.ico18 {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  margin: 0 0px;
+  background: url(https://store.cloudflare.steamstatic.com/public/shared/images/buttons/icons_18.png?v=3);
+  vertical-align: text-top;
+}
+
+.ico18.thumb_up {
+  background-position: 0px 0px;
+}
+
+.ico18.thumb_down {
+  background-position: -18px 0px;
+}
+
+.btnv6_blue_hoverfade:hover .ico18.thumb_up {
+  background-position: -72px 0px;
+}
+
+.btnv6_blue_hoverfade:hover .ico18.thumb_down {
+  background-position: -90px 0px;
+}
+
+.review_controls_right {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.btnv6_border_2px {
+  border-radius: 4px;
+  border: 2px solid #17202f;
+}
+
+.btnv6_lightblue_blue {
+  padding: 1px;
+  cursor: pointer;
+  text-decoration: none !important;
+  color: #2B5066 !important;
+  background: linear-gradient( to bottom, rgba(193,228,249,1) 5%, rgba(148,183,202,1) 95%);
+  width: 88px;
+  height: 32px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

@@ -9,11 +9,11 @@ import java.util.List;
 @Getter
 @Setter
 public class LotteryVO {
-    private Integer LotteryId;
+    private Integer lotteryId;
     private List<LotteryItem> lotteryItems;
     public Lottery toPO() {
         Lottery lottery = new Lottery();
-        lottery.setLotteryId(LotteryId);
+        lottery.setLotteryId(lotteryId);
         lottery.setLotteryItems(lotteryItems);
         return lottery;
     }

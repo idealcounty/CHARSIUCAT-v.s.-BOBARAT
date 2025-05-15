@@ -15,7 +15,7 @@ import javax.persistence.*;
 public class LotteryItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer LotteryItemId;
+    private Integer lotteryItemId;
 
     @Column(name = "product_id",nullable = false)
     private Integer productId;
@@ -39,7 +39,7 @@ public class LotteryItem {
     }
     public LotteryItemVO toVO(){
         LotteryItemVO lotteryItemVO = new LotteryItemVO();
-        lotteryItemVO.setLotteryItemId(LotteryItemId);
+        lotteryItemVO.setLotteryItemId(lotteryItemId);
         lotteryItemVO.setProductId(productId);
         lotteryItemVO.setProductQuantity(productQuantity);
         lotteryItemVO.setLottery(lottery);

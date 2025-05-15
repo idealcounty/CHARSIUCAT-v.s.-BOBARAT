@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class LotteryItemVO {
-    private Integer LotteryItemId;
+    private Integer lotteryItemId;
     private Integer productId;
     private Integer productQuantity;
     private Lottery lottery;
@@ -16,7 +16,7 @@ public class LotteryItemVO {
     private Double productValue;
     public LotteryItem toPO(){
         LotteryItem lotteryItem = new LotteryItem();
-        lotteryItem.setLotteryItemId(LotteryItemId);
+        lotteryItem.setLotteryItemId(lotteryItemId);
         lotteryItem.setProductId(productId);
         lotteryItem.setProductQuantity(productQuantity);
         lotteryItem.setLottery(lottery);

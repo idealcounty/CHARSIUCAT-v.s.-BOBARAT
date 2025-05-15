@@ -15,7 +15,7 @@ import java.util.List;
 public class Lottery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer LotteryId;
+    private Integer lotteryId;
 
     @OneToMany(mappedBy = "lottery", cascade = CascadeType.ALL, orphanRemoval = true)
     @Column(name="lottery_item")
@@ -23,7 +23,7 @@ public class Lottery {
 
     public LotteryVO toVO(){
         LotteryVO lotteryVO = new LotteryVO();
-        lotteryVO.setLotteryId(LotteryId);
+        lotteryVO.setLotteryId(lotteryId);
         lotteryVO.setLotteryItems(lotteryItems);
         return lotteryVO;
     }

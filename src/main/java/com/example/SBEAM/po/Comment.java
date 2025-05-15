@@ -28,9 +28,9 @@ public class Comment {
 
     @Basic
     @Column(name = "comment_score")
-    private int commentScore;
+    private boolean commentScore;
 
-    public Comment (String commentText, int commentScore) {
+    public Comment (String commentText, boolean commentScore) {
         this.commentText = commentText;
         this.commentScore = commentScore;
     }
@@ -39,6 +39,7 @@ public class Comment {
         commentVO.setCommentId(commentId);
         commentVO.setCommentText(commentText);
         commentVO.setCommentScore(commentScore);
+        commentVO.setProduct(product);
         return commentVO;
     }
 }

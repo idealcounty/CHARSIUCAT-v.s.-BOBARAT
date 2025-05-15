@@ -1,7 +1,6 @@
 package com.example.SBEAM.serviceImpl;
 import com.example.SBEAM.exception.SBEAMException;
 import com.example.SBEAM.po.Advertisement;
-import com.example.SBEAM.po.Product;
 import com.example.SBEAM.service.AdvertisementService;
 import com.example.SBEAM.repository.AdvertisementRepository;
 import com.example.SBEAM.vo.AdvertisementVO;

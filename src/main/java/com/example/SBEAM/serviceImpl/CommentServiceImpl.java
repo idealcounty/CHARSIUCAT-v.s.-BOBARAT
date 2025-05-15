@@ -15,10 +15,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Boolean createComment(CommentVO commentVO){
-        Comment comment = commentRepository.findByCommentId(commentVO.getCommentId());
-        if(comment != null){
-            throw SBEAMException.commentAlreadyExist();
-        }
         Comment newComment = commentVO.toPO();
         commentRepository.save(newComment);
         return true;

@@ -10,4 +10,6 @@ export const TOOL_MODULE = `${API_MODULE}/tools`
 export const ADVERTISEMENT_MODULE = `${API_MODULE}/advertisement`
 //支付宝模块
 export const ALIPAY_MODULE = `${API_MODULE}/alipay`
+//评论模块
+export const COMMENT_MODULE = `${API_MODULE}/comment`
 

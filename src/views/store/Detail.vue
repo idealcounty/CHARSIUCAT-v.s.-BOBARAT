@@ -3,6 +3,7 @@ import { onMounted, ref, watch } from "vue";
 import { router } from "../../router";
 import { Cart, getProductByProductId, updateCart, productExists } from "../../api/product.ts";
 import { CartItem, getUserCartVO, userInfo } from "../../api/user.ts";
+import {makeComment} from "../../api/comment.ts";
 
 const product_id = router.currentRoute.value.params.product_id;
 const productVO = ref();
@@ -17,6 +18,8 @@ const productImages = ref([]);
 const userId = ref();
 const cartId = ref();
 const cart = ref<Cart>(null);
+const comment_score= ref();
+const comment_Text= ref('');
 
 const existsResult = ref<boolean | null>(null);
 
@@ -87,6 +90,29 @@ function deleteToCart(product_id:number,now_cart: Cart) {
     }
   })
   existsResult.value = false;
+}
+
+function handleGood(){
+  comment_score.value=100
+  console.log(comment_score.value)
+}
+
+function handleBad(){
+  comment_score.value=0
+  console.log(comment_score.value)
+}
+
+function handleComment(){
+  console.log(comment_score.value)
+  console.log(comment_Text.value)
+  console.log(productId.value)
+  getProductByProductId(Number(productId.value)).then( res => {
+    makeComment({
+      commentScore: comment_score.value,
+      commentText: comment_Text.value,
+      product: res.data.result,
+    })
+  })
 }
 </script>
 
@@ -223,7 +249,7 @@ function deleteToCart(product_id:number,now_cart: Cart) {
                 </router-link>
               </div>
               <div class="content">
-                <textarea class="input_box" maxlength="8000"></textarea>
+                <textarea class="input_box" maxlength="8000" v-model="comment_Text"></textarea>
                 <div class="controls">
                   <div class="writeReviewTable">
                     <div class="review_controls">
@@ -246,13 +272,13 @@ function deleteToCart(product_id:number,now_cart: Cart) {
                       <div class="review_control_didyouenjoy">
                         您推荐这款游戏吗？							</div>
                       <div class="controlblock review_create_vote_controls" id="VoteUpDownBtnCtn">
-                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " onclick="">
+                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " @click="handleGood">
                           <span>
                             <i class="ico18 thumb_up"></i>
                             是
                           </span>
                         </div>
-                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " onclick="">
+                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " @click="handleBad">
                           <span>
                             <i class="ico18 thumb_down"></i>
                             否
@@ -261,7 +287,7 @@ function deleteToCart(product_id:number,now_cart: Cart) {
                       </div>
                     </div>
                     <div class="review_controls_right">
-                      <div class="btnv6_lightblue_blue btnv6_border_2px btn_medium" onclick="">
+                      <div class="btnv6_lightblue_blue btnv6_border_2px btn_medium" @click="handleComment">
                         <span>发布评测</span>
                       </div>
                     </div>
@@ -573,12 +599,13 @@ img {
 }
 
 .add_to_wishlist_area {
+  width: 180px;
   display: inline-block;
   position: relative;
 }
 
 .btnv6_blue_hoverfade {
-  width: 152px;
+  width: 180px;
   height: 32px;
   border-radius: 2px;
   border: none;
@@ -590,7 +617,7 @@ img {
   text-decoration: none;
   color: #67c1f5;
   background: rgba( 103, 193, 245, 0.2 );
-
+  white-space: nowrap;
   &:hover {
     color: #ffffff;
     background: linear-gradient(to right,#66bff3,#437d9e);

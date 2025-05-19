@@ -62,6 +62,10 @@ const router = createRouter({
     }, {
         path: '/:catchAll(.*)',
         redirect: '/404'
+    },{
+        path: '/friend',
+        component: () => import('../views/community/Friend.vue'),
+        meta: { title: '好友' }
     },]
 })
 

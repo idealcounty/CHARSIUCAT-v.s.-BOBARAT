@@ -1,6 +1,9 @@
 <script setup>
-import { ref,onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { router } from "../router/index.ts";
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const storeMenuLocked = ref(false)
 const mineMenuLocked = ref(false)
@@ -47,8 +50,25 @@ onMounted(() => {
   }
 })
 
+watch(
+    () => route.fullPath,
+    () => {
+      getUserInfo()
+    }
+)
+
 function logout() {
   sessionStorage.removeItem('token')
+  userId.value = ''
+  userName.value = ''
+  userPhone.value = ''
+  userPassword.value = ''
+  userAddress.value = ''
+  userRole.value = ''
+  userCreateTime.value = ''
+  userBalance.value = ''
+  userAvatar.value = ''
+  token.value = false
   router.push({'path': '/login'})
 }
 </script>

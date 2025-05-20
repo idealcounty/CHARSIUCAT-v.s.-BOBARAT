@@ -3,11 +3,16 @@ import { onMounted, ref, watch } from "vue";
 import { router } from "../../router";
 import { Cart, getProductByProductId, updateCart, productExists } from "../../api/product.ts";
 import { CartItem, getUserCartVO, userInfo } from "../../api/user.ts";
-import {makeComment} from "../../api/comment.ts";
+import {makeComment,getCommentsByProductId,commentInfo} from "../../api/comment.ts";
+import {getAllAdvertisements} from "../../api/advertisement.ts";
+
+const token = ref(false)
+const userId = ref('')
+const userAvatar = ref('')
 
 const product_id = router.currentRoute.value.params.product_id;
 const productVO = ref();
-const productId = ref('');
+const productId = ref(0);
 const productName = ref('');
 const productAmount = ref('');
 const productPrice = ref('');
@@ -15,16 +20,36 @@ const productDiscount = ref('');
 const productDescription = ref('');
 const productLogo = ref('');
 const productImages = ref([]);
-const userId = ref();
 const cartId = ref();
 const cart = ref<Cart>(null);
+const goodClicked = ref(false);
+const badClicked = ref(false);
 const comment_score= ref();
 const comment_Text= ref('');
+const comments = ref<commentInfo[]>();
+const mouseclick_user_reviews_filter_menu = ref(false)
 
 const existsResult = ref<boolean | null>(null);
 
 const activeImage = ref(1);
 
+async function getUserInfo() {
+  const { userInfo } = await import('../../api/user.ts')
+  const res = await userInfo()
+  console.log(res.data.code)
+  if (res.data.code === '000') {
+    token.value = true
+    const result = res.data.result
+    userId.value = result.id
+    userAvatar.value = result.avatar
+  } else if (res.data.code === '400') {
+    console.log('未登录')
+  }
+}
+
+onMounted(() => {
+    getUserInfo()
+})
 
 const loadData = async () => {
   const res = await getProductByProductId(Number(product_id));
@@ -41,6 +66,11 @@ const loadData = async () => {
 
 onMounted(async () => {
   await loadData();
+  console.log(productId.value)
+  getCommentsByProductId(productId.value).then(res => {
+    comments.value = res.data.result;
+    console.log(comments);
+  })
   const userRes = await userInfo();
   userId.value = userRes.data.result.id;
   const cartRes = await getUserCartVO(userId.value);
@@ -94,11 +124,21 @@ function deleteToCart(product_id:number,now_cart: Cart) {
 
 function handleGood(){
   comment_score.value=100
+  if(!goodClicked.value)
+    goodClicked.value=true
+  else
+    goodClicked.value=false
+  badClicked.value=false
   console.log(comment_score.value)
 }
 
 function handleBad(){
   comment_score.value=0
+  goodClicked.value=false
+  if(!badClicked.value)
+    badClicked.value=true
+  else
+    badClicked.value=false
   console.log(comment_score.value)
 }
 
@@ -242,11 +282,11 @@ function handleComment(){
             </p>
             <div style=" display: flex; align-items: flex-start;">
               <div class="avatar_block">
-                <router-link to="">
+                <RouterLink :to="`/profile/${userId}`">
                   <div class="avatar avatar_block_status_online">
-                    <img src="">
+                    <img :src="userAvatar">
                   </div>
-                </router-link>
+                </RouterLink>
               </div>
               <div class="content">
                 <textarea class="input_box" maxlength="8000" v-model="comment_Text"></textarea>
@@ -272,13 +312,25 @@ function handleComment(){
                       <div class="review_control_didyouenjoy">
                         您推荐这款游戏吗？							</div>
                       <div class="controlblock review_create_vote_controls" id="VoteUpDownBtnCtn">
-                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " @click="handleGood">
+                        <div v-if="!goodClicked" class="btnv6_blue_hoverfade2 btn_medium ico_hover" @click="handleGood">
                           <span>
                             <i class="ico18 thumb_up"></i>
                             是
                           </span>
                         </div>
-                        <div class="btnv6_blue_hoverfade btn_medium ico_hover " @click="handleBad">
+                        <div v-else class="btnv6_blue_hoverfade3 btn_medium ico_hover" @click="handleGood">
+                          <span>
+                            <i class="ico18 thumb_up"></i>
+                            是
+                          </span>
+                        </div>
+                        <div v-if="!badClicked" class="btnv6_blue_hoverfade2 btn_medium ico_hover" @click="handleBad">
+                          <span>
+                            <i class="ico18 thumb_down"></i>
+                            否
+                          </span>
+                        </div>
+                        <div v-else class="btnv6_blue_hoverfade3 btn_medium ico_hover" @click="handleBad">
                           <span>
                             <i class="ico18 thumb_down"></i>
                             否
@@ -296,6 +348,137 @@ function handleComment(){
               </div>
             </div>
             <div style="clear: both"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 顾客评测 -->
+      <div class="review_ctn">
+        <div class="page_content">
+          <div class="app_reviews_area">
+            <h2 class="user_reviews_header no_bottom_margin">Counter-Strike 2 的顾客评测</h2>
+            <div id="review_histograms_container" class="has_data collapsed">
+              <div id="review_histogram_rollup_section" class="review_histogram_section">
+                <div class="user_reviews_summary_bar">
+                  <div class="summary_section">
+                    <div class="title">总体评测：</div>
+                    <span class="game_review_summary positive">特别好评</span>
+                    <span class="review_cnt">(8,785,651 篇评测)</span>
+                  </div>
+                </div>
+              </div>
+              <div id="review_histogram_recent_section" class="review_histogram_section recent">
+                <div class="user_reviews_summary_bar">
+                  <div class="summary_section">
+                    <div class="title">最近评测：</div>
+                    <span class="game_review_summary positive">特别好评</span>
+                    <span class="review_cnt">(72,546 篇评测)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="user_reviews_filter_options flyout graph_collapsed">
+              <div v-if="!mouseclick_user_reviews_filter_menu" class="user_reviews_filter_menu">
+                <div class="title" @click="mouseclick_user_reviews_filter_menu = true">评测结果</div>
+                <div style="clear: both"></div>
+              </div>
+              <div v-if="mouseclick_user_reviews_filter_menu" class="user_reviews_filter_menu_clicked">
+                <div class="title" @click="mouseclick_user_reviews_filter_menu = false">评测结果</div>
+                <div class="user_reviews_filter_menu_flyout">
+                  <div class="user_reviews_filter_menu_flyout_content">
+                    <input type="radio" name="review_type" value="all" id="review_type_all" onchange="ShowFilteredReviews()">
+                    <label for="review_type_all">全部&nbsp;<span class="user_reviews_count">(8,785,651)</span></label><br>
+                    <input type="radio" name="review_type" value="positive" id="review_type_positive" onchange="ShowFilteredReviews()">
+                    <label for="review_type_positive">好评&nbsp;<span class="user_reviews_count">(7,619,078)</span></label><br>
+                    <input type="radio" name="review_type" value="negative" id="review_type_negative" onchange="ShowFilteredReviews()">
+                    <label for="review_type_negative">差评&nbsp;<span class="user_reviews_count">(1,166,573)</span></label>
+                  </div>
+                </div>
+                <div style="clear: both"></div>
+              </div>
+            </div>
+            <div class="review_info_ctn"></div>
+            <div id="Reviews_summary" class="user_reviews_container">
+              <div>
+                <div class="leftcol">
+                  <div class="user_reviews_sub_header">最有价值的评测&nbsp;
+                    <span class="user_reviews_most_helpful_days">（过去 30 天内）</span>
+                  </div>
+                  <div v-for="(comment, index) in comments"
+                       class="review_box partial"
+                  >
+                    <div class="ReviewContentCtn">
+                      <div class="leftcol">
+                        <div class="avatar">
+                          <div class="playerAvatar">
+                            <img :src="userAvatar">
+                          </div>
+                        </div>
+                        <div class="persona_name">AkumaLover{{  }}</div>
+                        <div class="num_owned_games">帐户内拥有 29{{  }} 项产品</div>
+                      </div>
+                      <div class="rightcol">
+                        <div class="vote_header tooltip">
+                          <div v-if="comment.commentScore==100" class="thumb">
+                            <img id="votingImage" src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsUp_v6.png" width="40" height="40">
+                          </div>
+                          <div v-else class="thumb">
+                            <img id="votingImage" src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsDown_v6.png" width="40" height="40">
+                          </div>
+                          <div v-if="comment.commentScore==100" class="title ellipsis">推荐</div>
+                          <div v-else class="title ellipsis">不推荐</div>
+                        </div>
+                        <div class="postedDate">
+                          发布于：4{{}} 月 30{{}} 日
+                        </div>
+                        <div class="content">
+                          1{{}}
+                          <div class="gradient"></div>
+                        </div>
+                        <div class="posted">
+                          <div class="view_more">展开阅读</div>
+                          &nbsp;
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="rightcol recent_reviews">
+                  <div class="user_reviews_sub_header">最近发布</div>
+                  <div
+                      class="review_box short"
+                      v-for="(comment, index) in comments"
+                  >
+                    <div class="ReviewContentCtn_short" id="ReviewContentrecent_short">
+                      <div class="short_header tooltip">
+                        <div v-if="comment.commentScore==100" class="thumb">
+                          <img src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsUp_v6.png" width="40" height="40">
+                        </div>
+                        <div v-else class="thumb">
+                          <img src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsDown_v6.png" width="40" height="40">
+                        </div>
+                        <div class="persona_name">无眠{{}}</div>
+                      </div>
+                      <div class="shortcol" id="ReviewContentRecent_short_shortcol">
+                        <div class="postedDate">
+                          发布于：5{{}} 月 19{{}} 日
+                        </div>
+                        <div class="content">
+                          1{{}}
+                          <div class="gradient"></div>
+                        </div>
+                        <div class="posted">
+                          <div class="view_more">展开阅读</div>
+                          &nbsp;
+                        </div>
+                      </div>
+                      <div style="clear: left;"></div>
+                    </div>
+                  </div>
+                </div>
+                <div style="clear: both"></div>
+              </div>
+            </div>
+            <div style="clear: left"></div>
           </div>
         </div>
       </div>
@@ -516,7 +699,7 @@ function handleComment(){
   position: relative;
 }
 
-.rightcol {
+.game_background_glow .rightcol {
   width: 324px;
   margin-left: 0px;
   float: right;
@@ -599,13 +782,13 @@ img {
 }
 
 .add_to_wishlist_area {
-  width: 180px;
+  width: 152px;
   display: inline-block;
   position: relative;
 }
 
 .btnv6_blue_hoverfade {
-  width: 180px;
+  width: 152px;
   height: 32px;
   border-radius: 2px;
   border: none;
@@ -744,6 +927,12 @@ p {
   filter: none;
 }
 
+.avatar > img {
+  width: 92px;
+  height: 92px;
+  padding: 1px;
+}
+
 .review_create .content {
   height: auto;
   overflow: visible;
@@ -844,7 +1033,7 @@ p {
   display: flex;
 }
 
-.btnv6_blue_hoverfade {
+.btnv6_blue_hoverfade2 {
   border-radius: 2px;
   border: none;
   padding: 1px;
@@ -858,6 +1047,28 @@ p {
   align-items: center;
   justify-content: center;
   background: rgba( 103, 193, 245, 0.2 );
+  width: 69.32px;
+  height: 32px;
+  &:hover {
+    color: #ffffff;
+    background: linear-gradient(to right,#66bff3,#437d9e);
+  }
+}
+
+.btnv6_blue_hoverfade3 {
+  border-radius: 2px;
+  border: none;
+  padding: 1px;
+  margin-right: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  color: #ffffff;
+  background: rgba(103, 193, 245, 0.6);
+  font-size: 13px;
+  font-weight: normal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 69.32px;
   height: 32px;
 }
@@ -879,11 +1090,19 @@ p {
   background-position: -18px 0px;
 }
 
-.btnv6_blue_hoverfade:hover .ico18.thumb_up {
+.btnv6_blue_hoverfade2:hover .ico18.thumb_up {
   background-position: -72px 0px;
 }
 
-.btnv6_blue_hoverfade:hover .ico18.thumb_down {
+.btnv6_blue_hoverfade2:hover .ico18.thumb_down {
+  background-position: -90px 0px;
+}
+
+.btnv6_blue_hoverfade3 .ico18.thumb_up {
+  background-position: -72px 0px;
+}
+
+.btnv6_blue_hoverfade3 .ico18.thumb_down {
   background-position: -90px 0px;
 }
 
@@ -912,5 +1131,468 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.review_ctn {
+  margin-bottom: 32px;
+  border-top: 1px solid #000;
+}
+
+h2.user_reviews_header {
+  padding-bottom: 4px;
+  margin-top: 40px;
+  background-image: url('../../assets/maincol_gradient_rule.png' );
+  background-repeat: no-repeat;
+  background-position: bottom left;
+  font-family: "Motiva Sans", Sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: #fff;
+  margin: 0 0 10px;
+  letter-spacing: 0.03em;
+  font-weight: normal;
+  padding-top: 2px;
+}
+
+#review_histograms_container {
+  background-color: #2a475e;
+  box-shadow: 0 0 5px #000;
+  position: relative;
+}
+
+#review_histogram_rollup_section {
+  width: 605px;
+}
+
+.review_histogram_section {
+  display: inline-block;
+}
+
+#review_histograms_container.collapsed .review_histogram_section .user_reviews_summary_bar {
+  margin-bottom: 0px;
+}
+
+.review_histogram_section .user_reviews_summary_bar {
+  border-bottom: 1px solid #000000;
+  padding: 10px;
+  background: none;
+  min-height: 38px;
+}
+
+.user_reviews_summary_bar .summary_section {
+  display: inline-block;
+  margin-right: 15px;
+  color: #8ba6b6;
+  min-width: 320px;
+}
+
+.user_reviews_summary_bar .title {
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+  font-size: 15px;
+  margin-bottom: 5px;
+  color: #e5e5e5;
+}
+
+.user_reviews_summary_bar .game_review_summary.positive {
+  color: #66C0F4;
+}
+
+.user_reviews_summary_bar .game_review_summary {
+  cursor: help;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: bold;
+  font-size: 17px;
+  line-height: 9px;
+  text-shadow: 1px 1px rgba( 0, 0, 0, 0.2 );
+}
+
+.review_cnt {
+  font-size: 12px;
+  padding-left: 5px;
+}
+
+#review_histograms_container.collapsed #review_histogram_recent_section {
+  min-height: 0px;
+}
+
+#review_histogram_recent_section {
+  width: 335px;
+  background: rgba( 148, 217, 255, 0.2 );
+}
+
+.review_histogram_section.recent {
+  box-shadow: 0 0 5px #000;
+}
+
+.review_histogram_section {
+  display: inline-block;
+}
+
+#review_histograms_container.collapsed .review_histogram_section .user_reviews_summary_bar {
+  margin-bottom: 0px;
+}
+
+.review_histogram_section .user_reviews_summary_bar {
+  border-bottom: 1px solid #000000;
+  padding: 10px;
+  background: none;
+  min-height: 38px;
+}
+
+.user_reviews_summary_bar .summary_section {
+  display: inline-block;
+  margin-right: 15px;
+  color: #8ba6b6;
+  min-width: 320px;
+}
+
+.user_reviews_summary_bar .title {
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+  font-size: 15px;
+  margin-bottom: 5px;
+  color: #e5e5e5;
+}
+
+.user_reviews_summary_bar .game_review_summary.positive {
+  color: #66C0F4;
+}
+
+.user_reviews_summary_bar .game_review_summary {
+  cursor: help;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: bold;
+  font-size: 17px;
+  line-height: 9px;
+  text-shadow: 1px 1px rgba( 0, 0, 0, 0.2 );
+  color: #c35c2c;
+}
+
+.user_reviews_filter_options.flyout {
+  padding: 0px;
+}
+
+.user_reviews_filter_options {
+  font-size: 12px;
+  margin-bottom: 30px;
+  background-color: #1f2f42;
+  height: 34px;
+}
+
+.user_reviews_filter_menu {
+  border-left: 1px solid #2a475e;
+  position: relative;
+  float: left;
+  padding-right: 10px;
+}
+
+.user_reviews_filter_menu_clicked {
+  border-left: 1px solid #2a475e;
+  position: relative;
+  float: left;
+  padding-right: 10px;
+  background: #C6D4DF;
+}
+
+.user_reviews_filter_menu .title {
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #4582a5;
+  padding: 10px;
+  padding-right: 20px;
+  cursor: pointer;
+  background-image: url('../../assets/btn_arrow_down_padded.png');
+  background-repeat: no-repeat;
+  background-position-y: center;
+  background-position-x: right;
+}
+
+.user_reviews_filter_menu_clicked .title {
+  text-transform: uppercase;
+  font-size: 10px;
+  color: #4582a5;
+  padding: 10px;
+  padding-right: 20px;
+  cursor: pointer;
+  background-image: url('../../assets/btn_arrow_down_padded.png');
+  background-repeat: no-repeat;
+  background-position-y: center;
+  background-position-x: right;
+}
+
+.user_reviews_filter_menu_flyout {
+  position: absolute;
+  padding: 10px;
+  color: #556772;
+  line-height: 20px;
+  z-index: 10;
+  background: #C6D4DF;
+}
+
+.user_reviews_filter_menu_flyout_content {
+  position: relative;
+  white-space: nowrap;
+}
+
+.user_reviews_filter_options.flyout input {
+  vertical-align: text-top;
+}
+
+.user_reviews_count {
+  color: #7193a6;
+}
+
+#Reviews_summary.user_reviews_container {
+  margin-top: 0px;
+}
+
+div.leftcol {
+  width: 616px;
+  float: left;
+}
+
+.user_reviews_sub_header {
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+  font-size: 14px;
+  color: #ffffff;
+  text-transform: uppercase;
+  padding-bottom: 5px;
+  letter-spacing: 2px;
+}
+
+.user_reviews_most_helpful_days {
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #56707f;
+}
+
+.review_box {
+  background-color: rgba( 0, 0, 0, 0.2 );
+  margin-bottom: 26px;
+}
+
+.ReviewContentCtn {
+  background: #16202D url('../../assets/maincol_gradient_rule.png') no-repeat top left;
+  display: flow-root;
+}
+
+.review_box .leftcol {
+  width: 184px;
+  float: left;
+  padding: 8px;
+  opacity: 0.6;
+}
+
+.review_box .avatar {
+  margin: 0;
+  float: left;
+  padding: 0 8px 0 0;
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+
+.playerAvatar {
+  background: linear-gradient( to bottom, rgba(83,164,196,1) 5%, rgba(69,128,151,1) 95%);
+  filter: none;
+  width: 34px;
+  height: 34px;
+  position: relative;
+  border-radius: 0;
+  padding: 1px;
+}
+
+.playerAvatar img {
+  width: 32px;
+  height: 32px;
+  padding: 1px;
+  border-radius: 0;
+  border: none;
+}
+
+.review_box .persona_name {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 140px;
+  overflow: hidden;
+  margin-top: -2px;
+  margin-bottom: -1px;
+  display: inline-block;
+  color: #c1dbf4;
+  font-size: 13px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: bold;
+}
+
+.review_box .num_owned_games {
+  font-size: 11px;
+  color: #626366;
+  display: block;
+  line-height: 17px;
+  color: #c1dbf4;
+  text-decoration: none;
+}
+
+.review_box .rightcol {
+  float: left;
+  width: 400px;
+  position: relative;
+}
+
+.review_box div.vote_header {
+  margin: 8px 0 13px;
+  display: block;
+  background: rgba( 0, 0, 0, 0.2 );
+  height: 40px;
+}
+
+.review_box .vote_header .thumb {
+  float: left;
+  margin-right: 10px;
+}
+
+.review_box .vote_header .title {
+  font-size: 16px;
+  color: #d6d7d8;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+  padding: 6px 0px 0px 0px;
+  line-height: 19px;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.review_box .postedDate {
+  margin: 0px 0px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-style: normal;
+  color: #8091a2;
+  display: inline-block;
+  opacity: 0.6;
+}
+
+.review_box.partial .content {
+  max-height: 225px;
+  overflow: hidden;
+  position: relative;
+}
+
+.review_box .content {
+  margin-right: 8px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+  font-size: 13px;
+  line-height: 17px;
+  color: #acb2b8;
+  overflow-wrap: break-word;
+}
+
+.review_box.partial .content .gradient {
+  display: block;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  z-index: 1;
+  height: 30px;
+}
+
+.review_box.partial .posted {
+  margin: 10px 0 8px;
+}
+
+.review_box .posted {
+  font-size: 10px;
+  font-style: italic;
+  color: #626366;
+}
+
+.review_box.partial .view_more {
+  display: block;
+  float: right;
+  margin-right: 15px;
+  color: #67c1f5;
+  text-transform: uppercase;
+  font-style: normal;
+}
+
+div.rightcol {
+  width: 308px;
+  margin-left: 14px;
+  float: right;
+}
+
+.rightcol .review_box.short {
+  opacity: 0.9;
+}
+
+.review_box.short {
+  background: linear-gradient(to right,  rgba(34,50,70,1) -1%,rgba(34,50,70,1) 0%,rgba(34,50,70,0) 92%,rgba(34,50,70,0) 100%);
+}
+
+.review_box.short .shortcol {
+  padding-left: 8px;
+}
+
+.short_header {
+  height: 24px;
+  color: #819db8;
+  background-color: rgba( 0, 0, 0, 0.3 );
+  margin-bottom: 6px;
+  display: block;
+  line-height: 15px;
+}
+
+.review_box .short_header .thumb{
+  display: block;
+  float: left;
+}
+
+.short_header .thumb img {
+  width: 24px;
+  height: 24px;
+}
+
+.review_box .short_header .persona_name {
+  max-width: 120px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-weight: normal;
+  color: #819db8;
+  font-size: 12px;
+}
+
+.review_box .short_header .persona_name{
+  margin-top: 5px;
+  margin-left: 6px;
+}
+
+.review_box .short_header .persona_name {
+  display: block;
+  float: left;
+}
+
+.review_box .persona_name, .recommendation_row .persona_name {
+  width: 140px;
+  margin-bottom: -1px;
+}
+
+.rightcol .review_box .postedDate {
+  color: #8091a2;
+  text-transform: uppercase;
+  font-size: 10px;
+  opacity: 0.5;
+}
+
+.review_box .shortcol .content {
+  color: #9fb4c9;
 }
 </style>

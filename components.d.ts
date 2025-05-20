@@ -37,6 +37,7 @@ declare module 'vue' {
     ElTag: typeof import('element-plus/es')['ElTag']
     ElUpload: typeof import('element-plus/es')['ElUpload']
     GlobalFooter: typeof import('./src/components/GlobalFooter.vue')['default']
+    GlobalHeader: typeof import('./src/components/GlobalHeader.vue')['default']
     Header: typeof import('./src/components/GlobalHeader.vue')['default']
     ProductItem: typeof import('./src/components/ProductItem.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

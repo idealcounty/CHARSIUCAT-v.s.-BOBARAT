@@ -655,24 +655,22 @@ html.responsive #add_friends_button {
   display: flex;
   flex: 1 100%;
   margin: 10px 0 0 0;
+  width: 832px;
 }
 
 .friends_search_text_box {
   margin: 0;
-  background: #274e68 url(https://community.steamstatic.com/public/images/sharedfiles/searchbox_workshop_submit.gif) no-repeat 1px center;
-  border-radius: 3px;
-  border: 1px solid rgba(0, 0, 0, 0.3);
+  float: left;
+  background: #14364C url(https://community.steamstatic.com/public/images/sharedfiles/searchbox_workshop_submit.gif) no-repeat 1px;
+  border: 1px solid #000;
   box-shadow: 1px 1px 0px rgba(255, 255, 255, 0.2);
-  color: #fff;
   outline: none;
   height: 28px;
   font-size: 14px;
   min-width: 250px;
   padding: 0 0 0 30px;
   font-family: "Motiva Sans", Sans-serif;
-  font-weight: 300;
-  width: 100%;
-  max-width: 500px;
+  width: 416px;
 }
 
 .friends_search_text_box::-webkit-input-placeholder {

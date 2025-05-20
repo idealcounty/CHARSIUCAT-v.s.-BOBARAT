@@ -42,4 +42,5 @@ public class SBEAMException extends RuntimeException{
     public static SBEAMException commentNotExist(){return new SBEAMException("评论不存在");}
     public static SBEAMException friendAlreadyExists(){return new SBEAMException("您已经有他的好友");}
     public static SBEAMException friendRequestAlreadySend(){return new SBEAMException("您已发送好友请求");}
+    public static SBEAMException friendNotExist(){return new SBEAMException("对方不是您的好友");}
 }

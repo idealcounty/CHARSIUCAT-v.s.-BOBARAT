@@ -96,7 +96,7 @@ function logout() {
                 :to="{ name:'profile',params:{ user_id:userId }}"
                 @click="mineMenuLocked = true"
             >个人资料</RouterLink>
-            <RouterLink class="profile_item" to="/friends" @click="mineMenuLocked = true">好友</RouterLink>
+            <RouterLink class="profile_item" to="/friend" @click="mineMenuLocked = true">好友</RouterLink>
             <RouterLink class="profile_item" to="/games" @click="mineMenuLocked = true">游戏</RouterLink>
           </div>
         </RouterLink>

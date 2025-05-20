@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { ref } from "vue";
+
+const nav_button = ref(1)
 </script>
 
 <template>
@@ -17,7 +20,7 @@
           </div>
           <div class="friends_header_name_ctn">
             <div class="friends_header_name" style="display:inline-flex">
-              <a href="" class="name-text">y=f（x）</a>
+              <div class="name-text">y=f（x）</div>
             </div>
           </div>
         </div>
@@ -29,88 +32,115 @@
       <!-- 左侧导航栏 -->
       <div class="friends_nav">
         <h4>好友</h4>
-        <a
+        <div
             data-navid="friends"
             class="icon_item icon_all_friends"
+            v-if="nav_button != 1"
+            @click="nav_button = 1"
         >
           <span class="title">您的好友</span>
           <svg class="down_arrow_context_menu">
             <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
           </svg>
-        </a>
-        <a
+        </div>
+        <div
+            data-navid="friends"
+            class="icon_item_clicked icon_all_friends"
+            v-if="nav_button == 1"
+        >
+          <span class="title">您的好友</span>
+          <svg class="down_arrow_context_menu">
+            <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
+          </svg>
+        </div>
+        <div
             class="icon_item icon_add_friends"
-            href="https://steamcommunity.com/profiles/76561198963541554/friends/add"
+            v-if="nav_button != 2"
+            @click="nav_button = 2"
         >
           <span class="title">添加好友</span>
           <svg class="down_arrow_context_menu">
             <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
           </svg>
-        </a>
+        </div>
+        <div
+            class="icon_item_clicked icon_add_friends"
+            v-if="nav_button == 2"
+        >
+          <span class="title">添加好友</span>
+          <svg class="down_arrow_context_menu">
+            <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
+          </svg>
+        </div>
 
 
       </div>
 
       <!-- 右侧内容区 -->
       <div class="friends_content" id="subpage_container">
-        <div  id="friends_list" class="pagecontent no_header">
+        <div  id="friends_list" class="friends_list_ctn pagecontent no_header">
           <div class="profile_friends title_bar">
             <div class="profile_friends title">
-              您的好友 <span class="friends_count">{{ friendsCount }}</span>  <span class="friends_limit"></span>
+              您的好友
+              <span class="friends_count">{{ friendsCount }}
+              </span>
+              /
+              <span class="friends_limit"></span>
             </div>
-            <div class="action_btns">
-              <button
-                  id="manage_friends_control"
-                  class="btnv6_blue_hoverfade btn_medium"
-                  @click="toggleManageFriends"
-              >
-                管理好友列表
-              </button>
-              <button
-                  id="add_friends_button"
-                  class="btn_green_steamui btn_medium"
-                  @click="window.location.href='https://steamcommunity.com/profiles/76561198963541554/friends/add'"
-              >
-                <i class="icon_addfriend"></i> 添加好友
-              </button>
-            </div>
+            <button
+                id="manage_friends_control"
+                class="profile_friends manage_link btnv6_blue_hoverfade btn_medium"
+                @click="toggleManageFriends"
+            >
+              <span>管理好友列表</span>
+            </button>
+            <button
+                id="add_friends_button"
+                class="profile_friends manage_link btn_green_steamui btn_medium"
+                @click="window.location.href='https://steamcommunity.com/profiles/76561198963541554/friends/add'"
+            >
+              <span>
+                <i class="add_friend_icon"></i>
+                添加好友
+              </span>
+            </button>
           </div>
 
-          <div
-              id="manage_friends"
-              class="manage_friends_panel"
-              v-show="isManageMode"
-          >
-            <div class="row">
-              从以下选择好友进行操作
-              <span class="row">
-                <span class="dimmed">选择：</span>
-                <span class="selection_type" @click="selectAll"><a>全部</a></span>
-                <span class="selection_type" @click="selectNone"><a>未选择</a></span>
-                <span class="selection_type" @click="selectInverse"><a>反选</a></span>
-              </span>
-            </div>
+<!--          <div-->
+<!--              id="manage_friends"-->
+<!--              class="manage_friends_panel"-->
+<!--              v-show="isManageMode"-->
+<!--          >-->
+<!--            <div class="row">-->
+<!--              从以下选择好友进行操作-->
+<!--              <span class="row">-->
+<!--                <span class="dimmed">选择：</span>-->
+<!--                <span class="selection_type" @click="selectAll"><a>全部</a></span>-->
+<!--                <span class="selection_type" @click="selectNone"><a>未选择</a></span>-->
+<!--                <span class="selection_type" @click="selectInverse"><a>反选</a></span>-->
+<!--              </span>-->
+<!--            </div>-->
 
-            <div class="row">
-              <div class="manage_friend_actions_ctn">
-                <span
-                    class="manage_action btnv6_lightblue_blue btn_small"
-                    @click="execFriendAction('remove')"
-                >
-                  移除好友
-                </span>
-                <span
-                    class="manage_action btnv6_lightblue_blue btn_small"
-                    @click="execFriendAction('block')"
-                >
-                  屏蔽
-                </span>
-              </div>
-              <span id="selected_msg" class="selected_msg">
-                <span id="selected_count">{{ selectedCount }}</span> 个已选择。
-              </span>
-            </div>
-          </div>
+<!--            <div class="row">-->
+<!--              <div class="manage_friend_actions_ctn">-->
+<!--                <span-->
+<!--                    class="manage_action btnv6_lightblue_blue btn_small"-->
+<!--                    @click="execFriendAction('remove')"-->
+<!--                >-->
+<!--                  移除好友-->
+<!--                </span>-->
+<!--                <span-->
+<!--                    class="manage_action btnv6_lightblue_blue btn_small"-->
+<!--                    @click="execFriendAction('block')"-->
+<!--                >-->
+<!--                  屏蔽-->
+<!--                </span>-->
+<!--              </div>-->
+<!--              <span id="selected_msg" class="selected_msg">-->
+<!--                <span id="selected_count">{{ selectedCount }}</span> 个已选择。-->
+<!--              </span>-->
+<!--            </div>-->
+<!--          </div>-->
 
           <div class="searchBarContainer">
             <input
@@ -139,10 +169,9 @@
 }
 
 .friends_header_bg {
-
   height: 127px;
-  background: url(https://community.steamstatic.com/public/images/bg_highlight.png) center/cover no-repeat;
-
+  margin: 0 auto;
+  background: url(https://community.steamstatic.com/public/images/bg_highlight.png) center bottom no-repeat;
 }
 
 .friends_header_container {
@@ -197,35 +226,62 @@
 
 /* 导航栏 */
 .friends_container {
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: 300;
   display: flex;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 20px 10px;
-  gap: 20px;
+  margin: 0px 10px;
 }
 
 .friends_nav {
   min-width: 250px;
-  font-family: "Motiva Sans", sans-serif;
+  margin: 0px 20px 0px 10px;
+  display: block;
+}
+
+.friends_nav h4 {
+  color: #7092a5;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+  padding: 12px 0 0 8px;
+  font-size: 11px;
 }
 
 .icon_item {
   display: block;
-  padding: 8px 16px;
-  margin: 4px 0;
+  padding: 10px 10px;
+  color: #ebebeb;
   text-decoration: none;
-  color: #fff;
-  border-radius: 3px;
-  transition: background-color 0.2s;
-  position: relative;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.icon_item_clicked {
+  display: block;
+  padding: 10px 10px;
+  color: #ebebeb;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+  background-color: #2F536B;
 }
 
 .icon_item:hover,
 .icon_item.active {
-  background-color: #2a4365;
+  background-color: #45697F;
+}
+
+.friends_nav .icon_add_friends .title {
+  background-position: 0 -176px;
 }
 
 .icon_item .title {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.icon_item_clicked .title {
   display: inline-block;
   vertical-align: middle;
 }
@@ -303,7 +359,16 @@
   margin-bottom: 12px;
 }
 
-.friends_nav a.icon_item .title {
+.friends_nav div.icon_item .title {
+  background-repeat: no-repeat;
+  background-size: 16px 192px;
+  display: inline-block;
+  line-height: 16px;
+  padding-left: 35px;
+  background-image: url( 'https://community.steamstatic.com/public/images/iconsheet_friends.png?v=5' );
+}
+
+.friends_nav div.icon_item_clicked .title {
   background-repeat: no-repeat;
   background-size: 16px 192px;
   display: inline-block;
@@ -323,8 +388,27 @@
   margin-top: 24px;
   width: 100%;
 }
+
 .friends_content.loading {
   opacity: 0.3;
+}
+
+.pagecontent.no_header {
+  background-position: center top;
+}
+
+.friends_list_ctn.pagecontent {
+  background: transparent;
+}
+
+.friends_list_ctn {
+  width: 100%;
+}
+
+.pagecontent {
+  margin: 0 auto;
+  max-width: 1220px;
+  padding-bottom: 128px;
 }
 
 /* 标题栏 */
@@ -335,6 +419,7 @@
   padding: 5px 10px;
   background-color: #015e80;
 }
+
 .profile_friends.title {
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -344,30 +429,12 @@
   min-width: 250px;
 }
 
-/* 按钮样式 - 蓝色悬停渐变 */
-.btnv6_blue_hoverfade {
-  background-color: #4b69ff;
-  color: #fff;
-  padding: 6px 18px;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-.btnv6_blue_hoverfade:hover {
-  background-color: #3a5bdb;
+.friends_count {
+  font-weight: bold;
 }
 
-/* 按钮样式 - 绿色Steam风格 */
-.btn_green_steamui {
-  background-color: #51c851;
-  color: #fff;
-  padding: 6px 18px;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  font-weight: 500;
+.friends_limit {
+  font-size: 9px;
 }
 
 /* 管理面板 */
@@ -382,6 +449,7 @@
   background: linear-gradient(to bottom, rgba(22, 33, 46, 1.0) 5%, rgba(22, 33, 46, 0.5) 95%);
   transition: min-height 0.3s, opacity 0.3s ease-in;
 }
+
 .manage_friends_panel.manage {
   display: flex;
 }
@@ -433,8 +501,6 @@
   font-size: 14px;
 }
 
-
-
 /* 标题栏样式 */
 .profile_friends.title_bar {
   width: 100%;
@@ -442,6 +508,7 @@
   align-items: center;
   padding: 5px 10px;
   background-color: #015e80;
+  width: 832px;
 }
 
 .profile_friends.title {
@@ -454,10 +521,88 @@
   font-weight: 300;
 }
 
-.action_btns {
-  display: flex;
-  align-items: center;
+#manage_friends_control {
+  margin-left: 334px;
+  margin-right: 10px;
+}
+
+.profile_friends.manage_link {
+  text-align: right;
   margin-left: auto;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.btnv6_blue_hoverfade {
+  border-radius: 2px;
+  border: none;
+  padding: 1px;
+  display: inline-block;
+  cursor: pointer;
+  text-decoration: none;
+  color: #67c1f5;
+  background: rgba( 103, 193, 245, 0.2 );
+  &:hover {
+    color: #ffffff;
+    background: linear-gradient(to right,#66bff3,#437d9e);
+  }
+}
+
+.btn_medium > span {
+  padding: 0 15px;
+  font-size: 15px;
+  line-height: 30px;
+}
+
+.btnv6_blue_hoverfade > span {
+  border-radius: 2px;
+  display: block;
+  background: transparent;
+}
+
+html.responsive #add_friends_button {
+  text-align: center;
+  margin: 0;
+}
+
+.profile_friends.manage_link {
+  flex-shrink: 0;
+}
+
+.btn_green_steamui {
+  border-radius: 2px;
+  border: none;
+  padding: 1px;
+  display: inline-block;
+  cursor: pointer;
+  text-decoration: none;
+  color: #d2efa9;
+  background: transparent;
+  text-shadow: 1px 1px 0px rgba( 0, 0, 0, 0.3 );
+}
+
+.btn_medium > span {
+  padding: 0 15px;
+  font-size: 15px;
+  line-height: 30px;
+}
+
+.btn_green_steamui > span {
+  border-radius: 2px;
+  display: block;
+  background: linear-gradient( to right, #75b022 5%, #588a1b 95%);
+  &:hover {
+    color: #ffffff;
+    background: linear-gradient(to right,#8ED629,#6AA621);
+  }
+}
+
+.add_friend_icon {
+  background-repeat: no-repeat;
+  background-size: 16px 192px;
+  padding-left: 24px;
+  background-image: url('https://community.cloudflare.steamstatic.com/public/images/iconsheet_friends.png?v=5');
+  background-position: 0 -176px;
 }
 
 /* 管理面板样式 */

@@ -40,4 +40,6 @@ public class SBEAMException extends RuntimeException{
     public static SBEAMException advertisementNotExist(){return new SBEAMException("广告不存在");}
     public static SBEAMException commentAlreadyExist(){return new SBEAMException("评论已经存在");}
     public static SBEAMException commentNotExist(){return new SBEAMException("评论不存在");}
+    public static SBEAMException friendAlreadyExists(){return new SBEAMException("您已经有他的好友");}
+    public static SBEAMException friendRequestAlreadySend(){return new SBEAMException("您已发送好友请求");}
 }

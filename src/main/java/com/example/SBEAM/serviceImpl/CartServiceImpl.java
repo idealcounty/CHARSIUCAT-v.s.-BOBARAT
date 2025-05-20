@@ -7,14 +7,11 @@ import com.example.SBEAM.repository.OrdersRepository;
 import com.example.SBEAM.repository.ProductRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.CartService;
-import com.example.SBEAM.service.CartItemService;
 import com.example.SBEAM.vo.CartVO;
 import com.example.SBEAM.vo.CartItemVO;
 import com.example.SBEAM.vo.OrdersVO;
-import org.omg.CORBA.PUBLIC_MEMBER;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;

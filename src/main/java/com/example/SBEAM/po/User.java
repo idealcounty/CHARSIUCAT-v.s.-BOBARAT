@@ -47,7 +47,7 @@ public class User {
 
     @Basic
     @Column(name = "balance")
-    private Double balance= (double) 0;
+    private Double balance = (double) 0;
 
     @Basic
     @Column(name = "role")
@@ -55,15 +55,36 @@ public class User {
     private RoleEnum role;
 
     @Basic
-    @Column(name="avatar")
+    @Column(name = "avatar")
     private String avatar;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Column(name="inventory")
+    @Column(name = "inventory")
     private List<Inventory> inventories;
 
-    public UserVO toVO(){
-        UserVO userVO=new UserVO();
+    @ManyToMany
+    @JoinTable(
+        name = "user_already_friends",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "already_friend_id")
+    )
+    private List<User> alreadyFriends;
+    @ManyToMany
+    @JoinTable(
+        name = "user_prepared_friends",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "prepared_friend_id")
+    )
+    private List<User> preparedFriends;
+
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> sentMessages;
+
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Message> receivedMessages;
+
+    public UserVO toVO() {
+        UserVO userVO = new UserVO();
         userVO.setId(this.id);
         userVO.setAddress(this.address);
         userVO.setName(this.name);
@@ -75,6 +96,10 @@ public class User {
         userVO.setBalance(this.balance);
         userVO.setAvatar(this.avatar);
         userVO.setInventories(this.inventories);
+        userVO.setAlreadyFriends(this.alreadyFriends);
+        userVO.setPreparedFriends(this.preparedFriends);
+        userVO.setSentMessages(this.sentMessages);
+        userVO.setReceivedMessages(this.receivedMessages);
         return userVO;
     }
 }

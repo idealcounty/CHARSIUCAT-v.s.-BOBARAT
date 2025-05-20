@@ -1,10 +1,12 @@
 package com.example.SBEAM.po;
 import com.example.SBEAM.vo.CommentVO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -30,9 +32,18 @@ public class Comment {
     @Column(name = "comment_score")
     private boolean commentScore;
 
+    @Basic
+    @Column(name = "user_id")
+    private Integer userId;
+
+    @Basic
+    @Column(name = "comment_send_time")
+    private Date commentSendTime;
+
     public Comment (String commentText, boolean commentScore) {
         this.commentText = commentText;
         this.commentScore = commentScore;
+
     }
     public CommentVO toVO(){
         CommentVO commentVO = new CommentVO();
@@ -40,6 +51,7 @@ public class Comment {
         commentVO.setCommentText(commentText);
         commentVO.setCommentScore(commentScore);
         commentVO.setProduct(product);
+        commentVO.setUserId(userId);
         return commentVO;
     }
 }

@@ -8,6 +8,8 @@ import com.example.SBEAM.vo.CommentVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class CommentServiceImpl implements CommentService {
     @Autowired
@@ -16,6 +18,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Boolean createComment(CommentVO commentVO){
         Comment newComment = commentVO.toPO();
+        newComment.setCommentSendTime(new Date());
         commentRepository.save(newComment);
         return true;
     }

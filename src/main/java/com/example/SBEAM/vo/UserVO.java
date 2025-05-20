@@ -2,6 +2,7 @@ package com.example.SBEAM.vo;
 
 import com.example.SBEAM.enums.RoleEnum;
 import com.example.SBEAM.po.Inventory;
+import com.example.SBEAM.po.Message;
 import com.example.SBEAM.po.User;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,6 +38,14 @@ public class UserVO {
     private String avatar;
 
     private List<Inventory> inventories;
+
+    private List<User> alreadyFriends;
+
+    private List<User> preparedFriends;
+
+    private List<Message> sentMessages;
+
+    private List<Message> receivedMessages;
     public User toPO(){
         User user=new User();
         user.setId(this.id);
@@ -50,6 +59,11 @@ public class UserVO {
         user.setBalance((double) 0);
         user.setAvatar(this.avatar);
         user.setInventories(this.inventories);
+        user.setAlreadyFriends(this.alreadyFriends);
+        user.setPreparedFriends(this.preparedFriends);
+        user.setSentMessages(this.sentMessages);
+        user.setReceivedMessages(this.receivedMessages);
+
         return user;
     }
 }

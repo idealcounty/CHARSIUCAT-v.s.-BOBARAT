@@ -1,7 +1,36 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
+import {onMounted, ref} from "vue";
+import {userInfo} from "../../api/user.ts";
+import {allFriend} from "../../api/friends.ts";
+const userId=ref()
+const userName=ref('')
+const userAvatar=ref('')
 const nav_button = ref(1)
+const friends=ref([])
+
+async function getUserInfo() {
+  const res = await userInfo()
+  if (res.data.code === '000') {
+    const result = res.data.result
+    console.log(result)
+    userId.value = result.id
+    userName.value = result.name
+    userAvatar.value = result.avatar
+    console.log(userAvatar.value)
+  } else if (res.data.code === '400') {
+    console.log('未登录')
+  }
+  allFriend(Number(userId.value)).then(res => {
+    console.log(res)
+    friends.value = res.data.result
+    console.log(friends.value)
+  })
+}
+
+onMounted(async () => {
+  await getUserInfo()
+})
+
 </script>
 
 <template>
@@ -13,14 +42,14 @@ const nav_button = ref(1)
           <div class="friends_header_avatar">
             <a href="">
               <img
-                  src="https://avatars.cdn.queniuqe.com/d6f589740ff68f9dc8aac061d7e5615acb283418_full.jpg"
+                  :src="userAvatar"
                   class="avatar-image"
               >
             </a>
           </div>
           <div class="friends_header_name_ctn">
             <div class="friends_header_name" style="display:inline-flex">
-              <div class="name-text">y=f（x）</div>
+              <div class="name-text">{{userName}}</div>
             </div>
           </div>
         </div>

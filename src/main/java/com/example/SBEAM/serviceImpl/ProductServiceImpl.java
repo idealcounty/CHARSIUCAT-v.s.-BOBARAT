@@ -128,10 +128,10 @@ public class ProductServiceImpl implements ProductService {
     }
     @Override
     public List<CommentVO> getGoodCommentsByProductId(Product product){
-        return commentRepository.findByProductAndCommentScore(product,1).stream().map(Comment::toVO).collect(Collectors.toList());
+        return commentRepository.findByProductAndCommentScore(product,true).stream().map(Comment::toVO).collect(Collectors.toList());
     }
     @Override
     public List<CommentVO> getBadCommentsByProductId(Product product){
-        return commentRepository.findByProductAndCommentScore(product,0).stream().map(Comment::toVO).collect(Collectors.toList());
+        return commentRepository.findByProductAndCommentScore(product,false).stream().map(Comment::toVO).collect(Collectors.toList());
     }
 }

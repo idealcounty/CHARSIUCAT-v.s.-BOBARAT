@@ -10,5 +10,5 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
     Comment findByCommentId(int commentId);
     List<Comment> findCommentsByProduct(Product product);
-    List<Comment> findByProductAndCommentScore(Product product, int score);
+    List<Comment> findByProductAndCommentScore(Product product, boolean commentScore);
 }

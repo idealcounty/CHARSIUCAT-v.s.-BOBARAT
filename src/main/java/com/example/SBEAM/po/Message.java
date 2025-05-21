@@ -20,12 +20,12 @@ public class Message {
     private int messageId;
 
     @ManyToOne
-    @JoinColumn(name = "message_sender_id", nullable = false)
-    private User messageSender;
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
     @ManyToOne
-    @JoinColumn(name = "message_receiver_id", nullable = false)
-    private User messageReceiver;
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
 
     @Column(name = "message_content", nullable = false, columnDefinition = "TEXT")
     private String messageContent;
@@ -36,8 +36,8 @@ public class Message {
     public MessageVO toVO(){
         MessageVO messageVO = new MessageVO();
         messageVO.setMessageId(messageId);
-        messageVO.setMessageSender(messageSender);
-        messageVO.setMessageReceiver(messageReceiver);
+        messageVO.setSender(sender);
+        messageVO.setReceiver(receiver);
         messageVO.setMessageContent(messageContent);
         messageVO.setMessageSentTime(messageSentTime);
         return messageVO;

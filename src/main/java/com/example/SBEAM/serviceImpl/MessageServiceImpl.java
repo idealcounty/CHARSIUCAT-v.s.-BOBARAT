@@ -21,8 +21,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Boolean sendMessage(MessageVO messageVO){
-        User sender = messageVO.getMessageSender();
-        User receiver = messageVO.getMessageReceiver();
+        User sender = messageVO.getSender();
+        User receiver = messageVO.getReceiver();
         if (!sender.getAlreadyFriends().contains(receiver)) {
             throw SBEAMException.friendNotExist();
         }

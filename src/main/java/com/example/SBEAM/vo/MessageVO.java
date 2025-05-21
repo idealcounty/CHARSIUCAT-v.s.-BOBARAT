@@ -11,9 +11,9 @@ import java.time.LocalDateTime;
 public class MessageVO {
     private int messageId;
 
-    private User messageSender;
+    private User sender;
 
-    private User messageReceiver;
+    private User receiver;
 
     private String messageContent;
 
@@ -21,8 +21,8 @@ public class MessageVO {
     public Message toPO(){
         Message message = new Message();
         message.setMessageId(messageId);
-        message.setMessageSender(messageSender);
-        message.setMessageReceiver(messageReceiver);
+        message.setSender(sender);
+        message.setReceiver(receiver);
         message.setMessageContent(messageContent);
         message.setMessageSentTime(messageSentTime);
         return message;

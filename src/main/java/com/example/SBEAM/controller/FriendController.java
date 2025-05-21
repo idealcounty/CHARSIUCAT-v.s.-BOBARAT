@@ -28,7 +28,7 @@ public class FriendController {
     public ResultVO<List<User>> showAllFriend(@RequestParam int userId) {
         return ResultVO.buildSuccess(friendService.showAllFriend(userId));
     }
-    @GetMapping
+    @GetMapping("/friendRequest")
     public ResultVO<List<User>> showFriendRequest(@RequestParam int userId) {
         return ResultVO.buildSuccess(friendService.showFriendRequest(userId));
     }

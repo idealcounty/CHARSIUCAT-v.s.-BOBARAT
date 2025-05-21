@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface MessageRepository extends JpaRepository<Message, Integer> {
     @Query("SELECT m FROM Message m WHERE " +
-           "(m.messageSender.id = :userId1 AND m.messageReceiver.id = :userId2) OR " +
-           "(m.messageSender.id = :userId2 AND m.messageReceiver.id = :userId1) " +
+           "(m.sender.id = :userId1 AND m.receiver.id = :userId2) OR " +
+           "(m.sender.id = :userId2 AND m.receiver.id = :userId1) " +
            "ORDER BY m.messageSentTime ASC")
     List<Message> findChatHistory(@Param("userId1") Integer userId1, @Param("userId2") Integer userId2);
 }

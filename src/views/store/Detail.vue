@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, computed, ref, watch, nextTick } from "vue";
 import { router } from "../../router";
 import { Cart, getProductByProductId, updateCart, productExists } from "../../api/product.ts";
-import { CartItem, getUserCartVO, userInfo } from "../../api/user.ts";
-import {makeComment,getCommentsByProductId,commentInfo} from "../../api/comment.ts";
-import {getAllAdvertisements} from "../../api/advertisement.ts";
+import { CartItem, getUserCartVO, userInfo, getUserByUserId, getInventory } from "../../api/user.ts";
+import { makeComment, getCommentsByProductId, getGoodCommentsByProductId, getBadCommentsByProductId, commentInfo } from "../../api/comment.ts";
+
+type displayCommentInfo = commentInfo & {
+  userAvatar: string
+  userName: string
+  userInventorySize: number
+}
 
 const token = ref(false)
-const userId = ref('')
+const userId = ref(0)
 const userAvatar = ref('')
+const userInventory = ref()
 
 const product_id = router.currentRoute.value.params.product_id;
 const productVO = ref();
@@ -24,14 +30,32 @@ const cartId = ref();
 const cart = ref<Cart>(null);
 const goodClicked = ref(false);
 const badClicked = ref(false);
-const comment_score= ref();
+const comment_score= ref(false);
 const comment_Text= ref('');
-const comments = ref<commentInfo[]>();
+const comments = ref<displayCommentInfo[]>([])
+const commentsSortedByInventory = ref<displayCommentInfo[]>([]);
+const commentsSortedByTime = ref<displayCommentInfo[]>([]);
+const commentlength = ref(0);
 const mouseclick_user_reviews_filter_menu = ref(false)
 
 const existsResult = ref<boolean | null>(null);
 
 const activeImage = ref(1);
+
+const review_type = ref(0); // 0: 全部, 1: 好评, 2: 差评
+const totalCount = ref(0);
+const goodCount = ref(0);
+const badCount = ref(0);
+const positiveRate = computed(() => {
+  if (totalCount.value === 0) return 0;
+  return goodCount.value / totalCount.value;
+});
+
+const existInInventory = ref(false);
+
+const commentDisabled = computed(() => {
+  return !(goodClicked.value || badClicked.value);
+})
 
 async function getUserInfo() {
   const { userInfo } = await import('../../api/user.ts')
@@ -47,10 +71,6 @@ async function getUserInfo() {
   }
 }
 
-onMounted(() => {
-    getUserInfo()
-})
-
 const loadData = async () => {
   const res = await getProductByProductId(Number(product_id));
   productVO.value = res.data.result;
@@ -64,19 +84,143 @@ const loadData = async () => {
   productImages.value = productVO.value.productImages;
 };
 
+const expanded = ref([]);
+const isPartial = ref([]);
+const contentRefs = [];
+
+const expanded_short = ref([]);
+const isPartial_short = ref([]);
+const contentRefs_short = [];
+
+const maxHeight = 17 * 5;
+
+const checkOverflowForIndex = (index) => {
+  const el = contentRefs[index];
+  if (!el) return false;
+  return el.scrollHeight > maxHeight;
+};
+
+const checkAllOverflow = () => {
+  commentsSortedByInventory.value.forEach((_, index) => {
+    isPartial.value[index] = checkOverflowForIndex(index);
+    expanded.value[index] = false;
+  });
+  console.log(isPartial.value);
+};
+
+const toggleExpand = (index) => {
+  expanded.value[index] = !expanded.value[index];
+};
+
+const checkOverflowForIndex_short = (index) => {
+  const el = contentRefs_short[index];
+  if (!el) return false;
+  return el.scrollHeight > maxHeight;
+};
+
+const checkAllOverflow_short = () => {
+  commentsSortedByTime.value.forEach((_, index) => {
+    isPartial_short.value[index] = checkOverflowForIndex_short(index);
+    console.log(checkOverflowForIndex_short(index));
+    expanded_short.value[index] = false;
+  });
+  console.log(isPartial_short.value);
+};
+
+const toggleExpand_short = (index) => {
+  expanded_short.value[index] = !expanded_short.value[index];
+};
+
+const fetchCommentsByType = async (type) => {
+  try {
+    let commentRes;
+
+    if (type === 0) {
+      commentRes = await getCommentsByProductId(productId.value);
+    } else if (type === 1) {
+      commentRes = await getGoodCommentsByProductId(productId.value);
+    } else if (type === 2) {
+      commentRes = await getBadCommentsByProductId(productId.value);
+    }
+
+    console.log(commentRes);
+
+    const rawComments = commentRes.data.result;
+    const userCache = {};
+    const enrichedComments = await Promise.all(
+        rawComments.map(async (comment) => {
+          if (!userCache[comment.userId]) {
+            const userRes = await getUserByUserId(comment.userId);
+            const inventoryRes = await getInventory(comment.userId);
+            userCache[comment.userId] = {
+              ...userRes.data.result,
+              inventorySize: inventoryRes.data.result.length
+            };
+          }
+          const user = userCache[comment.userId];
+          return {
+            ...comment,
+            userAvatar: user.avatar,
+            userName: user.name,
+            userInventorySize: user.inventorySize, // 👈 新增字段
+          };
+        })
+    );
+    comments.value = enrichedComments;
+    commentlength.value = enrichedComments.length;
+    commentsSortedByInventory.value = [...comments.value].sort(
+        (a, b) => b.userInventorySize - a.userInventorySize
+    );
+
+    commentsSortedByTime.value = [...comments.value].sort(
+        (a, b) => new Date(b.commentSendTime).getTime() - new Date(a.commentSendTime).getTime()
+    );
+    console.log(commentlength.value);
+  } catch (error) {
+    console.error("加载评论出错：", error);
+  }
+};
+
+watch(review_type, async (newType) => {
+  await fetchCommentsByType(newType);
+  await nextTick();
+  checkAllOverflow();
+  checkAllOverflow_short();
+});
+
 onMounted(async () => {
+  await getUserInfo();
+  console.log(userId.value)
+  const res1 = await getInventory(userId.value);
+  userInventory.value = res1.data.result;
+
   await loadData();
-  console.log(productId.value)
-  getCommentsByProductId(productId.value).then(res => {
-    comments.value = res.data.result;
-    console.log(comments);
-  })
+  console.log(productId.value);
+
+  existInInventory.value = userInventory.value.some(item => Number(item.productId) === Number(productId.value));
+
+  const res = await getCommentsByProductId(productId.value);
+  const AllComments = res.data.result;
+  console.log(AllComments);
+  totalCount.value = AllComments.length;
+  goodCount.value = AllComments.filter(comment => comment.commentScore === true).length;
+  badCount.value = AllComments.filter(comment => comment.commentScore === false).length;
+  console.log(positiveRate.value);
+
+  await fetchCommentsByType(review_type.value);
+
   const userRes = await userInfo();
   userId.value = userRes.data.result.id;
+
   const cartRes = await getUserCartVO(userId.value);
   cart.value = cartRes.data.result;
   cartId.value = cartRes.data.result.cartId;
+
   checkExistence();
+
+  await nextTick();
+  checkAllOverflow();
+  checkAllOverflow_short();
 });
 
 const checkExistence = async () => {
@@ -109,6 +253,7 @@ function addToCart(product_id:number,now_cart: Cart) {
     existsResult.value = true;
   })
 }
+
 function deleteToCart(product_id:number,now_cart: Cart) {
   updateCart(product_id,0,now_cart).then( res => {
     if(res.data.code==='000'){
@@ -123,34 +268,44 @@ function deleteToCart(product_id:number,now_cart: Cart) {
 }
 
 function handleGood(){
-  comment_score.value=100
+  comment_score.value=true
   if(!goodClicked.value)
     goodClicked.value=true
   else
     goodClicked.value=false
   badClicked.value=false
-  console.log(comment_score.value)
 }
 
 function handleBad(){
-  comment_score.value=0
+  comment_score.value=false
   goodClicked.value=false
   if(!badClicked.value)
     badClicked.value=true
   else
     badClicked.value=false
-  console.log(comment_score.value)
 }
 
 function handleComment(){
+  if (comment_Text.value.length > 210) {
+    alert('评论内容最多只能输入210个字符')
+    return
+  }
+
+  if (comment_Text.value.trim() === '') {
+    alert('评论不能为空')
+    return
+  }
+
   console.log(comment_score.value)
   console.log(comment_Text.value)
   console.log(productId.value)
+
   getProductByProductId(Number(productId.value)).then( res => {
     makeComment({
       commentScore: comment_score.value,
       commentText: comment_Text.value,
       product: res.data.result,
+      userId: userId.value,
     })
   })
 }
@@ -159,7 +314,7 @@ function handleComment(){
 <template>
   <div class="app">
     <div class="app-background"></div>
-    <!-- 导航栏（完全保留原有代码） -->
+    <!-- 导航栏 -->
     <div class="store-header">
       <div class="content">
         <div class="store_controls">
@@ -191,6 +346,13 @@ function handleComment(){
     </div>
     <!-- 标题 -->
     <div class="page_title_area game_title_area page_content">
+      <div class="breadcrumbs">
+        <div class="block_bg">
+          <RouterLink to="/">所有游戏</RouterLink> >
+          <RouterLink :to="{ name:'detail',params:{ product_id:productId }}">{{productName}}</RouterLink>
+        </div>
+        <div style="clear: left;"></div>
+      </div>
       <div class="apphub_HomeHeaderContent">
         <div class="apphub_HeaderStandardTop">
           <div id="appHubAppName" class="apphub_AppName">{{ productName }}</div>
@@ -248,7 +410,6 @@ function handleComment(){
         <div class="queue_ctn">
           <div class="queue_actions_ctn">
             <div class="add_to_wishlist_area">
-              <!-- 原有v-if改为基于existsResult -->
               <div
                   class="btnv6_blue_hoverfade btn_medium add_to_wishlist"
                   v-if="existsResult === false"
@@ -272,7 +433,7 @@ function handleComment(){
         </div>
       </div>
       <!--撰写评测-->
-      <div class="game_area_play_stats">
+      <div class="game_area_play_stats" v-if="existInInventory">
         <div class="review_container">
           <div class="review_create">
             <h1 class="review_title">为 {{ productName }} 撰写一篇评测</h1>
@@ -289,7 +450,10 @@ function handleComment(){
                 </RouterLink>
               </div>
               <div class="content">
-                <textarea class="input_box" maxlength="8000" v-model="comment_Text"></textarea>
+                <textarea
+                    class="input_box"
+                    v-model="comment_Text">
+                </textarea>
                 <div class="controls">
                   <div class="writeReviewTable">
                     <div class="review_controls">
@@ -339,9 +503,9 @@ function handleComment(){
                       </div>
                     </div>
                     <div class="review_controls_right">
-                      <div class="btnv6_lightblue_blue btnv6_border_2px btn_medium" @click="handleComment">
+                      <button class="btnv6_lightblue_blue btnv6_border_2px btn_medium" @click.prevent="handleComment" :disabled="commentDisabled">
                         <span>发布评测</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -355,14 +519,19 @@ function handleComment(){
       <div class="review_ctn">
         <div class="page_content">
           <div class="app_reviews_area">
-            <h2 class="user_reviews_header no_bottom_margin">Counter-Strike 2 的顾客评测</h2>
+            <h2 class="user_reviews_header no_bottom_margin">{{ productName }} 的顾客评测</h2>
             <div id="review_histograms_container" class="has_data collapsed">
               <div id="review_histogram_rollup_section" class="review_histogram_section">
                 <div class="user_reviews_summary_bar">
                   <div class="summary_section">
                     <div class="title">总体评测：</div>
-                    <span class="game_review_summary positive">特别好评</span>
-                    <span class="review_cnt">(8,785,651 篇评测)</span>
+                    <span v-if="positiveRate>=0.9" class="game_review_summary positive">好评如潮</span>
+                    <span v-if="positiveRate>=0.8 && positiveRate<0.9" class="game_review_summary positive">特别好评</span>
+                    <span v-if="positiveRate>=0.7 && positiveRate<0.8" class="game_review_summary positive">多半好评</span>
+                    <span v-if="positiveRate>=0.4 && positiveRate<0.7" class="game_review_summary mixed">褒贬不一</span>
+                    <span v-if="positiveRate>=0.3 && positiveRate<0.4" class="game_review_summary negative">多半差评</span>
+                    <span v-if="positiveRate<0.3" class="game_review_summary negative">差评如潮</span>
+                    <span class="review_cnt">({{ totalCount }} 篇评测)</span>
                   </div>
                 </div>
               </div>
@@ -370,8 +539,13 @@ function handleComment(){
                 <div class="user_reviews_summary_bar">
                   <div class="summary_section">
                     <div class="title">最近评测：</div>
-                    <span class="game_review_summary positive">特别好评</span>
-                    <span class="review_cnt">(72,546 篇评测)</span>
+                    <span v-if="positiveRate>=0.9" class="game_review_summary positive">好评如潮</span>
+                    <span v-if="positiveRate>=0.8 && positiveRate<0.9" class="game_review_summary positive">特别好评</span>
+                    <span v-if="positiveRate>=0.7 && positiveRate<0.8" class="game_review_summary positive">多半好评</span>
+                    <span v-if="positiveRate>=0.4 && positiveRate<0.7" class="game_review_summary mixed">褒贬不一</span>
+                    <span v-if="positiveRate>=0.3 && positiveRate<0.4" class="game_review_summary negative">多半差评</span>
+                    <span v-if="positiveRate<0.3" class="game_review_summary negative">差评如潮</span>
+                    <span class="review_cnt">({{ totalCount }} 篇评测)</span>
                   </div>
                 </div>
               </div>
@@ -385,12 +559,14 @@ function handleComment(){
                 <div class="title" @click="mouseclick_user_reviews_filter_menu = false">评测结果</div>
                 <div class="user_reviews_filter_menu_flyout">
                   <div class="user_reviews_filter_menu_flyout_content">
-                    <input type="radio" name="review_type" value="all" id="review_type_all" onchange="ShowFilteredReviews()">
-                    <label for="review_type_all">全部&nbsp;<span class="user_reviews_count">(8,785,651)</span></label><br>
-                    <input type="radio" name="review_type" value="positive" id="review_type_positive" onchange="ShowFilteredReviews()">
-                    <label for="review_type_positive">好评&nbsp;<span class="user_reviews_count">(7,619,078)</span></label><br>
-                    <input type="radio" name="review_type" value="negative" id="review_type_negative" onchange="ShowFilteredReviews()">
-                    <label for="review_type_negative">差评&nbsp;<span class="user_reviews_count">(1,166,573)</span></label>
+                    <input type="radio" name="review_type" :value="0" id="review_type_all" v-model="review_type">
+                    <label for="review_type_all">全部&nbsp;<span class="user_reviews_count">({{totalCount}})</span></label><br>
+
+                    <input type="radio" name="review_type" :value="1" id="review_type_positive" v-model="review_type">
+                    <label for="review_type_positive">好评&nbsp;<span class="user_reviews_count">({{goodCount}})</span></label><br>
+
+                    <input type="radio" name="review_type" :value="2" id="review_type_negative" v-model="review_type">
+                    <label for="review_type_negative">差评&nbsp;<span class="user_reviews_count">({{badCount}})</span></label>
                   </div>
                 </div>
                 <div style="clear: both"></div>
@@ -403,40 +579,45 @@ function handleComment(){
                   <div class="user_reviews_sub_header">最有价值的评测&nbsp;
                     <span class="user_reviews_most_helpful_days">（过去 30 天内）</span>
                   </div>
-                  <div v-for="(comment, index) in comments"
-                       class="review_box partial"
+                  <div v-for="(comment, index) in commentsSortedByInventory"
+                       class="review_box"
+                       :key="index"
+                       :class="{ partial: isPartial[index], expanded: expanded[index] }"
                   >
                     <div class="ReviewContentCtn">
                       <div class="leftcol">
                         <div class="avatar">
                           <div class="playerAvatar">
-                            <img :src="userAvatar">
+                            <img :src="comment.userAvatar">
                           </div>
                         </div>
-                        <div class="persona_name">AkumaLover{{  }}</div>
-                        <div class="num_owned_games">帐户内拥有 29{{  }} 项产品</div>
+                        <div class="persona_name">{{ comment.userName }}</div>
+                        <div class="num_owned_games">帐户内拥有 {{ comment.userInventorySize }} 项产品</div>
                       </div>
                       <div class="rightcol">
                         <div class="vote_header tooltip">
-                          <div v-if="comment.commentScore==100" class="thumb">
+                          <div v-if="comment.commentScore" class="thumb">
                             <img id="votingImage" src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsUp_v6.png" width="40" height="40">
                           </div>
                           <div v-else class="thumb">
                             <img id="votingImage" src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsDown_v6.png" width="40" height="40">
                           </div>
-                          <div v-if="comment.commentScore==100" class="title ellipsis">推荐</div>
+                          <div v-if="comment.commentScore" class="title ellipsis">推荐</div>
                           <div v-else class="title ellipsis">不推荐</div>
                         </div>
                         <div class="postedDate">
-                          发布于：4{{}} 月 30{{}} 日
+                          发布于：{{ comment.commentSendTime.match(/^(\d{4})/)?.[1] }} 年 {{ comment.commentSendTime.match(/^(\d{4})-(\d{2})-(\d{2})/)?.[2] }} 月 {{ comment.commentSendTime.match(/^\d{4}-\d{2}-(\d{2})/)?.[1] }} 日
                         </div>
-                        <div class="content">
-                          1{{}}
-                          <div class="gradient"></div>
+                        <div class="content"
+                             :ref="el => contentRefs[index] = el"
+                             :style="{ maxHeight: expanded[index] ? 'none' : (isPartial[index] ? '85px' : 'none'), overflow: 'hidden' }">
+                          {{ comment.commentText }}
+                          <div class="gradient" v-if="isPartial[index] && !expanded[index]"></div>
                         </div>
-                        <div class="posted">
-                          <div class="view_more">展开阅读</div>
-                          &nbsp;
+                        <div class="posted" v-if="isPartial[index]">
+                          <div class="view_more" @click="toggleExpand(index)">
+                            {{ expanded[index] ? '收起' : '展开阅读' }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -446,28 +627,39 @@ function handleComment(){
                   <div class="user_reviews_sub_header">最近发布</div>
                   <div
                       class="review_box short"
-                      v-for="(comment, index) in comments"
+                      v-for="(comment, index) in commentsSortedByTime"
+                      :key="index"
+                      :class="{ partial: isPartial_short[index], expanded: expanded_short[index] }"
                   >
                     <div class="ReviewContentCtn_short" id="ReviewContentrecent_short">
                       <div class="short_header tooltip">
-                        <div v-if="comment.commentScore==100" class="thumb">
-                          <img src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsUp_v6.png" width="40" height="40">
+                        <div v-if="comment.commentScore" class="thumb">
+                          <img src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsUp_v6.png" width="40" height="40" />
                         </div>
                         <div v-else class="thumb">
-                          <img src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsDown_v6.png" width="40" height="40">
+                          <img src="https://store.cloudflare.steamstatic.com/public/shared/images/userreviews/icon_thumbsDown_v6.png" width="40" height="40" />
                         </div>
-                        <div class="persona_name">无眠{{}}</div>
+                        <div class="persona_name">{{ comment.userName }}</div>
                       </div>
                       <div class="shortcol" id="ReviewContentRecent_short_shortcol">
                         <div class="postedDate">
-                          发布于：5{{}} 月 19{{}} 日
+                          发布于：{{ comment.commentSendTime.match(/^(\d{4})/)?.[1] }} 年
+                          {{ comment.commentSendTime.match(/^(\d{4})-(\d{2})-(\d{2})/)?.[2] }} 月
+                          {{ comment.commentSendTime.match(/^\d{4}-\d{2}-(\d{2})/)?.[1] }} 日
                         </div>
-                        <div class="content">
-                          1{{}}
-                          <div class="gradient"></div>
+                        <div
+                            class="content"
+                            :style="{ maxHeight: expanded_short[index] ? 'none' : (isPartial_short[index] ? '85px' : 'none'), overflow: 'hidden' }"
+                            :ref="el => contentRefs_short[index] = el"
+                            style="position: relative;"
+                        >
+                          {{ comment.commentText }}
+                          <div v-if="isPartial_short[index] && !expanded_short[index]" class="gradient"></div>
                         </div>
-                        <div class="posted">
-                          <div class="view_more">展开阅读</div>
+                        <div class="posted" v-if="isPartial_short[index]">
+                          <div class="view_more" @click="toggleExpand_short(index)">
+                            {{ expanded_short[index] ? "收起" : "展开阅读" }}
+                          </div>
                           &nbsp;
                         </div>
                       </div>
@@ -508,7 +700,7 @@ function handleComment(){
   top: 0;
   z-index: -2;
   height: 100%;
-  background: linear-gradient(to bottom, #1e3c57, #192534);
+  background: #1b2838;
 }
 
 .store-header {
@@ -517,9 +709,10 @@ function handleComment(){
   padding-right: 0;
   min-width: 940px;
   margin-bottom: 16px;
+  height: 66px;
 }
 
-.content {
+.store-header .content {
   height: 66px;
   position: relative;
   width: 940px;
@@ -606,6 +799,22 @@ function handleComment(){
 .page_content {
   width: 940px;
   margin: 0 auto;
+}
+
+.breadcrumbs {
+  color: #56707f;
+  font-size: 12px;
+  font-family: "Motiva Sans", Sans-serif;
+  font-weight: normal;
+}
+
+.block_bg a {
+  text-decoration: none;
+  color: #8f98a0;
+
+  &:hover {
+    color: #ffffff;
+  }
 }
 
 .apphub_HomeHeaderContent {
@@ -1198,6 +1407,14 @@ h2.user_reviews_header {
   color: #66C0F4;
 }
 
+.user_reviews_summary_bar .game_review_summary.mixed {
+  color: #a8926a;
+}
+
+.user_reviews_summary_bar .game_review_summary.negative {
+  color: #c35c2c;
+}
+
 .user_reviews_summary_bar .game_review_summary {
   cursor: help;
   font-family: "Motiva Sans", Sans-serif;
@@ -1479,9 +1696,15 @@ div.leftcol {
 }
 
 .review_box.partial .content {
-  max-height: 225px;
+  max-height: 85px;
   overflow: hidden;
   position: relative;
+  padding-bottom: 0px;
+}
+
+.review_box.expanded .content {
+  max-height: none;
+  padding-bottom: 0px;
 }
 
 .review_box .content {
@@ -1492,6 +1715,9 @@ div.leftcol {
   line-height: 17px;
   color: #acb2b8;
   overflow-wrap: break-word;
+  transition: max-height 0.3s ease;
+  overflow: hidden;
+  padding-bottom: 10px;
 }
 
 .review_box.partial .content .gradient {
@@ -1502,6 +1728,7 @@ div.leftcol {
   right: 0px;
   z-index: 1;
   height: 30px;
+  background: linear-gradient(to bottom, rgba(22, 32, 45, 0) 5%, rgba(22, 32, 45, .95) 95%);
 }
 
 .review_box.partial .posted {
@@ -1592,7 +1819,24 @@ div.rightcol {
   opacity: 0.5;
 }
 
+.review_box.partial .shortcol .content {
+  max-height: 85px;
+  overflow: hidden;
+  position: relative;
+  padding-bottom: 0px;
+}
+
+.review_box.expanded .shortcol .content {
+  max-height: none;
+  padding-bottom: 0px;
+}
+
 .review_box .shortcol .content {
   color: #9fb4c9;
+  padding-bottom: 10px;
+}
+
+.rightcol .review_box.partial .content .gradient {
+  background: linear-gradient(to bottom, rgba(27, 40, 56, 0) 5%, rgba(27, 40, 56, .95) 95%);
 }
 </style>

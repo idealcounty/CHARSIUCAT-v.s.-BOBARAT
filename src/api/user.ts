@@ -65,6 +65,13 @@ export const userInfo = () => {
         })
 }
 
+export const getUserByUserId = (userId: number) => {
+    return axios.get(`${USER_MODULE}/dashboard/${userId}`)
+        .then(res => {
+            return res
+        })
+}
+
 // 更新用户信息
 export const userInfoUpdate = (userId: number, updateInfo: UpdateInfo) => {
     return axios.post(`${USER_MODULE}/${userId}`, updateInfo,

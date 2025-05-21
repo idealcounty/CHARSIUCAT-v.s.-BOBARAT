@@ -229,7 +229,10 @@ const nav_button = ref(1)
   font-family: "Motiva Sans", Sans-serif;
   font-weight: 300;
   display: flex;
-  margin: 0px 10px;
+  margin-left: 35px;
+  margin-right: 35px;
+  padding-bottom: 128px;
+  width: 1220px;
 }
 
 .friends_nav {
@@ -314,14 +317,6 @@ const nav_button = ref(1)
 }
 
 /* 内容区 */
-.friends_container {
-  font-family: "Motiva Sans", Sans-serif;
-  font-weight: 300; /* light */
-
-  display: flex;
-  margin: 0px 10px;
-}
-
 .friends_container blockquote {
   margin: 5px 20px;
 }
@@ -399,16 +394,13 @@ const nav_button = ref(1)
 
 .friends_list_ctn.pagecontent {
   background: transparent;
+  margin: 0 auto;
+  max-width: 1220px;
+  padding-bottom: 128px;
 }
 
 .friends_list_ctn {
   width: 100%;
-}
-
-.pagecontent {
-  margin: 0 auto;
-  max-width: 1220px;
-  padding-bottom: 128px;
 }
 
 /* 标题栏 */

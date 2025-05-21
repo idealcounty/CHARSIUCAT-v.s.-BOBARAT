@@ -1,7 +1,41 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { userInfo } from "../../api/user.ts";
+import { allFriend } from "../../api/friends.ts";
 
-const nav_button = ref(1)
+const userId = ref();
+const userName = ref('');
+const userAvatar = ref('');
+const friends = ref([]);
+const currentView = ref<'friends' | 'add_friends'>('friends'); // 当前视图状态
+
+// 添加好友相关状态
+const searchQuery = ref('');
+const searchResults = ref<any[]>([]);
+const showSearchResults = ref(false);
+
+// 获取用户信息和好友列表
+async function getUserInfo() {
+  const res = await userInfo();
+  if (res.data.code === '000') {
+    const result = res.data.result;
+    userId.value = result.id;
+    userName.value = result.name;
+    userAvatar.value = result.avatar;
+  } else if (res.data.code === '400') {
+    console.log('未登录');
+  }
+
+  // 获取好友列表
+  allFriend(Number(userId.value)).then(res => {
+    friends.value = res.data.result;
+  });
+}
+
+
+onMounted(async () => {
+  await getUserInfo();
+});
 </script>
 
 <template>
@@ -13,14 +47,14 @@ const nav_button = ref(1)
           <div class="friends_header_avatar">
             <a href="">
               <img
-                  src="https://avatars.cdn.queniuqe.com/d6f589740ff68f9dc8aac061d7e5615acb283418_full.jpg"
+                  :src="userAvatar"
                   class="avatar-image"
               >
             </a>
           </div>
           <div class="friends_header_name_ctn">
             <div class="friends_header_name" style="display:inline-flex">
-              <div class="name-text">y=f（x）</div>
+              <div class="name-text">{{userName}}</div>
             </div>
           </div>
         </div>
@@ -33,10 +67,9 @@ const nav_button = ref(1)
       <div class="friends_nav">
         <h4>好友</h4>
         <div
-            data-navid="friends"
             class="icon_item icon_all_friends"
-            v-if="nav_button != 1"
-            @click="nav_button = 1"
+            v-if="currentView !== 'friends'"
+            @click="currentView = 'friends'"
         >
           <span class="title">您的好友</span>
           <svg class="down_arrow_context_menu">
@@ -44,9 +77,8 @@ const nav_button = ref(1)
           </svg>
         </div>
         <div
-            data-navid="friends"
             class="icon_item_clicked icon_all_friends"
-            v-if="nav_button == 1"
+            v-if="currentView === 'friends'"
         >
           <span class="title">您的好友</span>
           <svg class="down_arrow_context_menu">
@@ -55,8 +87,8 @@ const nav_button = ref(1)
         </div>
         <div
             class="icon_item icon_add_friends"
-            v-if="nav_button != 2"
-            @click="nav_button = 2"
+            v-if="currentView !== 'add_friends'"
+            @click="currentView = 'add_friends'"
         >
           <span class="title">添加好友</span>
           <svg class="down_arrow_context_menu">
@@ -65,91 +97,123 @@ const nav_button = ref(1)
         </div>
         <div
             class="icon_item_clicked icon_add_friends"
-            v-if="nav_button == 2"
+            v-if="currentView === 'add_friends'"
         >
           <span class="title">添加好友</span>
           <svg class="down_arrow_context_menu">
             <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
           </svg>
         </div>
-
-
       </div>
 
       <!-- 右侧内容区 -->
       <div class="friends_content" id="subpage_container">
-        <div  id="friends_list" class="friends_list_ctn pagecontent no_header">
-          <div class="profile_friends title_bar">
-            <div class="profile_friends title">
-              您的好友
-              <span class="friends_count">{{ friendsCount }}
-              </span>
-              /
-              <span class="friends_limit"></span>
+        <!-- 好友列表视图 -->
+        <div v-if="currentView === 'friends'">
+          <div id="friends_list" class="friends_list_ctn pagecontent no_header">
+            <div class="profile_friends title_bar">
+              <div class="profile_friends title">
+                您的好友
+                <span class="friends_count">{{ friends.length }}</span>
+                /
+                <span class="friends_limit"></span>
+              </div>
+              <button
+                  id="manage_friends_control"
+                  class="profile_friends manage_link btnv6_blue_hoverfade btn_medium"
+              >
+                <span>管理好友列表</span>
+              </button>
+              <button
+                  id="add_friends_button"
+                  class="profile_friends manage_link btn_green_steamui btn_medium"
+                  @click="currentView = 'add_friends'"
+              >
+                <span>
+                  <i class="add_friend_icon"></i>
+                  添加好友
+                </span>
+              </button>
             </div>
+
+            <div class="searchBarContainer">
+              <input
+                  type="text"
+                  name="search_text_box"
+                  id="search_text_box"
+                  class="friends_search_text_box gamepad_input"
+                  placeholder="通过名称或游戏搜索好友"
+              />
+            </div>
+
+            <div class="profile_friends search_results">
+              <div
+                  v-for="friend in friends"
+                  :key="friend.id"
+                  class="friend_item"
+              >
+                <div class="friend_avatar">
+                  <img
+                      :src="friend.avatar || 'https://picsum.photos/200/200'"
+                      alt="friend avatar"
+                      class="avatar-small"
+                  >
+                </div>
+
+                <div class="friend_info">
+                  <div class="friend_name">
+                    <a href="">{{ friend.name }}</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 添加好友视图 -->
+        <div v-else class="add-friends-view">
+          <div class="add-friends-header">
+            <h3 class="add-friends-title">添加好友</h3>
             <button
-                id="manage_friends_control"
-                class="profile_friends manage_link btnv6_blue_hoverfade btn_medium"
-                @click="toggleManageFriends"
+                class="back-btn btnv6_blue_hoverfade btn_small"
+                @click="currentView = 'friends'"
             >
-              <span>管理好友列表</span>
+              <span>返回</span>
             </button>
-            <button
-                id="add_friends_button"
-                class="profile_friends manage_link btn_green_steamui btn_medium"
-                @click="window.location.href='https://steamcommunity.com/profiles/76561198963541554/friends/add'"
-            >
+          </div>
+
+          <div class="add-friends-form">
+            <div class="form-group">
+              <input
+                  type="text"
+                  v-model="searchQuery"
+                  placeholder="通过电话搜索好友"
+                  class="add-friends-input"
+              >
+            </div>
+            <button class="btn_green_steamui btn_medium" @click="handleSearch">
               <span>
                 <i class="add_friend_icon"></i>
-                添加好友
+                搜索好友
               </span>
             </button>
           </div>
 
-<!--          <div-->
-<!--              id="manage_friends"-->
-<!--              class="manage_friends_panel"-->
-<!--              v-show="isManageMode"-->
-<!--          >-->
-<!--            <div class="row">-->
-<!--              从以下选择好友进行操作-->
-<!--              <span class="row">-->
-<!--                <span class="dimmed">选择：</span>-->
-<!--                <span class="selection_type" @click="selectAll"><a>全部</a></span>-->
-<!--                <span class="selection_type" @click="selectNone"><a>未选择</a></span>-->
-<!--                <span class="selection_type" @click="selectInverse"><a>反选</a></span>-->
-<!--              </span>-->
-<!--            </div>-->
-
-<!--            <div class="row">-->
-<!--              <div class="manage_friend_actions_ctn">-->
-<!--                <span-->
-<!--                    class="manage_action btnv6_lightblue_blue btn_small"-->
-<!--                    @click="execFriendAction('remove')"-->
-<!--                >-->
-<!--                  移除好友-->
-<!--                </span>-->
-<!--                <span-->
-<!--                    class="manage_action btnv6_lightblue_blue btn_small"-->
-<!--                    @click="execFriendAction('block')"-->
-<!--                >-->
-<!--                  屏蔽-->
-<!--                </span>-->
-<!--              </div>-->
-<!--              <span id="selected_msg" class="selected_msg">-->
-<!--                <span id="selected_count">{{ selectedCount }}</span> 个已选择。-->
-<!--              </span>-->
-<!--            </div>-->
-<!--          </div>-->
-
-          <div class="searchBarContainer">
-            <input
-                type="text"
-                name="search_text_box"
-                id="search_text_box"
-                class="friends_search_text_box gamepad_input"
-                placeholder="通过名称或游戏搜索好友"
-            />
+          <!-- 搜索结果 -->
+          <div v-if="showSearchResults" class="search-results">
+            <div v-for="result in searchResults" :key="result.id" class="add-friend-item">
+              <div class="friend_avatar">
+                <img :src="result.avatar || 'https://picsum.photos/200/200'" alt="avatar" class="avatar-small">
+              </div>
+              <div class="friend_info">
+                <div class="friend_name">
+                  <a href="">{{ result.name }}</a>
+                </div>
+              </div>
+              <button class="add-btn" @click="sendFriendRequest(result.id)">
+                添加好友
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -229,10 +293,10 @@ const nav_button = ref(1)
   font-family: "Motiva Sans", Sans-serif;
   font-weight: 300;
   display: flex;
-  margin-left: 35px;
-  margin-right: 35px;
+  justify-content: center;
+  margin: 0 auto;
   padding-bottom: 128px;
-  width: 1220px;
+  max-width: 1220px;
 }
 
 .friends_nav {
@@ -341,7 +405,6 @@ const nav_button = ref(1)
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: 600;
-
   padding: 12px 0 0 8px;
   font-size: 11px;
 }
@@ -401,6 +464,8 @@ const nav_button = ref(1)
 
 .friends_list_ctn {
   width: 100%;
+  max-width: 1220px;
+  margin: 0 auto;
 }
 
 /* 标题栏 */
@@ -500,7 +565,6 @@ const nav_button = ref(1)
   align-items: center;
   padding: 5px 10px;
   background-color: #015e80;
-  width: 832px;
 }
 
 .profile_friends.title {
@@ -534,10 +598,11 @@ const nav_button = ref(1)
   text-decoration: none;
   color: #67c1f5;
   background: rgba( 103, 193, 245, 0.2 );
-  &:hover {
-    color: #ffffff;
-    background: linear-gradient(to right,#66bff3,#437d9e);
-  }
+}
+
+.btnv6_blue_hoverfade:hover {
+  color: #ffffff;
+  background: linear-gradient(to right,#66bff3,#437d9e);
 }
 
 .btn_medium > span {
@@ -573,6 +638,10 @@ html.responsive #add_friends_button {
   text-shadow: 1px 1px 0px rgba( 0, 0, 0, 0.3 );
 }
 
+.btn_green_steamui:hover {
+  color: #ffffff;
+}
+
 .btn_medium > span {
   padding: 0 15px;
   font-size: 15px;
@@ -583,10 +652,10 @@ html.responsive #add_friends_button {
   border-radius: 2px;
   display: block;
   background: linear-gradient( to right, #75b022 5%, #588a1b 95%);
-  &:hover {
-    color: #ffffff;
-    background: linear-gradient(to right,#8ED629,#6AA621);
-  }
+}
+
+.btn_green_steamui > span:hover {
+  background: linear-gradient(to right,#8ED629,#6AA621);
 }
 
 .add_friend_icon {
@@ -647,7 +716,7 @@ html.responsive #add_friends_button {
   display: flex;
   flex: 1 100%;
   margin: 10px 0 0 0;
-  width: 832px;
+  width: 100%;
 }
 
 .friends_search_text_box {
@@ -662,7 +731,7 @@ html.responsive #add_friends_button {
   min-width: 250px;
   padding: 0 0 0 30px;
   font-family: "Motiva Sans", Sans-serif;
-  width: 416px;
+  width: 100%;
 }
 
 .friends_search_text_box::-webkit-input-placeholder {
@@ -670,7 +739,7 @@ html.responsive #add_friends_button {
   font-style: italic;
 }
 
-/* 响应式样式（可选） */
+/* 响应式样式 */
 @media screen and (max-width: 910px) {
   .profile_friends.title_bar {
     flex-wrap: wrap;
@@ -687,5 +756,134 @@ html.responsive #add_friends_button {
     width: 100%;
     max-width: none;
   }
+}
+
+.search_results {
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+}
+
+.friend_item {
+  height: 50px;
+  flex-basis: calc(30% - 16px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0px;
+  border-radius: 0px;
+  margin-bottom: 8px;
+  background-color: rgba(28,33,40,0.9);
+  transition: background-color 0.2s;
+}
+
+.friend_item:hover {
+  background-color: rgba(30, 50, 70, 1);
+}
+
+.friend_avatar {
+  width: 70px;
+  height: 70px;
+  margin-right: 16px;
+  margin-left: 0px;
+}
+
+.avatar-small {
+  width: 70px;
+  height: 70px;
+  border-radius: 3px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.3);
+  border-right: 4px solid #67c1f5;
+}
+
+.friend_info {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.friend_name a {
+  color: #67c1f5;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.friend_name a:hover {
+  text-decoration: underline;
+}
+
+/* 添加好友视图样式 */
+.add-friends-view {
+  padding: 20px;
+  color: #fff;
+  background: rgba(22, 33, 46, 0.8);
+  border-radius: 4px;
+}
+
+.add-friends-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.add-friends-title {
+  font-size: 18px;
+  color: #67c1f5;
+}
+
+.back-btn {
+  padding: 4px 12px;
+}
+
+.add-friends-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.add-friends-input {
+  flex-grow: 1;
+  padding: 8px 12px;
+  background: #1a2c45;
+  border: 1px solid #000;
+  border-radius: 3px;
+  color: #fff;
+}
+
+.search-results {
+  margin-top: 20px;
+}
+
+.add-friend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  background-color: rgba(28, 33, 40, 0.9);
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.add-friend-item:hover {
+  background-color: rgba(30, 50, 70, 1);
+}
+
+.add-btn {
+  padding: 6px 12px;
+  background-color: #4b69ff;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background-color: #6a87ff;
 }
 </style>

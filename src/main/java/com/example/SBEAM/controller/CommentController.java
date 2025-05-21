@@ -1,4 +1,5 @@
 package com.example.SBEAM.controller;
+import com.example.SBEAM.po.Comment;
 import com.example.SBEAM.service.CommentService;
 import com.example.SBEAM.vo.CommentVO;
 import com.example.SBEAM.vo.ResultVO;
@@ -12,7 +13,7 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping
-    public ResultVO<Boolean> createComment(@RequestBody CommentVO commentVO) {
+    public ResultVO<Comment> createComment(@RequestBody CommentVO commentVO) {
         return ResultVO.buildSuccess(commentService.createComment(commentVO));
     }
     @DeleteMapping("/{commentId}")

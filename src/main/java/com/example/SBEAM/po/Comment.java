@@ -25,7 +25,7 @@ public class Comment {
     private Product product;
 
     @Basic
-    @Column(name = "comment_text")
+    @Column(name = "comment_text",columnDefinition = "TEXT")
     private String commentText;
 
     @Basic

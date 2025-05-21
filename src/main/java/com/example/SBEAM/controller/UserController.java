@@ -7,6 +7,7 @@ import com.example.SBEAM.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -30,7 +31,10 @@ public class UserController {
     public ResultVO<UserVO> getInformation(){
         return ResultVO.buildSuccess(userService.getInformation());
     }
-
+    @GetMapping("/dashboard/{userId}")
+    public ResultVO<UserVO> getUserInformation(@PathVariable("userId") Integer userId){
+        return ResultVO.buildSuccess(userService.getUserInformation(userId));
+    }
     @PostMapping ("/{userId}")
     public ResultVO<Boolean> updateInformation(@PathVariable int userId,@RequestBody UserVO userVO){
         boolean success = userService.updateInformation(userId,userVO);

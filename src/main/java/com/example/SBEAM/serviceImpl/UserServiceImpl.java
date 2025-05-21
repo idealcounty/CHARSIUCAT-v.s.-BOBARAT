@@ -86,5 +86,11 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return user.getInventories().stream().map(Inventory::toVO).collect(Collectors.toList());
     }
+
+    @Override
+    public UserVO getUserInformation(int userId){
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        return user.toVO();
+    }
 }
 

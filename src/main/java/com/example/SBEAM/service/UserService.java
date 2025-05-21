@@ -13,4 +13,5 @@ public interface UserService {
     Boolean updateInformation(int userId,UserVO userVO);
     void depositBalance(Integer userId, double amount);
     List<InventoryVO> getInventory(int userId);
+    UserVO getUserInformation(int userId);
 }

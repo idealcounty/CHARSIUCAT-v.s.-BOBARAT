@@ -52,6 +52,7 @@ public class Comment {
         commentVO.setCommentScore(commentScore);
         commentVO.setProduct(product);
         commentVO.setUserId(userId);
+        commentVO.setCommentSendTime(commentSendTime);
         return commentVO;
     }
 }

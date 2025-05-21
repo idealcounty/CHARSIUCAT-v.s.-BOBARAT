@@ -16,11 +16,11 @@ public class CommentServiceImpl implements CommentService {
     CommentRepository commentRepository;
 
     @Override
-    public Comment createComment(CommentVO commentVO){
+    public Boolean createComment(CommentVO commentVO){
         Comment newComment = commentVO.toPO();
         newComment.setCommentSendTime(new Date());
         commentRepository.save(newComment);
-        return newComment;
+        return true;
     }
 
     @Override

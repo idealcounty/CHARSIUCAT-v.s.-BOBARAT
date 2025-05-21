@@ -2,6 +2,7 @@ package com.example.SBEAM.po;
 
 import com.example.SBEAM.enums.RoleEnum;
 import com.example.SBEAM.vo.UserVO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -63,6 +64,7 @@ public class User {
     private List<Inventory> inventories;
 
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
         name = "user_already_friends",
         joinColumns = @JoinColumn(name = "user_id"),
@@ -70,6 +72,7 @@ public class User {
     )
     private List<User> alreadyFriends;
     @ManyToMany
+    @JsonIgnore
     @JoinTable(
         name = "user_prepared_friends",
         joinColumns = @JoinColumn(name = "user_id"),

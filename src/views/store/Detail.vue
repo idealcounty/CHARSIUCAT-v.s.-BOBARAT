@@ -426,7 +426,7 @@ function handleComment(){
         </div>
       </div>
       <!--库中已有-->
-      <div class="game_area_already_owned page_content">
+      <div class="game_area_already_owned page_content" v-if="existInInventory">
         <div class="game_area_already_owned_ctn">
           <div class="ds_owned_flag ds_flag">在库中&nbsp;&nbsp;</div>
           <div class="already_in_library">您的 Steam 库中已有《{{ productName }}》</div>
@@ -530,7 +530,8 @@ function handleComment(){
                     <span v-if="positiveRate>=0.7 && positiveRate<0.8" class="game_review_summary positive">多半好评</span>
                     <span v-if="positiveRate>=0.4 && positiveRate<0.7" class="game_review_summary mixed">褒贬不一</span>
                     <span v-if="positiveRate>=0.3 && positiveRate<0.4" class="game_review_summary negative">多半差评</span>
-                    <span v-if="positiveRate<0.3" class="game_review_summary negative">差评如潮</span>
+                    <span v-if="totalCount!=0 && positiveRate<0.3" class="game_review_summary negative">差评如潮</span>
+                    <span v-if="totalCount==0" class="game_review_summary none">暂无评论</span>
                     <span class="review_cnt">({{ totalCount }} 篇评测)</span>
                   </div>
                 </div>
@@ -544,7 +545,8 @@ function handleComment(){
                     <span v-if="positiveRate>=0.7 && positiveRate<0.8" class="game_review_summary positive">多半好评</span>
                     <span v-if="positiveRate>=0.4 && positiveRate<0.7" class="game_review_summary mixed">褒贬不一</span>
                     <span v-if="positiveRate>=0.3 && positiveRate<0.4" class="game_review_summary negative">多半差评</span>
-                    <span v-if="positiveRate<0.3" class="game_review_summary negative">差评如潮</span>
+                    <span v-if="totalCount!=0 && positiveRate<0.3" class="game_review_summary negative">差评如潮</span>
+                    <span v-if="totalCount==0" class="game_review_summary none">暂无评论</span>
                     <span class="review_cnt">({{ totalCount }} 篇评测)</span>
                   </div>
                 </div>
@@ -1413,6 +1415,10 @@ h2.user_reviews_header {
 
 .user_reviews_summary_bar .game_review_summary.negative {
   color: #c35c2c;
+}
+
+.user_reviews_summary_bar .game_review_summary.none {
+  color: #6B939F;
 }
 
 .user_reviews_summary_bar .game_review_summary {

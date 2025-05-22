@@ -7,6 +7,7 @@ import com.example.SBEAM.repository.ProductRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.service.LotteryService;
 import com.example.SBEAM.vo.LotteryItemVO;
+import com.example.SBEAM.vo.LotteryVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,5 +93,9 @@ public class LotteryServiceImpl implements LotteryService {
             }
         }
         return null;
+    }
+    @Override
+    public List<LotteryVO> getLottery(){
+        return lotteryRepository.findAll().stream().map(Lottery::toVO).collect(Collectors.toList());
     }
 }

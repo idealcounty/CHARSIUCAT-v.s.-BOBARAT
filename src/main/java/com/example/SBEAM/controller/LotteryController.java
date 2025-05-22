@@ -2,6 +2,7 @@ package com.example.SBEAM.controller;
 
 import com.example.SBEAM.service.LotteryService;
 import com.example.SBEAM.vo.LotteryItemVO;
+import com.example.SBEAM.vo.LotteryVO;
 import com.example.SBEAM.vo.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,5 +29,9 @@ public class LotteryController {
     @GetMapping("/{lotteryId}/draw")
     public ResultVO<LotteryItemVO> drawLottery(@PathVariable int lotteryId,@RequestParam int userId) {
         return ResultVO.buildSuccess(lotteryService.drawLottery(lotteryId,userId));
+    }
+    @GetMapping()
+    public ResultVO<List<LotteryVO>> getLotteryList() {
+        return ResultVO.buildSuccess(lotteryService.getLottery());
     }
 }

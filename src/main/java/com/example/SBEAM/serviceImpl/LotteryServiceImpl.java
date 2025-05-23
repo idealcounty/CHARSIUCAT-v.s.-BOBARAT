@@ -28,20 +28,29 @@ public class LotteryServiceImpl implements LotteryService {
     UserRepository userRepository;
 
     @Override
-    public Boolean createLottery(List<LotteryItemVO> lotteryItemVOList) {
+    public Boolean createLottery(String lotteryName) {
         Lottery lottery = new Lottery();
-        List<LotteryItem> items = new ArrayList<>();
-        for (LotteryItemVO vo : lotteryItemVOList) {
-            LotteryItem item = new LotteryItem();
-            item.setProductId(vo.getProductId());
-            item.setProductQuantity(vo.getProductQuantity());
-            double price = productRepository.findByProductId(vo.getProductId()).getProductPrice();
-            item.setProductValue(price * vo.getProductQuantity());
-            items.add(item);
-        }
-
+        lottery.setLotteryName(lotteryName);
+        LotteryItem blank = new LotteryItem();
+        blank.setLotteryItemProbability(0.7);
+        blank.setProductValue(0.0);
+        blank.setProductQuantity(1);
+        lottery.getLotteryItems().add(blank);
+        lotteryRepository.save(lottery);
+        return true;
+    }
+    @Override
+    public Boolean addLotteryItem(int lotteryId,LotteryItemVO lotteryItemVO){
+        Lottery lottery = lotteryRepository.findByLotteryId(lotteryId);
+        LotteryItem lotteryItem = new LotteryItem();
+        lotteryItem.setLottery(lottery);
+        lotteryItem.setProductId(lotteryItemVO.getProductId());
+        lotteryItem.setProductQuantity(lotteryItemVO.getProductQuantity());
+        lotteryItem.setProductValue(productRepository.findByProductId(lotteryItemVO.getProductId()).getProductPrice());
+        lotteryItemRepository.save(lotteryItem);
+        lottery.getLotteryItems().add(lotteryItem);
         double totalInverse = 0;
-        for (LotteryItem item : items) {
+        for (LotteryItem item : lottery.getLotteryItems()) {
             double value = item.getProductValue();
             if (value > 0) {
                 totalInverse += 1.0 / value;
@@ -50,19 +59,11 @@ public class LotteryServiceImpl implements LotteryService {
         if (totalInverse == 0) {
             return false;
         }
-
-        for (LotteryItem item : items) {
+        for (LotteryItem item : lottery.getLotteryItems()) {
             double value = item.getProductValue();
             double probability = (value > 0) ? (1.0 / value) / totalInverse * 0.3 : 0.0;
             item.setLotteryItemProbability(probability);
         }
-
-        LotteryItem blank = new LotteryItem();
-        blank.setLotteryItemProbability(0.7);
-        blank.setProductValue(0.0);
-        blank.setProductQuantity(0);
-        lottery.getLotteryItems().addAll(items);
-        lottery.getLotteryItems().add(blank);
         lotteryRepository.save(lottery);
         return true;
     }

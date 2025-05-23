@@ -5,7 +5,8 @@ import com.example.SBEAM.vo.LotteryVO;
 import java.util.List;
 
 public interface LotteryService {
-    Boolean createLottery(List<LotteryItemVO> lotteryItemVOList);
+    Boolean createLottery(String lotteryName);
+    Boolean addLotteryItem(int lotteryId,LotteryItemVO lotteryItemVO);
     List<LotteryItemVO> getLotteryItemList(int lotteryId);
     LotteryItemVO drawLottery(int lotteryId,int userId);
     List<LotteryVO> getLottery();

@@ -15,8 +15,12 @@ public class LotteryController {
     @Autowired
     LotteryService lotteryService;
     @PostMapping
-    public ResultVO<Boolean>createLottery(@RequestBody List<LotteryItemVO> lotteryItemVOList) {
-        return ResultVO.buildSuccess(lotteryService.createLottery(lotteryItemVOList));
+    public ResultVO<Boolean>createLottery(@RequestBody String lotteryName) {
+        return ResultVO.buildSuccess(lotteryService.createLottery(lotteryName));
+    }
+    @PostMapping("/{lotteryId}")
+    public ResultVO<Boolean>addLotteryItem(@PathVariable int lotteryId,@RequestBody LotteryItemVO lotteryItemVO) {
+        return ResultVO.buildSuccess(lotteryService.addLotteryItem(lotteryId,lotteryItemVO));
     }
     @GetMapping("/{lotteryId}")
     public ResultVO<List<LotteryItemVO>> getLotteryItemList(@PathVariable int lotteryId) {

@@ -11,10 +11,12 @@ import java.util.List;
 public class LotteryVO {
     private Integer lotteryId;
     private List<LotteryItem> lotteryItems;
+    private String lotteryName;
     public Lottery toPO() {
         Lottery lottery = new Lottery();
         lottery.setLotteryId(lotteryId);
         lottery.setLotteryItems(lotteryItems);
+        lottery.setLotteryName(lotteryName);
         return lottery;
     }
 }

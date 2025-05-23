@@ -24,10 +24,7 @@ public class Lottery {
 
     @OneToMany(mappedBy = "lottery", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<LotteryItem> lotteryItems;
-
-    public Lottery(){
-        lotteryItems = new ArrayList<LotteryItem>();
-    }
+    
     public LotteryVO toVO(){
         LotteryVO lotteryVO = new LotteryVO();
         lotteryVO.setLotteryId(lotteryId);

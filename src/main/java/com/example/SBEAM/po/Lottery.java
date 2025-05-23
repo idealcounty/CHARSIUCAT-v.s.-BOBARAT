@@ -18,7 +18,6 @@ public class Lottery {
     private Integer lotteryId;
 
     @OneToMany(mappedBy = "lottery", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Column(name="lottery_item")
     private List<LotteryItem> lotteryItems;
 
     public LotteryVO toVO(){

@@ -28,13 +28,18 @@ public class LotteryServiceImpl implements LotteryService {
     UserRepository userRepository;
 
     @Override
-    public Boolean createLottery(List<LotteryItemVO> lotteryItemVOList){
+    public Boolean createLottery(List<LotteryItemVO> lotteryItemVOList) {
         Lottery lottery = new Lottery();
         List<LotteryItem> items = new ArrayList<>();
         for (LotteryItemVO vo : lotteryItemVOList) {
-            LotteryItem item = lotteryItemRepository.findByLotteryItemId(vo.getLotteryItemId());
+            LotteryItem item = new LotteryItem();
+            item.setProductId(vo.getProductId());
+            item.setProductQuantity(vo.getProductQuantity());
+            double price = productRepository.findByProductId(vo.getProductId()).getProductPrice();
+            item.setProductValue(price * vo.getProductQuantity());
             items.add(item);
         }
+
         double totalInverse = 0;
         for (LotteryItem item : items) {
             double value = item.getProductValue();
@@ -45,33 +50,21 @@ public class LotteryServiceImpl implements LotteryService {
         if (totalInverse == 0) {
             return false;
         }
+
         for (LotteryItem item : items) {
             double value = item.getProductValue();
             double probability = (value > 0) ? (1.0 / value) / totalInverse * 0.3 : 0.0;
-            item.setLottery(lottery);
             item.setLotteryItemProbability(probability);
-            lotteryItemRepository.save(item);
-            lottery.getLotteryItems().add(item);
         }
 
         LotteryItem blank = new LotteryItem();
-        blank.setLottery(lottery);
         blank.setLotteryItemProbability(0.7);
-        blank.setLotteryItemId(0);
         blank.setProductValue(0.0);
         blank.setProductQuantity(0);
-        lotteryItemRepository.save(blank);
-
+        lottery.getLotteryItems().addAll(items);
         lottery.getLotteryItems().add(blank);
         lotteryRepository.save(lottery);
         return true;
-    }
-    @Override
-    public LotteryItemVO createLotteryItem(int productId,int productAmount){
-        LotteryItem lotteryItem = new LotteryItem(productId,productAmount);
-        lotteryItem.setProductValue(productRepository.findByProductId(productId).getProductPrice()*productAmount);
-        lotteryItemRepository.save(lotteryItem);
-        return lotteryItem.toVO();
     }
     @Override
     public List<LotteryItemVO> getLotteryItemList(int lotteryId){

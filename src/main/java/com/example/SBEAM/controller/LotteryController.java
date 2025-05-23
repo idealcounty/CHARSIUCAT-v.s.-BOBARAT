@@ -14,10 +14,6 @@ import java.util.List;
 public class LotteryController {
     @Autowired
     LotteryService lotteryService;
-    @PostMapping("/createLotteryItem")
-    public ResultVO<LotteryItemVO> createLotteryItem(@RequestParam int productId, @RequestParam int productAmount) {
-        return ResultVO.buildSuccess(lotteryService.createLotteryItem(productId, productAmount));
-    }
     @PostMapping
     public ResultVO<Boolean>createLottery(@RequestBody List<LotteryItemVO> lotteryItemVOList) {
         return ResultVO.buildSuccess(lotteryService.createLottery(lotteryItemVOList));

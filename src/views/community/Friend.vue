@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref} from "vue";
 import { userInfo } from "../../api/user.ts";
 import {
   AcceptFriendRequest,
@@ -9,7 +9,9 @@ import {
   searchFriend,
   SendFriendRequest
 } from "../../api/friends.ts";
+import {useRouter} from "vue-router";
 
+const router = useRouter()
 const userId = ref();
 const userName = ref('');
 const userAvatar = ref('');
@@ -54,6 +56,11 @@ function handleSearch() {
     searchResult.value = res.data.result;
     showSearchResults.value = true;
   })
+}
+
+function jumpToChat(friendId: number) {
+  console.log(friendId);
+  router.push({path:"chat", query:{friendId}})
 }
 
 function sendFriendRequest(friendId: Number) {
@@ -249,6 +256,7 @@ function rejectRequest(friendId: Number) {
                   v-for="friend in friends"
                   :key="friend.id"
                   class="friend_item"
+                  @click="jumpToChat(friend.id)"
               >
                 <div class="friend_avatar">
                   <img
@@ -260,7 +268,7 @@ function rejectRequest(friendId: Number) {
 
                 <div class="friend_info">
                   <div class="friend_name">
-                    <a href="">{{ friend.name }}</a>
+                    <a>{{ friend.name }}</a>
                   </div>
                 </div>
               </div>

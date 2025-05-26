@@ -66,6 +66,10 @@ const router = createRouter({
         path: '/friend',
         component: () => import('../views/community/Friend.vue'),
         meta: { title: '好友' }
+    },{
+        path: '/chat',
+        component: () => import('../views/community/Chat.vue'),
+        meta: { title: '聊天' }
     },]
 })
 

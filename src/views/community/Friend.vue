@@ -1,19 +1,27 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { userInfo } from "../../api/user.ts";
-import { allFriend } from "../../api/friends.ts";
+import {
+  AcceptFriendRequest,
+  allFriend,
+  allRequest,
+  RejectFriendRequest,
+  searchFriend,
+  SendFriendRequest
+} from "../../api/friends.ts";
 
 const userId = ref();
 const userName = ref('');
 const userAvatar = ref('');
 const friends = ref([]);
-const currentView = ref<'friends' | 'add_friends'>('friends'); // 当前视图状态
-
+const currentView = ref<'friends' | 'add_friends' | 'pending_requests'>('friends');
 // 添加好友相关状态
 const searchQuery = ref('');
-const searchResults = ref<any[]>([]);
+const searchResult = ref('');
 const showSearchResults = ref(false);
 
+//好友请求列表
+const requestList = ref([]);
 // 获取用户信息和好友列表
 async function getUserInfo() {
   const res = await userInfo();
@@ -22,6 +30,9 @@ async function getUserInfo() {
     userId.value = result.id;
     userName.value = result.name;
     userAvatar.value = result.avatar;
+    allRequest(Number(userId.value)).then((res) => {
+      requestList.value = res.data.result;
+    })
   } else if (res.data.code === '400') {
     console.log('未登录');
   }
@@ -36,6 +47,74 @@ async function getUserInfo() {
 onMounted(async () => {
   await getUserInfo();
 });
+
+function handleSearch() {
+  searchFriend(searchQuery.value).then((res) => {
+    console.log(res);
+    searchResult.value = res.data.result;
+    showSearchResults.value = true;
+  })
+}
+
+function sendFriendRequest(friendId: Number) {
+  console.log(friendId);
+  console.log(userId.value);
+  SendFriendRequest(Number(userId.value),Number(friendId)).then((res) => {
+    console.log(res);
+    if (res.result) {
+      ElMessage({
+        message: "成功发送好友请求！",
+        type: 'success',
+        center: true,
+      })
+    }
+    else{
+      ElMessage({
+        message: "已发送好友请求或已是好友！",
+        type: 'failure',
+        center: true,
+      })
+    }
+  })
+}
+
+function acceptRequest(friendId: Number) {
+  AcceptFriendRequest(Number(userId.value),Number(friendId)).then((res) => {
+    console.log(res);
+    if (res.result) {
+      ElMessage({
+        message: "添加成功！",
+        type: 'success',
+        center: true,
+      })
+    }
+    allRequest(Number(userId.value)).then((res) => {
+      requestList.value = res.data.result;
+      allFriend(Number(userId.value)).then(res => {
+        friends.value = res.data.result;
+      });
+    })
+  })
+}
+
+function rejectRequest(friendId: Number) {
+  RejectFriendRequest(Number(userId.value),Number(friendId)).then((res) => {
+    console.log(res);
+    if (res.result) {
+      ElMessage({
+        message: "已拒绝！",
+        type: 'success',
+        center: true,
+      })
+    }
+    allRequest(Number(userId.value)).then((res) => {
+      requestList.value = res.data.result;
+      allFriend(Number(userId.value)).then(res => {
+        friends.value = res.data.result;
+      });
+    })
+  })
+}
 </script>
 
 <template>
@@ -100,6 +179,25 @@ onMounted(async () => {
             v-if="currentView === 'add_friends'"
         >
           <span class="title">添加好友</span>
+          <svg class="down_arrow_context_menu">
+            <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
+          </svg>
+        </div>
+        <div
+            class="icon_item icon_pending_requests"
+            v-if="currentView !== 'pending_requests'"
+            @click="currentView = 'pending_requests'"
+        >
+          <span class="title">未处理请求</span>
+          <svg class="down_arrow_context_menu">
+            <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
+          </svg>
+        </div>
+        <div
+            class="icon_item_clicked icon_pending_requests"
+            v-if="currentView === 'pending_requests'"
+        >
+          <span class="title">未处理请求</span>
           <svg class="down_arrow_context_menu">
             <polygon points="50 59.49 13.21 22.89 4.74 31.39 50 76.41 95.26 31.39 86.79 22.89 50 59.49"></polygon>
           </svg>
@@ -171,7 +269,7 @@ onMounted(async () => {
         </div>
 
         <!-- 添加好友视图 -->
-        <div v-else class="add-friends-view">
+        <div v-else-if="currentView==='add_friends'" class="add-friends-view">
           <div class="add-friends-header">
             <h3 class="add-friends-title">添加好友</h3>
             <button
@@ -201,18 +299,58 @@ onMounted(async () => {
 
           <!-- 搜索结果 -->
           <div v-if="showSearchResults" class="search-results">
-            <div v-for="result in searchResults" :key="result.id" class="add-friend-item">
+            <div class="add-friend-item">
               <div class="friend_avatar">
-                <img :src="result.avatar || 'https://picsum.photos/200/200'" alt="avatar" class="avatar-small">
+                <img :src="searchResult.avatar || 'https://picsum.photos/200/200'" alt="avatar" class="avatar-small">
               </div>
               <div class="friend_info">
                 <div class="friend_name">
-                  <a href="">{{ result.name }}</a>
+                  <a href="">{{ searchResult.name }}</a>
                 </div>
               </div>
-              <button class="add-btn" @click="sendFriendRequest(result.id)">
+              <button class="add-btn" @click="sendFriendRequest(searchResult.id)">
                 添加好友
               </button>
+            </div>
+          </div>
+        </div>
+
+        <div v-else-if="currentView === 'pending_requests'" class="pending-requests-view">
+          <div class="pending-requests-header">
+            <h3 class="pending-requests-title">未处理的好友请求</h3>
+            <button
+                class="back-btn btnv6_blue_hoverfade btn_small"
+                @click="currentView = 'friends'"
+            >
+              <span>返回</span>
+            </button>
+          </div>
+
+          <div class="requests-list">
+            <div
+                v-for="request in requestList"
+                :key="request.id"
+                class="friend_item request-item"
+            >
+              <div class="friend_avatar">
+                <img
+                    :src="request.avatar || 'https://picsum.photos/200/200'"
+                    alt="avatar"
+                    class="avatar-small"
+                >
+              </div>
+
+              <div class="friend_info">
+                <div class="friend_name">
+                  <a href="">{{ request.name }}</a>
+                </div>
+                <div class="request-message">{{ request.message || '请求添加你为好友' }}</div>
+              </div>
+
+              <div class="request-actions">
+                <button class="btn-accept" @click="acceptRequest(request.id)">接受</button>
+                <button class="btn-deny" @click="rejectRequest(request.id)">拒绝</button>
+              </div>
             </div>
           </div>
         </div>
@@ -578,13 +716,13 @@ onMounted(async () => {
 }
 
 #manage_friends_control {
-  margin-left: 334px;
+  margin-left: 500px;
   margin-right: 10px;
 }
 
 .profile_friends.manage_link {
   text-align: right;
-  margin-left: auto;
+  margin-left: 10px;
   margin-right: 10px;
   flex-shrink: 0;
 }
@@ -716,7 +854,7 @@ html.responsive #add_friends_button {
   display: flex;
   flex: 1 100%;
   margin: 10px 0 0 0;
-  width: 100%;
+  width: 50%;
 }
 
 .friends_search_text_box {
@@ -885,5 +1023,74 @@ html.responsive #add_friends_button {
 
 .add-btn:hover {
   background-color: #6a87ff;
+}
+
+.pending-requests-view {
+  padding: 20px;
+  color: #fff;
+  background: rgba(22, 33, 46, 0.8);
+  border-radius: 4px;
+}
+
+.pending-requests-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.pending-requests-title {
+  font-size: 18px;
+  color: #67c1f5;
+}
+
+.request-item {
+  position: relative;
+  padding-right: 160px; /* 为按钮留出空间 */
+}
+
+.request-message {
+  color: #8f98a0;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.request-actions {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.btn-accept {
+  padding: 6px 12px;
+  background-color: #4b9e4b;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-accept:hover {
+  background-color: #5cb85c;
+}
+
+.btn-deny {
+  padding: 6px 12px;
+  background-color: #a74b4b;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-deny:hover {
+  background-color: #d9534f;
+}
+
+.requests-list {
+  margin-top: 20px;
 }
 </style>

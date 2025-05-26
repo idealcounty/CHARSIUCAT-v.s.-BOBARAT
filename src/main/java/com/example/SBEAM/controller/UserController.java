@@ -1,5 +1,4 @@
 package com.example.SBEAM.controller;
-import com.example.SBEAM.po.Inventory;
 import com.example.SBEAM.service.UserService;
 import com.example.SBEAM.vo.InventoryVO;
 import com.example.SBEAM.vo.ResultVO;
@@ -7,8 +6,6 @@ import com.example.SBEAM.vo.UserVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -54,4 +51,8 @@ public class UserController {
 //        userService.depositBalance(userId,amount);
 //        return ResultVO.buildSuccess();
 //    }
+    @GetMapping("/search/{userPhone}")
+    public ResultVO<UserVO> searchUser(@PathVariable String userPhone){
+        return ResultVO.buildSuccess(userService.getUserByPhone(userPhone));
+    }
 }

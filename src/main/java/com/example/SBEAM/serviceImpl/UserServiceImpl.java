@@ -92,5 +92,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return user.toVO();
     }
+
+    @Override
+    public UserVO getUserByPhone(String phone) {
+        User user = userRepository.findByPhone(phone);
+        if (user == null) {
+            return null;
+        }
+        return user.toVO();
+    }
 }
 

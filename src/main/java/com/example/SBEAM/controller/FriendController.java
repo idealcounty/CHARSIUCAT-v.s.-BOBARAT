@@ -13,16 +13,16 @@ public class FriendController {
     @Autowired
     FriendService friendService;
     @PostMapping
-    public ResultVO<Boolean> sendFriendRequest(@RequestBody User self, @RequestBody User friend) {
-        return ResultVO.buildSuccess(friendService.sendFriendRequest(self, friend));
+    public ResultVO<Boolean> sendFriendRequest(@RequestParam int selfId, @RequestParam int friendId) {
+        return ResultVO.buildSuccess(friendService.sendFriendRequest(selfId, friendId));
     }
     @PostMapping("/friendRequest")
-    public ResultVO<Boolean> acceptFriendRequest(@RequestBody User self, @RequestBody User friend) {
-        return ResultVO.buildSuccess(friendService.acceptFriendRequest(self, friend));
+    public ResultVO<Boolean> acceptFriendRequest(@RequestParam int selfId, @RequestParam int friendId) {
+        return ResultVO.buildSuccess(friendService.acceptFriendRequest(selfId, friendId));
     }
     @DeleteMapping("/friendRequest")
-    public ResultVO<Boolean> rejectFriendRequest(@RequestBody User self, @RequestBody User friend) {
-        return ResultVO.buildSuccess(friendService.rejectFriendRequest(self, friend));
+    public ResultVO<Boolean> rejectFriendRequest(@RequestParam int selfId, @RequestParam int friendId) {
+        return ResultVO.buildSuccess(friendService.rejectFriendRequest(selfId, friendId));
     }
     @GetMapping
     public ResultVO<List<User>> showAllFriend(@RequestParam int userId) {

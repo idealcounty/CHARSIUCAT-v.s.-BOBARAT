@@ -14,4 +14,5 @@ public interface UserService {
     void depositBalance(Integer userId, double amount);
     List<InventoryVO> getInventory(int userId);
     UserVO getUserInformation(int userId);
+    UserVO getUserByPhone(String phone);
 }

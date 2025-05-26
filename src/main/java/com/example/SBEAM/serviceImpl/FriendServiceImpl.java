@@ -14,32 +14,43 @@ public class FriendServiceImpl implements FriendService {
     @Autowired
     UserRepository userRepository;
     @Override
-    public Boolean sendFriendRequest(User self, User friend){
-        for(User friendUser : self.getAlreadyFriends()){
-            if(friendUser.equals(friend)){
-                throw SBEAMException.friendRequestAlreadySend();
+    public Boolean sendFriendRequest(int selfId, int friendId){
+        User self=userRepository.findById(selfId).get();
+        User friend= userRepository.findById(friendId).get();
+        if(self.getId()==friend.getId()){
+            return false;
+        }
+        for(User friendUser : friend.getAlreadyFriends()){
+            if(friendUser.equals(self)){
+                return false;
             }
         }
-        self.getPreparedFriends().add(friend);
+        for(User friendUser : friend.getPreparedFriends()){
+            if(friendUser.equals(self)){
+                return false;
+            }
+        }
         friend.getPreparedFriends().add(self);
         userRepository.save(self);
         userRepository.save(friend);
         return true;
     }
     @Override
-    public Boolean acceptFriendRequest(User self, User friend){
+    public Boolean acceptFriendRequest(int selfId, int friendId){
+        User self=userRepository.findById(selfId).get();
+        User friend= userRepository.findById(friendId).get();
         self.getAlreadyFriends().add(friend);
         friend.getAlreadyFriends().add(self);
         self.getPreparedFriends().remove(friend);
-        self.getPreparedFriends().remove(self);
         userRepository.save(self);
         userRepository.save(friend);
         return true;
     }
     @Override
-    public Boolean rejectFriendRequest(User self, User friend){
-        self.getPreparedFriends().remove(self);
-        self.getPreparedFriends().remove(self);
+    public Boolean rejectFriendRequest(int selfId, int friendId){
+        User self=userRepository.findById(selfId).get();
+        User friend= userRepository.findById(friendId).get();
+        self.getPreparedFriends().remove(friend);
         userRepository.save(self);
         userRepository.save(friend);
         return true;

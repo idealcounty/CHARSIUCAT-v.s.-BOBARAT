@@ -3,6 +3,7 @@ package com.example.SBEAM.serviceImpl;
 import com.example.SBEAM.exception.SBEAMException;
 import com.example.SBEAM.po.CartItem;
 import com.example.SBEAM.po.Message;
+import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.vo.MessageVO;
 import com.example.SBEAM.po.User;
 import com.example.SBEAM.repository.MessageRepository;
@@ -18,11 +19,17 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl implements MessageService {
     @Autowired
     private MessageRepository messageRepository;
-
+    @Autowired
+    private UserRepository userRepository;
     @Override
     public Boolean sendMessage(MessageVO messageVO){
-        User sender = messageVO.getSender();
-        User receiver = messageVO.getReceiver();
+        User Sender = messageVO.getSender();
+        User Receiver = messageVO.getReceiver();
+        User sender =userRepository.findById(Sender.getId()).get();
+        User receiver =userRepository.findById(Receiver.getId()).get();
+        if(sender.getAlreadyFriends()==null){
+            return false;
+        }
         if (!sender.getAlreadyFriends().contains(receiver)) {
             throw SBEAMException.friendNotExist();
         }

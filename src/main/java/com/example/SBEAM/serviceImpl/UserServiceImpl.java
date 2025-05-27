@@ -101,5 +101,10 @@ public class UserServiceImpl implements UserService {
         }
         return user.toVO();
     }
+
+    public UserVO getUserById(int userId) {
+        User user = userRepository.findById(userId).get();
+        return user.toVO();
+    }
 }
 

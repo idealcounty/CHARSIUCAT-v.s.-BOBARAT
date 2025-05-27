@@ -80,9 +80,11 @@ public class User {
     )
     private List<User> preparedFriends;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> sentMessages;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> receivedMessages;
 

@@ -15,4 +15,5 @@ public interface UserService {
     List<InventoryVO> getInventory(int userId);
     UserVO getUserInformation(int userId);
     UserVO getUserByPhone(String phone);
+    UserVO getUserById(int userId);
 }

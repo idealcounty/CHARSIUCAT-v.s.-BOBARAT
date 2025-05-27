@@ -55,4 +55,9 @@ public class UserController {
     public ResultVO<UserVO> searchUser(@PathVariable String userPhone){
         return ResultVO.buildSuccess(userService.getUserByPhone(userPhone));
     }
+
+    @GetMapping("/get/{userId}")
+    public ResultVO<UserVO> searchUser(@PathVariable int userId){
+        return ResultVO.buildSuccess(userService.getUserById(userId));
+    }
 }

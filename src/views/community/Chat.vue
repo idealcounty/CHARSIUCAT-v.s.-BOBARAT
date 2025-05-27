@@ -114,13 +114,17 @@ watch(messages, () => {
     scrollToBottom();
   });
 });
+
+function handleList(){
+  router.push({path: '/friend'});
+}
 </script>
 
 <template>
   <div class="chat-root">
     <!-- 顶部栏 -->
     <div class="chat-header">
-      <button class="friend-list-btn">打开好友列表</button>
+      <button class="friend-list-btn" @click="handleList">打开好友列表</button>
       <div class="chat-title">
         <img :src="friendAvatar" class="avatar" />
         <span class="friend-name">{{ friendName }}</span>

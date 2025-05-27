@@ -66,15 +66,19 @@ const router = createRouter({
     }, {
         path: '/:catchAll(.*)',
         redirect: '/404'
-    },{
+    }, {
         path: '/friend',
         component: () => import('../views/community/Friend.vue'),
         meta: { title: '好友' }
-    },{
+    }, {
         path: '/chat',
         component: () => import('../views/community/Chat.vue'),
         meta: { title: '聊天' }
-    },]
+    }, {
+        path: '/lottery',
+        component: () => import('../views/user/Lottery.vue'),
+        meta: { title: '抽奖' }
+    }]
 })
 
 router.beforeEach((to, _, next) => {

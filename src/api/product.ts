@@ -1,5 +1,5 @@
-import {axios} from '../utils/request'
-import {PRODUCT_MODULE} from './_prefix'
+import { axios } from '../utils/request'
+import { PRODUCT_MODULE } from './_prefix'
 import { CartItem } from './user'
 
 export type ProductInfo = {
@@ -13,7 +13,7 @@ export type ProductInfo = {
     productImages: string[],
 }
 
-export type Cart={
+export type Cart = {
     cartId: number,
     userId: number,
     cartItems: CartItem[],
@@ -22,7 +22,7 @@ export type Cart={
 // 创建商品
 export const createProduct = (productInfo: ProductInfo) => {
     return axios.post(`${PRODUCT_MODULE}/createProduct`, productInfo,
-        {headers: {'Content-Type': 'application/json'}})
+        { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
@@ -47,16 +47,15 @@ export const getProductByProductId = (productId: number) => {
 // 根据商品Id更新商品信息
 export const updateProductByProductId = (productId: number, productInfo: ProductInfo) => {
     return axios.put(`${PRODUCT_MODULE}/productDetail/${productId}`, productInfo,
-        {headers: {'Content-Type': 'application/json'}})
+        { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
 }
 
 export const deleteProductById = (productId: number) => {
-    return axios.delete(`${PRODUCT_MODULE}/deleteProduct`, {
-        data: productId,
-        headers: {'Content-Type': 'application/json'}
+    return axios.delete(`${PRODUCT_MODULE}/deleteProduct/${productId}`, {
+        headers: { 'Content-Type': 'application/json' }
     })
         .then(res => {
             return res
@@ -68,7 +67,7 @@ export const updateCart = (productId: number, numberOfProduct: number, cartVO: C
         `${PRODUCT_MODULE}/productDetail/${productId}/cart?numberOfProduct=${numberOfProduct}`,
         cartVO,
         {
-            headers: {'Content-Type': 'application/json'}
+            headers: { 'Content-Type': 'application/json' }
         }
     );
 };

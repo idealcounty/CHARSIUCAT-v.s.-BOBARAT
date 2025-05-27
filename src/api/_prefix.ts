@@ -16,4 +16,6 @@ export const COMMENT_MODULE = `${API_MODULE}/comment`
 export const FRIEND_MODULE = `${API_MODULE}/friend`
 //聊天模块
 export const MESSAGE_MODULE = `${API_MODULE}/message`
+//抽奖模块
+export const LOTTERY_MODULE = `${API_MODULE}/lottery`
 

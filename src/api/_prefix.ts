@@ -14,4 +14,6 @@ export const ALIPAY_MODULE = `${API_MODULE}/alipay`
 export const COMMENT_MODULE = `${API_MODULE}/comment`
 //好友模块
 export const FRIEND_MODULE = `${API_MODULE}/friend`
+//聊天模块
+export const MESSAGE_MODULE = `${API_MODULE}/message`
 

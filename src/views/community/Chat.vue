@@ -1,14 +1,64 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, watch, nextTick } from "vue";
 import { router } from "../../router";
-import { userInfo } from "../../api/user.ts";
+import { User, userInfo } from "../../api/user.ts";
+import { FriendInfo, GetMessages, messageInfo, SendMessage } from "../../api/message.ts";
 
 const friendId = ref('');
 const userId = ref('');
 const userName = ref('');
 const userAvatar = ref('');
-const friendName = ref('door田van氏'); // 示例
-const friendAvatar = ref('https://avatars.cloudflare.steamstatic.com/1b1e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e2e_full.jpg'); // 示例
+const friendName = ref('');
+const friendAvatar = ref('');
+const self = ref<User>()
+const receiver = ref<User>()
+const messageText = ref('')
+const messages = ref([])
+const messageListRef = ref(null);
+
+// 处理消息列表，添加显示控制
+const processedMessages = computed(() => {
+  if (!messages.value || messages.value.length === 0) return [];
+
+  return messages.value.map((msg, index) => {
+    const prevMsg = messages.value[index - 1];
+    const nextMsg = messages.value[index + 1];
+
+    // 格式化时间为时分秒（HH:MM:SS）
+    const formattedTime = new Date(msg.messageSentTime).toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    // 判断是否需要显示头像和用户名
+    // 如果是第一条消息 或 发送者不同 或 时间间隔超过2分钟，则显示头像和用户名
+    const showHeader = !prevMsg ||
+        prevMsg.sender.id !== msg.sender.id ||
+        (new Date(msg.messageSentTime).getTime() - new Date(prevMsg.messageSentTime).getTime()) > 120000; // 120000ms = 2分钟
+
+    // 判断是否需要显示时间（在连续消息中只在最后一条显示时间）
+    const showTime = !nextMsg ||
+        nextMsg.sender.id !== msg.sender.id ||
+        (new Date(nextMsg.messageSentTime).getTime() - new Date(msg.messageSentTime).getTime()) > 120000;
+
+    return {
+      ...msg,
+      showHeader,
+      showTime,
+      formattedTime,
+      isFirst: showHeader,
+      isLast: showTime
+    };
+  });
+});
+
+// 自动滚动到底部
+const scrollToBottom = () => {
+  if (messageListRef.value) {
+    messageListRef.value.scrollTop = messageListRef.value.scrollHeight;
+  }
+};
 
 async function getUserInfo() {
   const res = await userInfo();
@@ -17,8 +67,17 @@ async function getUserInfo() {
     userId.value = result.id;
     userName.value = result.name;
     userAvatar.value = result.avatar;
-    const queryId = router.currentRoute.value.query.friendId;
-    friendId.value = typeof queryId === 'string' ? queryId : (Array.isArray(queryId) ? (queryId[0] ?? '') : '');
+    self.value = result;
+    friendId.value = router.currentRoute.value.query.friendId;
+    FriendInfo(Number(friendId.value)).then(res => {
+      receiver.value = res.data.result;
+      friendName.value = res.data.result.name;
+      friendAvatar.value = res.data.result.avatar;
+      GetMessages(Number(userId.value), Number(friendId.value)).then(res => {
+        messages.value = res.data.result;
+        scrollToBottom(); // 加载消息后滚动到底部
+      })
+    })
   } else if (res.data.code === '400') {
     console.log('未登录');
   }
@@ -28,15 +87,33 @@ onMounted(async () => {
   await getUserInfo();
 });
 
-// 示例消息
-const messages = ref([
-  { id: 1, user: 'door田van氏', avatar: friendAvatar.value, self: false, text: '打扰直说\n速速上号\n别扯有的没的', time: '21:48' },
-  { id: 2, user: 'y=f（x）', avatar: '', self: true, text: '不学就上号\n3块\n急急急急急急就', time: '21:48' },
-  { id: 3, user: 'door田van氏', avatar: friendAvatar.value, self: false, text: 'No\n大脑需要休息', time: '21:48' },
-  { id: 4, user: 'y=f（x）', avatar: '', self: true, text: '我们随便玩\n不需要大脑\n放空你的大脑\n不用赢', time: '21:49' },
-  { id: 5, user: 'door田van氏', avatar: friendAvatar.value, self: false, text: '你们加油', time: '21:49' },
-  { id: 6, user: 'y=f（x）', avatar: '', self: true, text: '加不了\n火力不够', time: '22:03' },
-]);
+function handleSend() {
+  if (!messageText.value.trim()) return; // 防止发送空消息
+
+  SendMessage({
+    messageContent: messageText.value,
+    sender: self.value,
+    receiver: receiver.value,
+  }).then(res => {
+    console.log(res);
+    messageText.value = "";
+    // 发送消息后刷新消息列表
+    GetMessages(Number(userId.value), Number(friendId.value)).then(res => {
+      messages.value = res.data.result;
+      scrollToBottom(); // 发送消息后滚动到底部
+    });
+  }).catch(error => {
+    console.error('发送消息失败:', error);
+    // 可以添加错误提示
+  })
+}
+
+// 监听消息变化，自动滚动
+watch(messages, () => {
+  nextTick(() => {
+    scrollToBottom();
+  });
+});
 </script>
 
 <template>
@@ -51,23 +128,40 @@ const messages = ref([
     </div>
     <!-- 聊天内容区 -->
     <div class="chat-content">
-      <div class="message-list">
-        <div v-for="msg in messages" :key="msg.id" class="message-item">
-          <img :src="msg.avatar || 'https://community.steamstatic.com/public/images/avatars/ee/eea1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1_full.jpg'" class="msg-avatar" />
-          <div class="msg-bubble">
-            <div class="msg-user">{{ msg.user }}</div>
-            <div class="msg-text" v-html="msg.text.replace(/\n/g, '<br>')"></div>
-            <div class="msg-time">{{ msg.time }}</div>
+      <div class="message-list" ref="messageListRef">
+        <div
+            v-for="msg in processedMessages"
+            :key="msg.id"
+            class="message-item"
+        >
+          <!-- 头像（仅首条消息显示） -->
+          <img
+              v-if="msg.showHeader"
+              :src="msg.sender.avatar || 'https://community.steamstatic.com/public/images/avatars/ee/eea1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1_full.jpg'"
+              class="msg-avatar"
+          />
+
+          <!-- 消息内容 -->
+          <div class="msg-content" :style="{ marginLeft: msg.showHeader ? '0' : '46px' }">
+            <div v-if="msg.showHeader" class="msg-user">{{ msg.sender.name }}</div>
+            <div class="msg-text">{{ msg.messageContent }}</div>
+            <div v-if="msg.showTime" class="msg-time">{{ msg.formattedTime }}</div>
           </div>
         </div>
       </div>
     </div>
     <!-- 底部输入栏 -->
     <div class="chat-input-bar">
+      <input
+          class="chat-input"
+          type="text"
+          placeholder="输入消息..."
+          v-model="messageText"
+          @keyup.enter="handleSend"
+      />
       <button class="icon-btn">😊</button>
       <button class="icon-btn">📎</button>
-      <input class="chat-input" type="text" placeholder="输入消息..." />
-      <button class="send-btn">发送</button>
+      <button class="send-btn" @click="handleSend">发送</button>
     </div>
   </div>
 </template>
@@ -76,10 +170,11 @@ const messages = ref([
 .chat-root {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 104px); /* 减去GlobalHeader高度 */
+  height: calc(100vh - 104px);
   background: #1f2126;
   min-width: 1024px;
 }
+
 .chat-header {
   display: flex;
   align-items: center;
@@ -88,6 +183,7 @@ const messages = ref([
   border-bottom: 2px solid #373b41;
   padding: 0 16px;
 }
+
 .friend-list-btn {
   background: #23262e;
   color: #b8bcbf;
@@ -99,48 +195,53 @@ const messages = ref([
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .friend-list-btn:hover {
   background: #2a2e38;
 }
+
 .chat-title {
   display: flex;
   align-items: center;
 }
+
 .avatar {
   width: 28px;
   height: 28px;
   border-radius: 4px;
   margin-right: 8px;
 }
+
 .friend-name {
   color: #fff;
   font-size: 16px;
   font-weight: bold;
 }
+
 .chat-content {
   flex: 1 1 auto;
   overflow-y: auto;
   padding: 0 0 16px 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
   scrollbar-width: thin;
   scrollbar-color: #23262e #1a2c45;
   border-bottom: 2px solid #373b41;
 }
+
 .message-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1px;
   padding: 0 32px;
   margin-top: 12px;
 }
+
 .message-item {
   display: flex;
-  align-items: flex-start;
   flex-direction: row;
-  gap: 10px;
+  gap: 8px;
+  padding: 1px 0;
 }
+
 .msg-avatar {
   width: 36px;
   height: 36px;
@@ -148,46 +249,37 @@ const messages = ref([
   background: #222c37;
   object-fit: cover;
   margin-top: 2px;
+  flex-shrink: 0;
 }
-.msg-bubble {
-  background: transparent;
-  color: #b8bcbf;
-  border-radius: 0;
-  padding: 0;
-  min-width: 60px;
-  max-width: 420px;
-  word-break: break-all;
-  box-shadow: none;
-  position: relative;
+
+.msg-content {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  gap: 2px;
+  max-width: 420px;
+  word-break: break-all;
 }
+
 .msg-user {
   font-size: 13px;
   color: #6ea9ff;
   margin-bottom: 2px;
-  line-height: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
 }
+
 .msg-text {
   color: #b8bcbf;
   font-size: 15px;
-  margin-bottom: 2px;
-  background: none;
-  border: none;
-  box-shadow: none;
-  padding: 0;
+  line-height: 1.3;
+  padding: 2px 0;
 }
+
 .msg-time {
   font-size: 11px;
   color: #6c7a89;
   text-align: right;
   margin-top: 2px;
-  margin-left: 4px;
 }
+
 .chat-input-bar {
   display: flex;
   align-items: center;
@@ -199,20 +291,7 @@ const messages = ref([
   bottom: 0;
   z-index: 10;
 }
-.icon-btn {
-  background: #23262e;
-  border: none;
-  color: #b8bcbf;
-  font-size: 20px;
-  border-radius: 3px;
-  width: 36px;
-  height: 36px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-.icon-btn:hover {
-  background: #2a2e38;
-}
+
 .chat-input {
   flex: 1;
   background: #1a1d23;
@@ -224,6 +303,23 @@ const messages = ref([
   margin: 0 8px;
   outline: none;
 }
+
+.icon-btn {
+  background: #23262e;
+  border: none;
+  color: #b8bcbf;
+  font-size: 20px;
+  border-radius: 3px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.icon-btn:hover {
+  background: #2a2e38;
+}
+
 .send-btn {
   background: #3b4a5a;
   color: #fff;
@@ -234,7 +330,26 @@ const messages = ref([
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .send-btn:hover {
   background: #4e6a8a;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2126;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #373b41;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #444a54;
 }
 </style>

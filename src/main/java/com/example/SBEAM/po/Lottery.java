@@ -1,4 +1,5 @@
 package com.example.SBEAM.po;
+
 import com.example.SBEAM.vo.LotteryVO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,13 +20,13 @@ public class Lottery {
     private Integer lotteryId;
 
     @Basic
-    @Column(name ="lottery_name")
+    @Column(name = "lottery_name")
     private String lotteryName;
 
     @OneToMany(mappedBy = "lottery", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<LotteryItem> lotteryItems;
-    
-    public LotteryVO toVO(){
+    private List<LotteryItem> lotteryItems = new ArrayList<>();
+
+    public LotteryVO toVO() {
         LotteryVO lotteryVO = new LotteryVO();
         lotteryVO.setLotteryId(lotteryId);
         lotteryVO.setLotteryItems(lotteryItems);

@@ -25,6 +25,7 @@ public class ProductServiceImpl implements ProductService {
     private UserRepository userRepository;
     @Autowired
     private CommentRepository commentRepository;
+
     @Override
     public Boolean createProduct(ProductVO productVO) {
         Product product = productRepository.findByProductId(productVO.getProductId());
@@ -35,6 +36,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(newProduct);
         return true;
     }
+
     @Override
     public List<ProductVO> getAllProductsByStoreId(Integer storeId) {
         Store store = storeRepository.findById(storeId).orElse(null);
@@ -45,15 +47,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductVO> getAllProducts(){
+    public List<ProductVO> getAllProducts() {
         return productRepository.findAll().stream().map(Product::toVO).collect(Collectors.toList());
     }
 
     @Override
-    public List<ProductVO> searchProduct(String productName){
+    public List<ProductVO> searchProduct(String productName) {
         List<Product> list = productRepository.findByProductNameContainingIgnoreCase(productName);
         return list.stream().map(Product::toVO).collect(Collectors.toList());
     }
+
     @Override
     public ProductVO getProductByProductId(Integer productId) {
         return productRepository.findByProductId(productId).toVO();
@@ -73,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean updateProduct(Integer productId,ProductVO productVO){
+    public Boolean updateProduct(Integer productId, ProductVO productVO) {
         Product newProduct = productRepository.findByProductId(productId);
         if (newProduct == null) {
             throw SBEAMException.productNotExists();
@@ -91,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean updateProductAmount(Integer productId,Integer amount){
+    public Boolean updateProductAmount(Integer productId, Integer amount) {
         Product product = productRepository.findByProductId(productId);
         if (product == null) {
             throw SBEAMException.productNotExists();
@@ -102,8 +105,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean updateProductDiscount(Integer productId,Double productDiscount){
-                Product product = productRepository.findByProductId(productId);
+    public Boolean updateProductDiscount(Integer productId, Double productDiscount) {
+        Product product = productRepository.findByProductId(productId);
         if (product == null) {
             throw SBEAMException.productNotExists();
         }
@@ -113,25 +116,65 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Boolean judgeOwnProduct(int productId,int userId){
-        User user =userRepository.findById(userId).get();
-        for(Inventory inventory :user.getInventories()){
-            if(inventory.getProductId().equals(productId)){
+    public Boolean judgeOwnProduct(int productId, int userId) {
+        User user = userRepository.findById(userId).get();
+        for (Inventory inventory : user.getInventories()) {
+            if (inventory.getProductId().equals(productId)) {
                 return true;
             }
         }
         return false;
     }
+
     @Override
-    public  List<CommentVO> getCommentsByProductId(Product product){
-        return commentRepository.findCommentsByProduct(product).stream().map(Comment::toVO).collect(Collectors.toList());
+    public List<CommentVO> getCommentsByProductId(Product product) {
+        return commentRepository.findCommentsByProduct(product).stream().map(Comment::toVO)
+                .collect(Collectors.toList());
     }
+
     @Override
-    public List<CommentVO> getGoodCommentsByProductId(Product product){
-        return commentRepository.findByProductAndCommentScore(product,true).stream().map(Comment::toVO).collect(Collectors.toList());
+    public List<CommentVO> getGoodCommentsByProductId(Product product) {
+        return commentRepository.findByProductAndCommentScore(product, true).stream().map(Comment::toVO)
+                .collect(Collectors.toList());
     }
+
     @Override
-    public List<CommentVO> getBadCommentsByProductId(Product product){
-        return commentRepository.findByProductAndCommentScore(product,false).stream().map(Comment::toVO).collect(Collectors.toList());
+    public List<CommentVO> getBadCommentsByProductId(Product product) {
+        return commentRepository.findByProductAndCommentScore(product, false).stream().map(Comment::toVO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Boolean deductProductStock(Integer productId, Integer quantity) {
+        Product product = productRepository.findByProductId(productId);
+        if (product == null) {
+            return false;
+        }
+        if (product.getProductAmount() < quantity) {
+            return false; // 库存不足
+        }
+        product.setProductAmount(product.getProductAmount() - quantity);
+        productRepository.save(product);
+        return true;
+    }
+
+    @Override
+    public Boolean addProductStock(Integer productId, Integer quantity) {
+        Product product = productRepository.findByProductId(productId);
+        if (product == null) {
+            return false;
+        }
+        product.setProductAmount(product.getProductAmount() + quantity);
+        productRepository.save(product);
+        return true;
+    }
+
+    @Override
+    public Integer checkProductStock(Integer productId, Integer quantity) {
+        Product product = productRepository.findByProductId(productId);
+        if (product == null) {
+            return null;
+        }
+        return product.getProductAmount();
     }
 }

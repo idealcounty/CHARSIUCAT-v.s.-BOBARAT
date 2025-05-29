@@ -12,8 +12,8 @@ import com.example.SBEAM.util.TokenUtil;
 import com.example.SBEAM.vo.InventoryVO;
 import com.example.SBEAM.vo.UserVO;
 import com.example.SBEAM.util.SecurityUtil;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -31,6 +31,8 @@ public class UserServiceImpl implements UserService {
     TokenUtil tokenUtil;
     @Autowired
     SecurityUtil securityUtil;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public Boolean register(UserVO userVO) {
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService {
             throw SBEAMException.phoneAlreadyExists();
         }
         User newUser = userVO.toPO();
+        newUser.setPassword(passwordEncoder.encode(userVO.getPassword()));
         newUser.setCreateTime(new Date());
         newUser = userRepository.save(newUser);
 
@@ -50,10 +53,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String login(String phone, String password) {
-        User user = userRepository.findByPhoneAndPassword(phone, password);
+        User user = userRepository.findByPhone(phone);
         if (user == null) {
             throw SBEAMException.phoneOrPasswordError();
         }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw SBEAMException.phoneOrPasswordError();
+        }
+
         return tokenUtil.getToken(user);
     }
 
@@ -66,7 +74,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public Boolean updateInformation(int userId, UserVO userVO) {
         User user = userRepository.findById(userId).get();
-        user.setPassword(userVO.getPassword());
+
+        // 如果密码不为空且不为null，则进行加密处理
+        if (userVO.getPassword() != null && !userVO.getPassword().trim().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userVO.getPassword()));
+        }
+
         user.setName(userVO.getName());
         user.setAddress(userVO.getAddress());
         user.setAvatar(userVO.getAvatar());

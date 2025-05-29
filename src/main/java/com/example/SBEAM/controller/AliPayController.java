@@ -10,6 +10,8 @@ import com.example.SBEAM.repository.CartRepository;
 import com.example.SBEAM.repository.OrdersRepository;
 import com.example.SBEAM.repository.UserRepository;
 import com.example.SBEAM.repository.LotteryOrderRepository;
+import com.example.SBEAM.repository.ProductRepository;
+import com.example.SBEAM.service.ProductService;
 import com.example.SBEAM.util.AlipayUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,8 @@ public class AliPayController {
     private UserRepository userRepository;
     @Autowired
     private LotteryOrderRepository lotteryOrderRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
     @GetMapping("/pay")
     public void pay(@RequestParam("orderId") int orderId, HttpServletResponse response) throws Exception {
@@ -205,7 +209,7 @@ public class AliPayController {
     }
 
     /**
-     * 处理支付成功的逻辑：添加库存到用户账户、更新订单状态、清空购物车
+     * 处理支付成功的逻辑：扣除商品库存、添加库存到用户账户、更新订单状态、清空购物车
      * 使用订单状态防止重复处理
      */
     private void processPaymentSuccess(Orders order) {
@@ -217,8 +221,16 @@ public class AliPayController {
         Cart cart = cartRepository.findByUserId(order.getUserId());
         User user = userRepository.findById(order.getUserId()).get();
 
-        // 添加商品到用户库存
+        // 扣除商品库存并添加商品到用户库存
         for (CartItem cartItem : cart.getCartItems()) {
+            // 扣除商品库存
+            Product product = productRepository.findByProductId(cartItem.getProductId());
+            if (product != null && product.getProductAmount() >= cartItem.getProductQuantity()) {
+                product.setProductAmount(product.getProductAmount() - cartItem.getProductQuantity());
+                productRepository.save(product);
+            }
+
+            // 添加到用户库存
             Inventory inventory = new Inventory(user, cartItem.getProductId(), cartItem.getProductQuantity(),
                     cartItem.getProductPrice());
             user.getInventories().add(inventory);

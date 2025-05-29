@@ -102,7 +102,7 @@ function logout() {
         </RouterLink>
         <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
         <RouterLink v-if="token" class="menuitem" :class="{ current: current === 4 }" to="/chat">聊天</RouterLink>
-        <RouterLink class="menuitem" :class="{ current: current === 5 }" to="">客服</RouterLink>
+        <RouterLink class="menuitem" :class="{ current: current === 5 }" to="/service">客服</RouterLink>
       </div>
       <div class="actions">
         <div class="action-menu">

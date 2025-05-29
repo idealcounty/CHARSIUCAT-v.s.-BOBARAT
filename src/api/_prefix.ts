@@ -18,4 +18,6 @@ export const FRIEND_MODULE = `${API_MODULE}/friend`
 export const MESSAGE_MODULE = `${API_MODULE}/message`
 //抽奖模块
 export const LOTTERY_MODULE = `${API_MODULE}/lottery`
+//客服模块
+export const CHAT_MODULE = `${API_MODULE}/chat`
 

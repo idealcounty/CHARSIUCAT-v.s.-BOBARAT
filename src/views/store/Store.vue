@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { getAllProducts, ProductInfo } from "../../api/product.ts";
 import { AdvertisementInfo,getAllAdvertisements } from "../../api/advertisement.ts";
 import { userInfo, getUserCart } from "../../api/user.ts";
@@ -12,6 +12,12 @@ const advertisementList = ref<AdvertisementInfo[]>([])
 const current = ref(0)
 const userId = ref(0)
 const wishlistCount = ref(0)
+
+// 自动轮播相关
+const autoPlayTimer = ref<number | null>(null)
+const isTransitioning = ref(false)
+const isScreenshotTransitioning = ref(false)
+const isPreviewTransitioning = ref(false)
 
 // 分页相关变量
 const currentPage = ref(0)
@@ -45,6 +51,84 @@ const goToPage = (page: number) => {
   activeTab.value = 0 // 重置活跃的tab到第一个
 }
 
+// 截图切换函数（带动画）
+const switchToScreenshot = (index: number) => {
+  isScreenshotTransitioning.value = true
+  setTimeout(() => {
+    activeScreenshot.value = index
+    isScreenshotTransitioning.value = false
+  }, 300) // 增加动画持续时间
+}
+
+// 切换回广告图（带动画）
+const switchToAdvertisement = () => {
+  isScreenshotTransitioning.value = true
+  setTimeout(() => {
+    activeScreenshot.value = -1
+    isScreenshotTransitioning.value = false
+  }, 300)
+}
+
+// 商品预览切换函数（带动画）
+const switchToProductPreview = (index: number) => {
+  if (activeTab.value !== index) {
+    // 立即切换活跃项，确保只有一个商品高亮
+    activeTab.value = index
+    
+    // 只为右列预览区域添加渐变动画
+    isPreviewTransitioning.value = true
+    setTimeout(() => {
+      isPreviewTransitioning.value = false
+    }, 250) // 只影响右列预览动画
+  }
+}
+
+// 自动轮播函数
+const startAutoPlay = () => {
+  if (autoPlayTimer.value) {
+    clearInterval(autoPlayTimer.value)
+  }
+  
+  autoPlayTimer.value = setInterval(() => {
+    if (limitedAdvertisementListSize.value > 1) {
+      isTransitioning.value = true
+      setTimeout(() => {
+        current.value = (current.value + 1) % limitedAdvertisementListSize.value
+        isTransitioning.value = false
+      }, 300) // 增加动画持续时间
+    }
+  }, 10000) // 10秒间隔
+}
+
+// 停止自动轮播
+const stopAutoPlay = () => {
+  if (autoPlayTimer.value) {
+    clearInterval(autoPlayTimer.value)
+    autoPlayTimer.value = null
+  }
+}
+
+// 手动切换轮播项（同时重置定时器）
+const manualSwitchTo = (index: number) => {
+  isTransitioning.value = true
+  setTimeout(() => {
+    current.value = index
+    isTransitioning.value = false
+  }, 300)
+  
+  // 重置自动轮播定时器
+  startAutoPlay()
+}
+
+// 手动切换到上一个/下一个
+const switchToPrev = () => {
+  manualSwitchTo((current.value + limitedAdvertisementListSize.value - 1) % limitedAdvertisementListSize.value)
+}
+
+const switchToNext = () => {
+  manualSwitchTo((current.value + 1) % limitedAdvertisementListSize.value)
+}
+
 // 获取愿望单数量
 const getWishlistCount = async () => {
   try {
@@ -59,6 +143,27 @@ const getWishlistCount = async () => {
     wishlistCount.value = 0
   }
 }
+
+onMounted(async () => {
+  await getAllAdvertisements().then(res => {
+    advertisementList.value = res.data.result
+    // 数据加载完成后启动自动轮播
+    if (limitedAdvertisementListSize.value > 1) {
+      startAutoPlay()
+    }
+  })
+
+  await getAllProducts().then(res => {
+    productList.value = res.data.result
+  })
+
+  // 获取愿望单数量
+  await getWishlistCount()
+})
+
+onUnmounted(() => {
+  stopAutoPlay()
+})
 
 getAllAdvertisements().then(res => {
   advertisementList.value = res.data.result
@@ -121,15 +226,16 @@ getWishlistCount()
     <div class="home_cluster_ctn home_ctn">
       <div class="home_page_content">
         <h2 class="home_page_content_title">精选与推荐</h2>
-        <div class="carousel_container maincap">
+        <div class="carousel_container maincap" @mouseenter="stopAutoPlay" @mouseleave="startAutoPlay">
           <div class="carousel_items reponsive_scroll_snap_ctn">
             <router-link
                 :to="{ name:'detail',params:{ product_id:limitedAdvertisementList[current].productId }}"
                 class="store_main_capsule responsive_scroll_snap_start broadcast_capsule app_impression_tracked"
+                :class="{ 'fade-transition': isTransitioning }"
             >
               <div class="capsule main_capsule">
-                <img v-if="activeScreenshot == -1" class="screenshot" :src="limitedAdvertisementList[current].advertisementImageUrl">
-                <img v-else class="screenshot" :src="productList[limitedAdvertisementList[current].productId-1].productImages[activeScreenshot]">
+                <img v-if="activeScreenshot == -1" class="screenshot" :class="{ 'fade-transition': isScreenshotTransitioning }" :src="limitedAdvertisementList[current].advertisementImageUrl">
+                <img v-else class="screenshot" :class="{ 'fade-transition': isScreenshotTransitioning }" :src="productList[limitedAdvertisementList[current].productId-1].productImages[activeScreenshot]">
               </div>
               <div class="info">
                 <div class="app_name">
@@ -139,8 +245,8 @@ getWishlistCount()
                   <div
                       v-for="(img, index) in productList[limitedAdvertisementList[current].productId-1].productImages"
                       :key="index"
-                      @mouseenter="activeScreenshot = index"
-                      @mouseleave="activeScreenshot = -1"
+                      @mouseenter="switchToScreenshot(index)"
+                      @mouseleave="switchToAdvertisement"
                   >
                     <img :src="img">
                   </div>
@@ -170,7 +276,7 @@ getWishlistCount()
             <div
                 v-for="(item, index) in limitedAdvertisementList"
                 :key="index"
-                @click = "current = index"
+                @click="manualSwitchTo(index)"
             >
               <div
                   v-if="current != index"
@@ -182,10 +288,10 @@ getWishlistCount()
               ></div>
             </div>
           </div>
-          <div class="arrow left" @click="current = (current + limitedAdvertisementListSize - 1) % limitedAdvertisementListSize">
+          <div class="arrow left" @click="switchToPrev">
             <div class="left_arrow"></div>
           </div>
-          <div class="arrow right" @click="current = (current + 1) % limitedAdvertisementListSize">
+          <div class="arrow right" @click="switchToNext">
             <div class="right_arrow"></div>
           </div>
         </div>
@@ -209,7 +315,8 @@ getWishlistCount()
               v-for="(product, index) in currentPageProducts"
               :key="index"
               class="tab_item"
-              @mouseenter="activeTab = index"
+              :class="{ 'tab_item_active': activeTab === index }"
+              @mouseenter="switchToProductPreview(index)"
               :to="{ name:'detail',params:{ product_id:product.productId }}"
             >
               <div class="tab_item_cap">
@@ -260,7 +367,7 @@ getWishlistCount()
         </div>
         <div class="home_rightcol">
           <div class="tab_preview_container">
-            <div class="tab_preview">
+            <div class="tab_preview" :class="{ 'preview-transitioning': isPreviewTransitioning }">
               <h2 class="tab_preview_title" v-if="currentPageProducts && currentPageProducts[activeTab]">{{ currentPageProducts[activeTab].productName }}</h2>
               <img
                   v-if="currentPageProducts && currentPageProducts[activeTab]"
@@ -644,6 +751,17 @@ getWishlistCount()
   color: #fff;
   display: flex;
   text-decoration: none;
+  transition: opacity 0.6s ease-in-out;
+}
+
+/* 渐变切换动画 */
+.fade-transition {
+  opacity: 0.3;
+}
+
+/* 轮播容器悬停时暂停自动播放的视觉提示 */
+.carousel_container:hover .store_main_capsule {
+  animation-play-state: paused;
 }
 
 .store_main_capsule .capsule {
@@ -660,12 +778,24 @@ getWishlistCount()
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: transform 0.5s ease;
+}
+
+.store_main_capsule:hover .capsule {
+  transform: scale(1.02);
 }
 
 .capsule > .screenshot {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: opacity 0.6s ease-in-out, transform 0.4s ease;
+}
+
+/* 截图切换动画增强 */
+.capsule > .screenshot.fade-transition {
+  opacity: 0.4;
+  transform: scale(0.98);
 }
 
 .store_main_capsule .info {
@@ -717,10 +847,14 @@ getWishlistCount()
   background-position: center center;
   display: inline-block;
   opacity: 0.6;
+  transition: opacity 0.5s ease, transform 0.4s ease;
+  border-radius: 2px;
+}
 
-  &:hover {
-    opacity: 1;
-  }
+.store_main_capsule .screenshots > div > img:hover {
+  opacity: 1;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .store_main_capsule .reason {
@@ -825,7 +959,7 @@ getWishlistCount()
   width: 15px;
   height: 9px;
   border-radius: 2px;
-  transition: background-color 0.2s;
+  transition: background-color 0.4s ease;
   background-color: hsla(202,60%,100%,0.2);
   cursor: pointer;
 
@@ -840,7 +974,7 @@ getWishlistCount()
   width: 15px;
   height: 9px;
   border-radius: 2px;
-  transition: background-color 0.2s;
+  transition: background-color 0.4s ease;
   background-color: hsla(202,60%,100%,0.4);
   cursor: pointer;
 }
@@ -853,6 +987,7 @@ getWishlistCount()
   padding: 36px 11px;
   cursor: pointer;
   z-index: 3;
+  transition: background 0.4s ease;
 }
 
 .left {
@@ -993,24 +1128,9 @@ getWishlistCount()
   left: 0;
   height: 100%;
   width: 100%;
-
   z-index: -1;
-  transition: width 0s ease;
   border-radius: 8px;
   pointer-events: none;
-}
-
-.tab_item:hover::before {
-  background: linear-gradient(to right, #c6e6f8 5%, #95bcd3 95%);
-  width: 650px;
-}
-
-.tab_item:hover .tab_item_name{
-  color: #10161b;
-}
-
-.tab_item:hover .discount_final_price {
-  color: #263645;
 }
 
 .tab_item_cap_img {
@@ -1024,7 +1144,6 @@ getWishlistCount()
   top: 0;
   z-index: 3;
   line-height: 69px;
-  transition: opacity 0.25s;
 }
 
 img {
@@ -1139,7 +1258,6 @@ img {
   white-space: nowrap;
   display: block;
   overflow: hidden;
-  transition: color 0.25s;
 }
 
 .ds_options {
@@ -1192,6 +1310,7 @@ h2 {
 
   opacity: 1.0;
   pointer-events: auto;
+  transition: opacity 0.5s ease-in-out;
 }
 
 .tab_preview_title {
@@ -1210,20 +1329,45 @@ h2 {
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   unicode-bidi: isolate;
+  transition: opacity 0.4s ease-in-out;
 }
 
-.screenshot {
+.tab_preview .screenshot {
   width: 258px;
   height: 134px;
   margin-top: 3px;
   background-size: cover;
   background-position: center center;
   padding: 8px;
+  transition: opacity 0.4s ease-in-out;
 }
 
 .pagination_thumbs {
   text-align: center;
   min-height: 37px;
   padding: 4px;
+}
+
+.preview-transitioning {
+  opacity: 0.3;
+}
+
+/* 当前活跃商品项的样式 */
+.tab_item_active::before {
+  background: linear-gradient(to right, #c6e6f8 5%, #95bcd3 95%);
+  width: 650px;
+}
+
+.tab_item_active .tab_item_name {
+  color: #10161b;
+}
+
+.tab_item_active .discount_final_price {
+  color: #263645;
+}
+
+/* 未打折商品在活跃状态下的价格样式 */
+.tab_item_active .discount_final_price_nodiscount {
+  color: #000000;
 }
 </style>

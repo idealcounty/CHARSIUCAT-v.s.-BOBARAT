@@ -41,7 +41,6 @@ async function getUserInfo() {
     userAvatar.value = result.avatar
 
     name.value = userName.value
-    password.value = userPassword.value
     address.value = userAddress.value
     AvatarUrl.value = userAvatar.value || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'
   } else if (res.data.code === '400') {
@@ -71,7 +70,7 @@ function handleRemoveAvatar(file: any, fileList: any) {
 
 async function generateAvatarUrl() {
   let formData = new FormData()
-  formData.append('file', AvatarUrlList.value[0].raw)
+  formData.append('file', (AvatarUrlList.value[0] as any).raw)
   const imageResponse = await uploadImage(formData)
   AvatarUrl.value = imageResponse.data.result
   console.log('头像上传返回 URL：', AvatarUrl.value)
@@ -83,12 +82,18 @@ async function handleUpdateUser() {
   }
   console.log(userId.value)
   console.log(name.value,password.value,address.value,AvatarUrl.value)
-  await userInfoUpdate(Number(userId.value),{
+  
+  const updateData: any = {
     name: name.value,
-    password: password.value,
     address: address.value,
     avatar: AvatarUrl.value,
-  }).then(res => {
+  }
+  
+  if (password.value && password.value.trim() !== '') {
+    updateData.password = password.value
+  }
+  
+  await userInfoUpdate(Number(userId.value), updateData).then(res => {
     console.log(res)
     if (res.data.code === '000') {
       ElMessage({
@@ -96,6 +101,7 @@ async function handleUpdateUser() {
         type: 'success',
         center: true,
       })
+      password.value = ''
     } else if (res.data.code === '400') {
       ElMessage({
         message: res.data.msg,
@@ -163,7 +169,7 @@ async function handleUpdateUser() {
                               <span class="DialogInputRequirementLabel"></span>
                             </div>
                             <div class="DialogInput_Wrapper _DialogLayout Panel Focusable">
-                              <input v-model="password" class="DialogInput DialogInputPlaceholder DialogTextInputBase Focusable">
+                              <input v-model="password" type="password" placeholder="输入新密码（留空则不修改）" class="DialogInput DialogInputPlaceholder DialogTextInputBase Focusable">
                             </div>
                           </label>
                           <label>

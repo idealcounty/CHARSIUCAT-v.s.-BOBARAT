@@ -51,7 +51,7 @@ export const drawLottery = (lotteryId: number, userId: number) => {
         }
     }).then(res => {
         return res
-    })
+    });
 }
 
 // 获取所有奖池列表
@@ -96,3 +96,44 @@ export const updateLotteryName = (lotteryId: number, newName: string) => {
         return res
     })
 } 
+
+const ALIPAY_MODULE = "/api/alipay";
+
+export interface LotteryItem {
+    lotteryItemId?: number;
+    productId: number;
+    productQuantity: number;
+    productValue?: number;
+    lotteryItemProbability?: number;
+}
+
+export interface Lottery {
+    lotteryId: number;
+    lotteryName: string;
+    lotteryItems: LotteryItem[];
+}
+
+// 创建抽奖次数订单
+export const createLotteryOrder = (userId: number, lotteryChancesCount: number) => {
+    const totalPrice = lotteryChancesCount * 17; // 17元一次
+    return axios.post(`${LOTTERY_MODULE}/createOrder`, {
+        userId,
+        lotteryChancesCount,
+        totalPrice
+    });
+};
+
+// 抽奖次数支付
+export const goToLotteryPayment = (lotteryOrderId: number) => {
+    return axios.get(`${ALIPAY_MODULE}/payLottery`, {
+        params: { lotteryOrderId },
+        headers: { 'Content-Type': 'application/json' }
+    }).then(res => {
+        window.open(`http://localhost:8080${ALIPAY_MODULE}/payLottery?lotteryOrderId=${lotteryOrderId}`)
+    })
+};
+
+// 获取抽奖次数订单状态
+export const getLotteryOrderStatus = (lotteryOrderId: number) => {
+    return axios.get(`${LOTTERY_MODULE}/orderStatus/${lotteryOrderId}`);
+}; 

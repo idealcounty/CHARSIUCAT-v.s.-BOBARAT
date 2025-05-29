@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {onMounted, ref} from "vue";
-import {userInfo,getInventory,InventoryInfo} from "../../api/user.ts";
+import {userInfo,getInventory,InventoryInfo,getUserGameCount} from "../../api/user.ts";
 import {getProductByProductId} from "../../api/product.ts";
 
 const userId = ref(0)
@@ -20,6 +20,7 @@ const address = ref('')
 const AvatarUrl = ref('')
 const inventory = ref<InventoryInfo[]>([])
 const gameList = ref<any[]>([])
+const gameCount = ref(0)
 
 async function getUserInfo() {
   const res = await userInfo()
@@ -57,15 +58,29 @@ async function getProductLogo(productId: number) {
   return res.data.result.productLogo
 }
 
+// 获取用户游戏种类数量
+async function getGameCount() {
+  try {
+    const res = await getUserGameCount(userId.value)
+    if (res.data.code === '000') {
+      gameCount.value = res.data.result
+    }
+  } catch (error) {
+    console.error('获取游戏种类数量失败:', error)
+  }
+}
+
 onMounted(async () => {
   await getUserInfo()
+  await getGameCount()
   const res = await getInventory(userId.value)
   const rawInventory = res.data.result
 
-  // 统计每个 productId 的出现次数
+  // 统计每个 productId 的总数量（累加 productQuantity）
   const countMap = new Map<number, number>()
   rawInventory.forEach((item) => {
-    countMap.set(item.productId, (countMap.get(item.productId) || 0) + 1)
+    const currentCount = countMap.get(item.productId) || 0
+    countMap.set(item.productId, currentCount + item.productQuantity)
   })
 
   // 去重并获取产品信息
@@ -107,7 +122,7 @@ onMounted(async () => {
         <div class="gamelist Panel Focusable">
           <div class="sectionTabs item responsive_tab_ctn sharedfiles_responsive_tab">
             <div class="sectionTab active">
-              <span>拥有游戏总数: (57)</span>
+              <span>拥有游戏总数: ({{ gameCount }})</span>
             </div>
           </div>
           <div class="responsive_tab_baseline baseline"></div>

@@ -1,5 +1,5 @@
-import {axios} from '../utils/request'
-import {USER_MODULE} from './_prefix'
+import { axios } from '../utils/request'
+import { USER_MODULE } from './_prefix'
 
 type LoginInfo = {
     phone: string,
@@ -39,15 +39,15 @@ export type InventoryInfo = {
     productPrice: number,
 }
 
-export type User ={
+export type User = {
     id: number,
     name: string,
 }
 
-// 如果有“Vue: This may be converted to an async function”警告，可以不管
+// 如果有"Vue: This may be converted to an async function"警告，可以不管
 // 用户登录
 export const userLogin = (loginInfo: LoginInfo) => {
-    return axios.post(`${USER_MODULE}/login`, null, {params: loginInfo})
+    return axios.post(`${USER_MODULE}/login`, null, { params: loginInfo })
         .then(res => {
             return res
         })
@@ -56,7 +56,7 @@ export const userLogin = (loginInfo: LoginInfo) => {
 // 用户注册
 export const userRegister = (registerInfo: RegisterInfo) => {
     return axios.post(`${USER_MODULE}/register`, registerInfo,
-        {headers: {'Content-Type': 'application/json'}})
+        { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
@@ -80,7 +80,7 @@ export const getUserByUserId = (userId: number) => {
 // 更新用户信息
 export const userInfoUpdate = (userId: number, updateInfo: UpdateInfo) => {
     return axios.post(`${USER_MODULE}/${userId}`, updateInfo,
-        {headers: {'Content-Type': 'application/json'}})
+        { headers: { 'Content-Type': 'application/json' } })
         .then(res => {
             return res
         })
@@ -103,6 +103,14 @@ export const getUserCartVO = (userId: number) => {
 
 export const getInventory = (userId: number) => {
     return axios.get(`${USER_MODULE}/${userId}/Inventory`)
+        .then(res => {
+            return res
+        })
+}
+
+// 获取用户库存游戏种类数量
+export const getUserGameCount = (userId: number) => {
+    return axios.get(`${USER_MODULE}/${userId}/gameCount`)
         .then(res => {
             return res
         })

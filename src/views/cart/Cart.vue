@@ -47,7 +47,6 @@ const checkOrderStatus = (id: string) => {
   getOrderStatus(parseInt(id)).then(res => {
     if (res.data && res.data.result) {
       orderStatus.value = res.data.result;
-      console.log(orderStatus.value)
       // 如果状态不是PENDING，停止轮询
       if (orderStatus.value !== 'PENDING') {
         stopPollingOrderStatus();
@@ -90,7 +89,6 @@ const purchaseItems = () => {
         return
     }
     createOrder(userId.value, cart.value).then(res => {
-        console.log(res)
         orderId.value = res.data.result.ordersId
         goToPayment(orderId.value).then(() => {
           // 开始轮询订单状态
@@ -105,7 +103,6 @@ const getUserInfo = async () => {
     userId.value = res.data.result.id
     getUserCartVO(parseInt(userId.value)).then(res=>{
       cart.value = res.data.result
-    //   console.log(cart.value)
     })
     getUserCart(parseInt(userId.value)).then(res => {
       wishlistItem.value = res.data
@@ -119,7 +116,7 @@ const getUserInfo = async () => {
           if (cartItem) {
             // 添加productQuantity属性
             // @ts-ignore - 忽略TypeScript错误
-            product.productQuantity = cartItem.productAmount || 1
+            product.productQuantity = cartItem.productQuantity || 1
           }
           return product
         })

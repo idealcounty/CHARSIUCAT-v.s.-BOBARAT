@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { getLotteryList, drawLottery } from '../../api/lottery.ts'
 import { getAllProducts } from '../../api/product.ts'
+import { userInfo } from '../../api/user.ts'
+import { router } from '../../router/index.ts'
 import { ElMessage } from 'element-plus'
 
 // 定义类型接口
@@ -35,15 +37,16 @@ const isDrawing = ref(false)
 const drawResult = ref<LotteryItem | null>(null)
 const showResult = ref(false)
 
-// 模拟用户ID（实际项目中应该从用户状态获取）
 const userId = ref(1)
+const userName = ref('')
+const lotteryChances = ref(0)
 
 // 抽奖动画相关
 const spinAngle = ref(0)
-const animationDuration = ref(3000)
+const animationDuration = ref(4000)
 
 // 轮盘相关
-const hoveredSector = ref(-1)
+const finalRotation = ref(0) // 最终旋转角度
 
 // 获取所有商品
 async function fetchProducts() {
@@ -76,12 +79,20 @@ function selectLottery(lottery: Lottery) {
   selectedLottery.value = lottery
   drawResult.value = null
   showResult.value = false
+  spinAngle.value = 0
+  finalRotation.value = 0
 }
 
 // 执行抽奖
 async function handleDraw() {
   if (!selectedLottery.value) {
     ElMessage.warning('请先选择一个奖池')
+    return
+  }
+
+  // 检查抽奖次数
+  if (lotteryChances.value <= 0) {
+    ElMessage.warning('抽奖次数不足，请先购买抽奖次数')
     return
   }
 
@@ -92,27 +103,8 @@ async function handleDraw() {
   isDrawing.value = true
   showResult.value = false
   
-  // 开始旋转动画
-  const startTime = Date.now()
-  const targetAngle = 360 * 5 + Math.random() * 360 // 旋转5圈加随机角度
-  
-  const animate = () => {
-    const elapsed = Date.now() - startTime
-    const progress = Math.min(elapsed / animationDuration.value, 1)
-    
-    // 使用缓动函数
-    const easeOut = 1 - Math.pow(1 - progress, 3)
-    spinAngle.value = targetAngle * easeOut
-    
-    if (progress < 1) {
-      requestAnimationFrame(animate)
-    } else {
-      // 动画结束，执行抽奖
-      performDraw()
-    }
-  }
-  
-  requestAnimationFrame(animate)
+  // 直接执行抽奖API调用
+  performDraw()
 }
 
 // 实际执行抽奖API调用
@@ -123,20 +115,73 @@ async function performDraw() {
     if (res.data.code === '000') {
       drawResult.value = res.data.result
       
-      // 延迟显示结果，增加悬念
-      setTimeout(async () => {
-        showResult.value = true
-        isDrawing.value = false
+      // 抽奖成功后减少抽奖次数
+      lotteryChances.value = Math.max(0, lotteryChances.value - 1)
+      
+      // 计算指针应该指向的角度
+      let targetAngle = 0
+      if (drawResult.value) {
+        // 直接通过productId查找中奖扇形
+        const targetProductId = drawResult.value.productId
+        const sectors = getSectorData(selectedLottery.value!)
+        const winningSector = sectors.find(s => s.type === 'prize' && s.item?.productId === targetProductId)
         
-        if (drawResult.value) {
-          ElMessage.success('恭喜中奖！')
+        if (winningSector) {
+          // 计算扇形中心角度
+          targetAngle = (winningSector.startAngle + winningSector.endAngle) / 2
         } else {
-          ElMessage.info('很遗憾，没有中奖，再试一次吧！')
+          // 没中奖，指向空白区域
+          targetAngle = getEmptySectorAngle()
         }
+      } else {
+        // 没中奖，指向空白区域
+        targetAngle = getEmptySectorAngle()
+      }
+      
+      // 计算精确的旋转角度
+      const extraRotations = 360 * 4
+      let rotationNeeded = (270 - targetAngle + 360) % 360
+      finalRotation.value = extraRotations + rotationNeeded
+      
+      // 执行旋转动画到精确位置
+      const startAngle = spinAngle.value
+      const targetFinalAngle = finalRotation.value
+      const startTime = Date.now()
+      
+      const animateToResult = () => {
+        const elapsed = Date.now() - startTime
+        const progress = Math.min(elapsed / animationDuration.value, 1)
         
-        // 刷新奖池数据（因为奖品数量可能已减少）
-        await refreshCurrentLottery()
-      }, 500)
+        // 使用缓动函数让动画更自然
+        const easeOut = 1 - Math.pow(1 - progress, 3)
+        spinAngle.value = startAngle + (targetFinalAngle - startAngle) * easeOut
+        
+        if (progress < 1) {
+          requestAnimationFrame(animateToResult)
+        } else {
+          // 确保最终停在精确位置
+          spinAngle.value = targetFinalAngle
+          
+          // 动画结束后延迟显示结果
+          setTimeout(async () => {
+            showResult.value = true
+            isDrawing.value = false
+            
+            if (drawResult.value) {
+              ElMessage.success('恭喜中奖！')
+            } else {
+              ElMessage.info('很遗憾，没有中奖，再试一次吧！')
+            }
+            
+            // 刷新奖池数据（因为奖品数量可能已减少）
+            await refreshCurrentLottery()
+            // 刷新用户信息获取最新的抽奖次数
+            await fetchUserInfo()
+          }, 500)
+        }
+      }
+      
+      requestAnimationFrame(animateToResult)
     } else {
       ElMessage.error('抽奖失败，请重试')
       isDrawing.value = false
@@ -186,6 +231,7 @@ async function drawAgain() {
   drawResult.value = null
   showResult.value = false
   spinAngle.value = 0
+  finalRotation.value = 0
   
   // 刷新当前奖池数据，确保显示最新的奖品信息
   await refreshCurrentLottery()
@@ -210,55 +256,134 @@ const getTotalWinProbability = (lottery: Lottery) => {
   }, 0)
 }
 
-// 生成SVG扇形路径
-const getSectorPath = (index: number, totalItems: number) => {
+// 获取扇形数据（包括空白区域）
+const getSectorData = (lottery: Lottery) => {
+  const sectors = []
+  let currentAngle = 0
+  
+  // 添加奖品扇形
+  for (let i = 0; i < lottery.lotteryItems.length; i++) {
+    const item = lottery.lotteryItems[i]
+    const probability = item.lotteryItemProbability || 0
+    const angle = Number((probability * 360).toFixed(6))
+    const endAngle = currentAngle + angle
+    
+    sectors.push({
+      type: 'prize',
+      item,
+      startAngle: currentAngle,
+      endAngle: endAngle,
+      angle: angle,
+      productId: item.productId
+    })
+    
+    currentAngle = endAngle
+  }
+  
+  // 添加空白区域（未中奖区域）
+  const totalWinProbability = getTotalWinProbability(lottery)
+  const emptyProbability = Number((1 - totalWinProbability).toFixed(6))
+  if (emptyProbability > 0.000001) {
+    const emptyAngle = Number((emptyProbability * 360).toFixed(6))
+    const endAngle = currentAngle + emptyAngle
+    
+    sectors.push({
+      type: 'empty',
+      item: null,
+      startAngle: currentAngle,
+      endAngle: endAngle,
+      angle: emptyAngle
+    })
+  }
+  
+  return sectors
+}
+
+// 根据概率生成SVG扇形路径
+const getProbabilitySectorPath = (startAngle: number, endAngle: number) => {
   const centerX = 200
   const centerY = 200
   const radius = 180
   
-  // 特殊处理：只有一个奖品时，创建完整的圆
-  if (totalItems === 1) {
-    return `M ${centerX} ${centerY} m -${radius}, 0 a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+  // 处理跨越360度边界的情况
+  let actualEndAngle = endAngle
+  if (startAngle > endAngle) {
+    actualEndAngle = endAngle + 360
   }
   
-  const anglePerSector = 360 / totalItems
-  const startAngle = index * anglePerSector
-  const endAngle = (index + 1) * anglePerSector
-  
+  // 转换为弧度
   const startAngleRad = (startAngle * Math.PI) / 180
-  const endAngleRad = (endAngle * Math.PI) / 180
+  const endAngleRad = (actualEndAngle * Math.PI) / 180
   
   const x1 = centerX + radius * Math.cos(startAngleRad)
   const y1 = centerY + radius * Math.sin(startAngleRad)
   const x2 = centerX + radius * Math.cos(endAngleRad)
   const y2 = centerY + radius * Math.sin(endAngleRad)
   
-  const largeArcFlag = anglePerSector > 180 ? 1 : 0
+  const largeArcFlag = (actualEndAngle - startAngle) > 180 ? 1 : 0
   
   return `M ${centerX} ${centerY} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
 }
 
-// 计算扇形内容的变换位置
-const getSectorContentTransform = (index: number, totalItems: number) => {
-  // 特殊处理：只有一个奖品时，显示在轮盘中央
-  if (totalItems === 1) {
-    return `translate(200, 200)`
+// 计算扇形文字位置
+const getSectorTextTransform = (startAngle: number, endAngle: number) => {
+  const centerX = 200
+  const centerY = 200
+  const radius = 120 // 文字距离中心的距离
+  
+  // 处理跨越360度边界的情况
+  let actualEndAngle = endAngle
+  if (startAngle > endAngle) {
+    actualEndAngle = endAngle + 360
   }
   
-  const anglePerSector = 360 / totalItems
-  const angle = index * anglePerSector + anglePerSector / 2
-  const radius = 120 // 内容距离中心的距离
+  // 计算扇形的中心角度
+  const midAngle = (startAngle + actualEndAngle) / 2
+  // 转换为弧度
+  const midAngleRad = (midAngle * Math.PI) / 180
   
-  const angleRad = (angle * Math.PI) / 180
-  const x = 200 + radius * Math.cos(angleRad)
-  const y = 200 + radius * Math.sin(angleRad)
+  const x = centerX + radius * Math.cos(midAngleRad)
+  const y = centerY + radius * Math.sin(midAngleRad)
   
   return `translate(${x}, ${y})`
+}
+
+// 获取空白区域的中心角度
+const getEmptySectorAngle = () => {
+  if (!selectedLottery.value) return 0
+  const sectors = getSectorData(selectedLottery.value)
+  const emptySector = sectors.find(s => s.type === 'empty')
+  if (emptySector) {
+    const centerAngle = (emptySector.startAngle + emptySector.endAngle) / 2
+    return centerAngle
+  }
+  return 0
+}
+
+// 获取用户信息
+async function fetchUserInfo() {
+  try {
+    const res = await userInfo()
+    if (res.data.code === '000') {
+      const result = res.data.result
+      userId.value = result.id
+      userName.value = result.name
+      lotteryChances.value = result.lotteryChances || 0
+    }
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+  }
+}
+
+// 跳转到购买抽奖次数页面
+function goToBuyChances() {
+  router.push('/lottery/buy-chances')
 }
 
 onMounted(async () => {
   await fetchProducts()
   await fetchLotteryList()
+  await fetchUserInfo()
 })
 </script>
 
@@ -269,6 +394,23 @@ onMounted(async () => {
       <div class="steam-lottery-header">
         <h1 class="steam-lottery-title">🎰 Steam 抽奖中心</h1>
         <p class="steam-lottery-subtitle">选择您喜欢的奖池，试试运气吧！</p>
+      </div>
+
+      <!-- 用户抽奖次数信息 -->
+      <div class="user-chances-info">
+        <div class="chances-display">
+          <div class="chances-icon">🎫</div>
+          <div class="chances-content">
+            <div class="chances-label">当前抽奖次数</div>
+            <div class="chances-count">{{ lotteryChances }} 次</div>
+          </div>
+        </div>
+        <div class="buy-chances-section">
+          <button class="buy-chances-btn" @click="goToBuyChances">
+            💰 购买抽奖次数
+          </button>
+          <div class="price-hint">¥17/次</div>
+        </div>
       </div>
 
       <!-- 奖池选择区域 -->
@@ -340,67 +482,74 @@ onMounted(async () => {
             <!-- 定义渐变 -->
             <defs>
               <radialGradient 
-                v-for="(item, index) in selectedLottery.lotteryItems" 
+                v-for="(sector, index) in getSectorData(selectedLottery)" 
                 :key="`gradient-${index}`"
                 :id="`gradient-${index}`"
                 cx="50%" cy="30%" r="70%">
-                <stop offset="0%" :stop-color="`hsl(${(360 / selectedLottery.lotteryItems.length) * index}, 70%, 60%)`" />
-                <stop offset="100%" :stop-color="`hsl(${(360 / selectedLottery.lotteryItems.length) * index}, 70%, 40%)`" />
+                <stop v-if="sector.type === 'prize'" offset="0%" :stop-color="`hsl(${(360 / getSectorData(selectedLottery).length) * index}, 70%, 60%)`" />
+                <stop v-if="sector.type === 'prize'" offset="100%" :stop-color="`hsl(${(360 / getSectorData(selectedLottery).length) * index}, 70%, 40%)`" />
+                <stop v-if="sector.type === 'empty'" offset="0%" stop-color="#2a3f5a" />
+                <stop v-if="sector.type === 'empty'" offset="100%" stop-color="#1b2838" />
               </radialGradient>
             </defs>
             
             <!-- 轮盘扇形 -->
-            <g v-for="(item, index) in selectedLottery.lotteryItems" :key="`wheel-${item.lotteryItemId || item.productId}-${index}`">
+            <g v-for="(sector, index) in getSectorData(selectedLottery)" :key="`wheel-sector-${index}`">
               <!-- 扇形路径 -->
               <path 
-                :d="getSectorPath(index, selectedLottery.lotteryItems.length)"
+                :d="getProbabilitySectorPath(sector.startAngle, sector.endAngle)"
                 :fill="`url(#gradient-${index})`"
                 :stroke="'rgba(255, 255, 255, 0.4)'"
                 stroke-width="2"
                 class="steam-wheel-sector"
-                @mouseover="hoveredSector = index"
-                @mouseleave="hoveredSector = -1"
-                :class="{ 'hovered': hoveredSector === index }"
               />
               
-              <!-- 奖品内容 -->
-              <g :transform="getSectorContentTransform(index, selectedLottery.lotteryItems.length)">
-                <!-- 商品图片 -->
-                <foreignObject 
-                  :x="selectedLottery.lotteryItems.length === 1 ? -40 : -20" 
-                  :y="selectedLottery.lotteryItems.length === 1 ? -50 : -35" 
-                  :width="selectedLottery.lotteryItems.length === 1 ? 80 : 40" 
-                  :height="selectedLottery.lotteryItems.length === 1 ? 80 : 40">
-                  <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
-                    <img 
-                      :src="getProduct(item.productId)?.productLogo" 
-                      :alt="getProduct(item.productId)?.productName"
-                      class="steam-wheel-image"
-                      :style="`width: ${selectedLottery.lotteryItems.length === 1 ? '72px' : '36px'}; height: ${selectedLottery.lotteryItems.length === 1 ? '72px' : '36px'}; border-radius: 6px; border: 3px solid rgba(255,255,255,0.8); object-fit: cover;`">
-                  </div>
-                </foreignObject>
-                
-                <!-- 商品名称 -->
+              <!-- 奖品名称（只显示文字，从中心往外） -->
+              <g v-if="sector.type === 'prize' && sector.item" :transform="getSectorTextTransform(sector.startAngle, sector.endAngle)">
+                <!-- 奖品名称文字 -->
                 <text 
                   x="0" 
-                  :y="selectedLottery.lotteryItems.length === 1 ? 40 : 20" 
+                  y="0" 
                   text-anchor="middle" 
                   class="steam-wheel-name"
                   fill="white"
-                  :font-size="selectedLottery.lotteryItems.length === 1 ? '14' : '10'"
+                  font-size="12"
                   font-weight="bold">
-                  {{ selectedLottery.lotteryItems.length === 1 ? getProduct(item.productId)?.productName : (getProduct(item.productId)?.productName?.substring(0, 8) || '') + ((getProduct(item.productId)?.productName?.length || 0) > 8 ? '...' : '') }}
+                  {{ getProduct(sector.item.productId)?.productName || '未知奖品' }}
                 </text>
                 
-                <!-- 数量 -->
+                <!-- 概率显示 -->
                 <text 
                   x="0" 
-                  :y="selectedLottery.lotteryItems.length === 1 ? 60 : 35" 
+                  y="15" 
                   text-anchor="middle" 
-                  class="steam-wheel-quantity"
-                  fill="rgba(255,255,255,0.9)"
-                  :font-size="selectedLottery.lotteryItems.length === 1 ? '12' : '8'">
-                  x{{ item.productQuantity }}
+                  class="steam-wheel-probability"
+                  fill="rgba(255,255,255,0.8)"
+                  font-size="10">
+                  {{ ((sector.item.lotteryItemProbability || 0) * 100).toFixed(1) }}%
+                </text>
+              </g>
+              
+              <!-- 空白区域提示 -->
+              <g v-if="sector.type === 'empty'" :transform="getSectorTextTransform(sector.startAngle, sector.endAngle)">
+                <text 
+                  x="0" 
+                  y="0" 
+                  text-anchor="middle" 
+                  class="steam-wheel-empty"
+                  fill="rgba(255,255,255,0.6)"
+                  font-size="14"
+                  font-weight="bold">
+                  未中奖
+                </text>
+                <text 
+                  x="0" 
+                  y="15" 
+                  text-anchor="middle" 
+                  class="steam-wheel-probability"
+                  fill="rgba(255,255,255,0.5)"
+                  font-size="10">
+                  {{ (sector.angle / 360 * 100).toFixed(1) }}%
                 </text>
               </g>
             </g>
@@ -553,6 +702,80 @@ onMounted(async () => {
   font-size: 24px;
   margin-bottom: 20px;
   font-weight: normal;
+  text-align: center;
+}
+
+/* 用户抽奖次数信息 */
+.user-chances-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(90deg, rgba(103, 193, 245, 0.1) 0%, rgba(67, 133, 245, 0.1) 100%);
+  border-radius: 10px;
+  border: 1px solid rgba(103, 193, 245, 0.2);
+  padding: 20px;
+  margin-bottom: 40px;
+}
+
+.chances-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.chances-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px rgba(103, 193, 245, 0.5));
+}
+
+.chances-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.chances-label {
+  color: #8f98a0;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.chances-count {
+  color: #67c1f5;
+  font-size: 24px;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(103, 193, 245, 0.5);
+}
+
+.buy-chances-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.buy-chances-btn {
+  background: linear-gradient(90deg, #6bbb1a 0%, #4e8a13 100%);
+  border: 2px solid #6bbb1a;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.buy-chances-btn:hover {
+  background: linear-gradient(90deg, #7dd629 0%, #5e9a1b 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(107, 187, 26, 0.4);
+}
+
+.price-hint {
+  color: #8f98a0;
+  font-size: 12px;
   text-align: center;
 }
 
@@ -717,7 +940,6 @@ onMounted(async () => {
   position: relative;
   border: 4px solid #67c1f5;
   box-shadow: 0 0 30px rgba(103, 193, 245, 0.5);
-  transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
   background: #1b2838;
 }
 
@@ -735,6 +957,18 @@ onMounted(async () => {
 
 /* SVG文本样式 */
 .steam-wheel-name {
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  dominant-baseline: middle;
+}
+
+.steam-wheel-probability {
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+  dominant-baseline: middle;
+}
+
+.steam-wheel-empty {
   font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
   dominant-baseline: middle;

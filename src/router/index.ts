@@ -78,6 +78,10 @@ const router = createRouter({
         path: '/lottery',
         component: () => import('../views/user/Lottery.vue'),
         meta: { title: '抽奖' }
+    }, {
+        path: '/lottery/buy-chances',
+        component: () => import('../views/lottery/BuyChances.vue'),
+        meta: { title: '购买抽奖次数' }
     }]
 })
 

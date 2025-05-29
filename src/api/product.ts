@@ -44,6 +44,16 @@ export const getProductByProductId = (productId: number) => {
         })
 }
 
+// 搜索商品
+export const searchProducts = (productName: string) => {
+    return axios.get(`${PRODUCT_MODULE}/search`, {
+        params: { productName }
+    })
+        .then(res => {
+            return res
+        })
+}
+
 // 根据商品Id更新商品信息
 export const updateProductByProductId = (productId: number, productInfo: ProductInfo) => {
     return axios.put(`${PRODUCT_MODULE}/productDetail/${productId}`, productInfo,
@@ -74,6 +84,30 @@ export const updateCart = (productId: number, numberOfProduct: number, cartVO: C
 
 export const productExists = (productId: number, cartId: number) => {
     return axios.post(`${PRODUCT_MODULE}/productDetail/${productId}/${cartId}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 扣除商品库存
+export const deductProductStock = (productId: number, quantity: number) => {
+    return axios.put(`${PRODUCT_MODULE}/deductStock/${productId}?quantity=${quantity}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 增加商品库存
+export const addProductStock = (productId: number, quantity: number) => {
+    return axios.put(`${PRODUCT_MODULE}/addStock/${productId}?quantity=${quantity}`)
+        .then(res => {
+            return res
+        })
+}
+
+// 检查商品库存是否足够
+export const checkProductStock = (productId: number, quantity: number) => {
+    return axios.get(`${PRODUCT_MODULE}/checkStock/${productId}?quantity=${quantity}`)
         .then(res => {
             return res
         })

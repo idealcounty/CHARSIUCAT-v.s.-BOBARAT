@@ -1,24 +1,75 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { getAllProducts, ProductInfo } from "../../api/product.ts";
 import { AdvertisementInfo,getAllAdvertisements } from "../../api/advertisement.ts";
+import { userInfo, getUserCart } from "../../api/user.ts";
 
 const currentHour = ref(new Date().getHours())
 const activeTab = ref(0)
 const activeScreenshot = ref(-1)
 const productList = ref<ProductInfo[]>([])
 const advertisementList = ref<AdvertisementInfo[]>([])
-const advertisementListsz = ref(0)
 const current = ref(0)
+const userId = ref(0)
+const wishlistCount = ref(0)
+
+// 分页相关变量
+const currentPage = ref(0)
+const pageSize = 10
+
+// 计算属性：限制精选与推荐最多显示10个商品
+const limitedAdvertisementList = computed(() => {
+  return advertisementList.value.slice(0, 10)
+})
+
+// 计算属性：限制后的广告列表长度
+const limitedAdvertisementListSize = computed(() => {
+  return limitedAdvertisementList.value.length
+})
+
+// 计算属性：总页数
+const totalPages = computed(() => {
+  return Math.ceil(productList.value.length / pageSize)
+})
+
+// 计算属性：当前页的商品列表
+const currentPageProducts = computed(() => {
+  const start = currentPage.value * pageSize
+  const end = start + pageSize
+  return productList.value.slice(start, end)
+})
+
+// 分页函数
+const goToPage = (page: number) => {
+  currentPage.value = page
+  activeTab.value = 0 // 重置活跃的tab到第一个
+}
+
+// 获取愿望单数量
+const getWishlistCount = async () => {
+  try {
+    const userRes = await userInfo()
+    if (userRes.data.code === '000') {
+      userId.value = userRes.data.result.id
+      const res = await getUserCart(userId.value)
+      wishlistCount.value = res.data.length
+    }
+  } catch (error) {
+    console.error('获取愿望单数量失败:', error)
+    wishlistCount.value = 0
+  }
+}
 
 getAllAdvertisements().then(res => {
   advertisementList.value = res.data.result
-  advertisementListsz.value = advertisementList.value.length
 })
 
 getAllProducts().then(res => {
   productList.value = res.data.result
 })
+
+// 获取愿望单数量
+getWishlistCount()
 </script>
 
 <template>
@@ -35,7 +86,7 @@ getAllProducts().then(res => {
               <div class="store_header_btn_caps store_header_btn_leftcap"></div>
               <div class="store_header_btn_caps store_header_btn_rightcap"></div>
               <router-link class="store_header_btn_content" to="/wishlist">
-                愿望单（24）
+                愿望单（{{ wishlistCount }}）
               </router-link>
             </div>
           </div>
@@ -73,20 +124,20 @@ getAllProducts().then(res => {
         <div class="carousel_container maincap">
           <div class="carousel_items reponsive_scroll_snap_ctn">
             <router-link
-                :to="{ name:'detail',params:{ product_id:advertisementList[current].productId }}"
+                :to="{ name:'detail',params:{ product_id:limitedAdvertisementList[current].productId }}"
                 class="store_main_capsule responsive_scroll_snap_start broadcast_capsule app_impression_tracked"
             >
               <div class="capsule main_capsule">
-                <img v-if="activeScreenshot == -1" class="screenshot" :src="advertisementList[current].advertisementImageUrl">
-                <img v-else class="screenshot" :src="productList[advertisementList[current].productId-1].productImages[activeScreenshot]">
+                <img v-if="activeScreenshot == -1" class="screenshot" :src="limitedAdvertisementList[current].advertisementImageUrl">
+                <img v-else class="screenshot" :src="productList[limitedAdvertisementList[current].productId-1].productImages[activeScreenshot]">
               </div>
               <div class="info">
                 <div class="app_name">
-                  <div>{{ productList[advertisementList[current].productId-1].productName }}</div>
+                  <div>{{ productList[limitedAdvertisementList[current].productId-1].productName }}</div>
                 </div>
                 <div class="screenshots">
                   <div
-                      v-for="(img, index) in productList[advertisementList[current].productId-1].productImages"
+                      v-for="(img, index) in productList[limitedAdvertisementList[current].productId-1].productImages"
                       :key="index"
                       @mouseenter="activeScreenshot = index"
                       @mouseleave="activeScreenshot = -1"
@@ -94,20 +145,20 @@ getAllProducts().then(res => {
                     <img :src="img">
                   </div>
                 </div>
-                <div class="reason">{{ advertisementList[current].advertisementContent }}</div>
-                <div v-if="productList[advertisementList[current].productId-1].productDiscount == 0">
+                <div class="reason">{{ limitedAdvertisementList[current].advertisementContent }}</div>
+                <div v-if="productList[limitedAdvertisementList[current].productId-1].productDiscount == 0">
                   <div class="discount_block_ca discount_block_inline_ca">
                     <div class="discount_prices_ca">
-                      <div class="discount_final_price_ca_nodiscount">¥ {{ (productList[advertisementList[current].productId-1].productPrice * (1 - productList[advertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
+                      <div class="discount_final_price_ca_nodiscount">¥ {{ (productList[limitedAdvertisementList[current].productId-1].productPrice * (1 - productList[limitedAdvertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
                 <div v-else>
                   <div class="discount_block_ca discount_block_inline_ca" style="display: flex; ">
-                    <div class="discount_pct_ca">-{{ productList[advertisementList[current].productId-1].productDiscount }}%</div>
+                    <div class="discount_pct_ca">-{{ productList[limitedAdvertisementList[current].productId-1].productDiscount }}%</div>
                     <div class="discount_prices_cap">
-                      <div class="discount_original_price_ca">¥ {{ productList[advertisementList[current].productId-1].productPrice.toFixed(2) }}</div>
-                      <div class="discount_final_price_ca">¥ {{ (productList[advertisementList[current].productId-1].productPrice * (1 - productList[advertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
+                      <div class="discount_original_price_ca">¥ {{ productList[limitedAdvertisementList[current].productId-1].productPrice.toFixed(2) }}</div>
+                      <div class="discount_final_price_ca">¥ {{ (productList[limitedAdvertisementList[current].productId-1].productPrice * (1 - productList[limitedAdvertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
                     </div>
                   </div>
                 </div>
@@ -117,7 +168,7 @@ getAllProducts().then(res => {
           </div>
           <div class="carousel_thumbs" style="display: flex; justify-content: center;">
             <div
-                v-for="(item, index) in advertisementList"
+                v-for="(item, index) in limitedAdvertisementList"
                 :key="index"
                 @click = "current = index"
             >
@@ -131,10 +182,10 @@ getAllProducts().then(res => {
               ></div>
             </div>
           </div>
-          <div class="arrow left" @click="current = (current + advertisementListsz - 1) % advertisementListsz">
+          <div class="arrow left" @click="current = (current + limitedAdvertisementListSize - 1) % limitedAdvertisementListSize">
             <div class="left_arrow"></div>
           </div>
-          <div class="arrow right" @click="current = (current + 1) % advertisementListsz">
+          <div class="arrow right" @click="current = (current + 1) % limitedAdvertisementListSize">
             <div class="right_arrow"></div>
           </div>
         </div>
@@ -155,7 +206,7 @@ getAllProducts().then(res => {
         <div class="home_leftcol home_tab_col">
           <div class="home_tabs_content">
             <router-link
-              v-for="(product, index) in productList"
+              v-for="(product, index) in currentPageProducts"
               :key="index"
               class="tab_item"
               @mouseenter="activeTab = index"
@@ -189,14 +240,31 @@ getAllProducts().then(res => {
               <div class="ds_options"><div></div></div>
             </router-link>
           </div>
+          <!-- 分页按钮 -->
+          <div v-if="productList.length > pageSize" class="pagination_thumbs" style="display: flex; justify-content: center; margin-top: 20px;">
+            <div
+                v-for="(page, index) in totalPages"
+                :key="index"
+                @click="goToPage(index)"
+            >
+              <div
+                  v-if="currentPage !== index"
+                  class="thumbs"
+              ></div>
+              <div
+                  v-if="currentPage === index"
+                  class="thumbs_focus"
+              ></div>
+            </div>
+          </div>
         </div>
         <div class="home_rightcol">
           <div class="tab_preview_container">
             <div class="tab_preview">
-              <h2 class="tab_preview_title" v-if="productList && productList[activeTab]">{{ productList[activeTab].productName }}</h2>
+              <h2 class="tab_preview_title" v-if="currentPageProducts && currentPageProducts[activeTab]">{{ currentPageProducts[activeTab].productName }}</h2>
               <img
-                  v-if="productList && productList[activeTab]"
-                  v-for="(img, i) in productList[activeTab].productImages"
+                  v-if="currentPageProducts && currentPageProducts[activeTab]"
+                  v-for="(img, i) in currentPageProducts[activeTab].productImages"
                   :key="i"
                   class="screenshot"
                   :src="img"
@@ -1151,5 +1219,11 @@ h2 {
   background-size: cover;
   background-position: center center;
   padding: 8px;
+}
+
+.pagination_thumbs {
+  text-align: center;
+  min-height: 37px;
+  padding: 4px;
 }
 </style>

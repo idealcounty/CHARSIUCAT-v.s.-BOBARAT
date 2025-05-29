@@ -25,7 +25,7 @@ const router = createRouter({
     }, {
         path: '/admin',
         component: () => import('../views/admin/Administrator.vue'),
-        meta: { title: '管理商品' },
+        meta: { title: '管理商品', permission: ['STAFF'] },
     }, {
         path: '/profile/:user_id',
         name: 'profile',
@@ -33,28 +33,28 @@ const router = createRouter({
     }, {
         path: '/createProduct',
         component: () => import('../views/admin/CreateProduct.vue'),
-        meta: { title: '创建商品' }
+        meta: { title: '创建商品', permission: ['STAFF'] }
     }, {
         path: '/updateProduct/:product_id',
         component: () => import('../views/admin/UpdateProduct.vue'),
-        meta: { title: '更新商品信息' }
+        meta: { title: '更新商品信息', permission: ['STAFF'] }
     }, {
         path: '/createAdvertisement',
         component: () => import('../views/admin/CreateAdvertisement.vue'),
-        meta: { title: '创建商品' }
+        meta: { title: '创建广告', permission: ['STAFF'] }
     }, {
         path: '/updateAdvertisement/:advertisement_id',
         name: 'updateAdvertisement',
         component: () => import('../views/admin/UpdateAdvertisement.vue'),
-        meta: { title: '更新广告信息' }
+        meta: { title: '更新广告信息', permission: ['STAFF'] }
     }, {
         path: '/updateLottery',
         component: () => import('../views/admin/UpdateLottery.vue'),
-        meta: { title: '抽奖管理' }
+        meta: { title: '抽奖管理', permission: ['STAFF'] }
     }, {
         path: '/wishlist',
         component: () => import('../views/user/WishList.vue'),
-        meta: { title: '创建商品' }
+        meta: { title: '愿望单' }
     }, {
         path: '/cart',
         component: () => import('../views/cart/Cart.vue'),
@@ -82,6 +82,10 @@ const router = createRouter({
         path: '/lottery/buy-chances',
         component: () => import('../views/lottery/BuyChances.vue'),
         meta: { title: '购买抽奖次数' }
+    }, {
+        path: '/service',
+        component: () => import('../views/community/Service.vue'),
+        meta: { title: '客服' }
     }]
 })
 

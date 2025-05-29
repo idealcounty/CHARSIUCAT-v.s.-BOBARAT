@@ -75,7 +75,7 @@ function JumpToRegister() {
           <!--密码-->
           <div class="password">
             <div class="password-label">密码</div>
-            <input v-model="password" class="password-input" name="password" @input="clearErrMsg()">
+            <input v-model="password" type="password" class="password-input" name="password" @input="clearErrMsg()">
             <!--错误提示-->
             <div class="error-message">{{ errMsg }}</div>
           </div>

@@ -2,7 +2,7 @@
 import { onMounted, computed, ref, watch, nextTick } from "vue";
 import { router } from "../../router";
 import { Cart, getProductByProductId, updateCart, productExists } from "../../api/product.ts";
-import { CartItem, getUserCartVO, userInfo, getUserByUserId, getInventory } from "../../api/user.ts";
+import { CartItem, getUserCartVO, userInfo, getUserByUserId, getInventory, getUserCart, getUserGameCount } from "../../api/user.ts";
 import { makeComment, getCommentsByProductId, getGoodCommentsByProductId, getBadCommentsByProductId, commentInfo } from "../../api/comment.ts";
 
 type displayCommentInfo = commentInfo & {
@@ -15,6 +15,7 @@ const token = ref(false)
 const userId = ref(0)
 const userAvatar = ref('')
 const userInventory = ref()
+const wishlistCount = ref(0)
 
 const product_id = router.currentRoute.value.params.product_id;
 const productVO = ref();
@@ -66,8 +67,22 @@ async function getUserInfo() {
     const result = res.data.result
     userId.value = result.id
     userAvatar.value = result.avatar
+    // 获取愿望单数量
+    getWishlistCount()
   } else if (res.data.code === '400') {
     console.log('未登录')
+  }
+}
+
+const getWishlistCount = async () => {
+  try {
+    if (userId.value) {
+      const res = await getUserCart(userId.value)
+      wishlistCount.value = res.data.length
+    }
+  } catch (error) {
+    console.error('获取愿望单数量失败:', error)
+    wishlistCount.value = 0
   }
 }
 
@@ -131,7 +146,7 @@ const toggleExpand_short = (index) => {
   expanded_short.value[index] = !expanded_short.value[index];
 };
 
-const fetchCommentsByType = async (type) => {
+const fetchCommentsByType = async (type: any) => {
   try {
     let commentRes;
 
@@ -146,15 +161,15 @@ const fetchCommentsByType = async (type) => {
     console.log(commentRes);
 
     const rawComments = commentRes.data.result;
-    const userCache = {};
+    const userCache: any = {};
     const enrichedComments = await Promise.all(
-        rawComments.map(async (comment) => {
+        rawComments.map(async (comment: any) => {
           if (!userCache[comment.userId]) {
             const userRes = await getUserByUserId(comment.userId);
-            const inventoryRes = await getInventory(comment.userId);
+            const gameCountRes = await getUserGameCount(comment.userId);
             userCache[comment.userId] = {
               ...userRes.data.result,
-              inventorySize: inventoryRes.data.result.length
+              inventorySize: gameCountRes.data.result
             };
           }
           const user = userCache[comment.userId];
@@ -162,7 +177,7 @@ const fetchCommentsByType = async (type) => {
             ...comment,
             userAvatar: user.avatar,
             userName: user.name,
-            userInventorySize: user.inventorySize, // 👈 新增字段
+            userInventorySize: user.inventorySize,
           };
         })
     );
@@ -249,6 +264,8 @@ function addToCart(product_id:number,now_cart: Cart) {
         type: 'success',
         center: true,
       })
+      // 刷新愿望单数量
+      getWishlistCount()
     }
     existsResult.value = true;
   })
@@ -262,6 +279,8 @@ function deleteToCart(product_id:number,now_cart: Cart) {
         type: 'success',
         center: true,
       })
+      // 刷新愿望单数量
+      getWishlistCount()
     }
   })
   existsResult.value = false;
@@ -323,7 +342,7 @@ function handleComment(){
               <div class="store_header_btn_caps store_header_btn_leftcap"></div>
               <div class="store_header_btn_caps store_header_btn_rightcap"></div>
               <router-link class="store_header_btn_content" to="/wishlist">
-                愿望单（24)
+                愿望单（{{ wishlistCount }})
               </router-link>
             </div>
           </div>

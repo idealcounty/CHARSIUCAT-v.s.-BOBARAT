@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import {onMounted, ref} from "vue";
+import {onMounted, ref, computed} from "vue";
 import {userInfo,getInventory,InventoryInfo,getUserGameCount} from "../../api/user.ts";
-import {getProductByProductId} from "../../api/product.ts";
+import {getProductByProductId, searchProducts} from "../../api/product.ts";
 
 const userId = ref(0)
 const userName = ref('')
@@ -20,7 +20,41 @@ const address = ref('')
 const AvatarUrl = ref('')
 const inventory = ref<InventoryInfo[]>([])
 const gameList = ref<any[]>([])
+const allGameList = ref<any[]>([]) // 存储所有游戏数据
 const gameCount = ref(0)
+const searchKeyword = ref('') // 搜索关键词
+
+// 计算属性：根据搜索关键词过滤游戏列表
+const filteredGameList = computed(() => {
+  if (!searchKeyword.value.trim()) {
+    return allGameList.value
+  }
+  return allGameList.value.filter(game => 
+    game.productName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+  )
+})
+
+// 搜索功能
+async function searchGames() {
+  if (!searchKeyword.value.trim()) {
+    gameList.value = allGameList.value
+    return
+  }
+  
+  try {
+    // 从用户库存中搜索匹配的游戏
+    gameList.value = allGameList.value.filter(game => 
+      game.productName.toLowerCase().includes(searchKeyword.value.toLowerCase())
+    )
+  } catch (error) {
+    console.error('搜索游戏失败:', error)
+  }
+}
+
+// 实时搜索：监听搜索关键词变化
+function onSearchInput() {
+  searchGames()
+}
 
 async function getUserInfo() {
   const res = await userInfo()
@@ -78,14 +112,14 @@ onMounted(async () => {
 
   // 统计每个 productId 的总数量（累加 productQuantity）
   const countMap = new Map<number, number>()
-  rawInventory.forEach((item) => {
+  rawInventory.forEach((item: InventoryInfo) => {
     const currentCount = countMap.get(item.productId) || 0
     countMap.set(item.productId, currentCount + item.productQuantity)
   })
 
   // 去重并获取产品信息
   const uniqueProductIds = Array.from(countMap.keys())
-  gameList.value = await Promise.all(
+  allGameList.value = await Promise.all(
       uniqueProductIds.map(async (productId) => {
         const res = await getProductByProductId(productId)
         const product = res.data.result
@@ -97,6 +131,7 @@ onMounted(async () => {
         }
       })
   )
+  gameList.value = [...allGameList.value] // 初始化gameList
 })
 
 
@@ -128,7 +163,7 @@ onMounted(async () => {
           <div class="responsive_tab_baseline baseline"></div>
           <div class="gamelist-nav">
             <div class="search">
-              <input placeholder="寻找游戏" value>
+              <input placeholder="寻找游戏" v-model="searchKeyword" @input="onSearchInput">
               <div class="search-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none"><path d="M27.5 24C29.4972 21.1283 30.3471 17.6129 29.8823 14.146C29.4174 10.679 27.6716 7.5117 24.9884 5.26751C22.3052 3.02332 18.8792 1.86488 15.3846 2.02023C11.8901 2.17559 8.58036 3.63349 6.10692 6.10692C3.63349 8.58036 2.17559 11.8901 2.02023 15.3846C1.86488 18.8792 3.02332 22.3052 5.26751 24.9884C7.5117 27.6716 10.679 29.4174 14.146 29.8823C17.6129 30.3471 21.1283 29.4972 24 27.5L30.26 33.77L30.62 33.41L33.44 30.59L33.8 30.23L27.5 24ZM16 25C14.22 25 12.4799 24.4722 10.9999 23.4832C9.51983 22.4943 8.36628 21.0887 7.68509 19.4442C7.0039 17.7996 6.82567 15.99 7.17294 14.2442C7.52021 12.4984 8.37737 10.8947 9.63605 9.63605C10.8947 8.37737 12.4984 7.52021 14.2442 7.17294C15.99 6.82567 17.7996 7.0039 19.4442 7.68509C21.0887 8.36628 22.4943 9.51983 23.4832 10.9999C24.4722 12.4799 25 14.22 25 16C25 18.387 24.0518 20.6761 22.364 22.364C20.6761 24.0518 18.387 25 16 25Z" fill="#969696"></path></svg>
               </div>
@@ -137,7 +172,7 @@ onMounted(async () => {
           <div class="games Panel Focusable" style="height: 1650px;">
             <div
                 class="game"
-                v-for="(game, index) in gameList"
+                v-for="(game, index) in filteredGameList"
                 :key="game.productId"
             >
               <div class="game-ctn" tabindex="0" role="button">

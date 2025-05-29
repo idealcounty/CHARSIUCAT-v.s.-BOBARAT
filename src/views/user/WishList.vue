@@ -147,9 +147,10 @@ const jumpToCart = () => {
           </div>
           <div class="item-price-action">
             <div class="item-price-container">
-              <div class="discount_original_price">¥{{ item.productPrice }}</div>
+              <div v-if="item.productDiscount > 0" class="discount_original_price">¥{{ item.productPrice }}</div>
               <div class="price-and-quantity">
-                <div class="discount_final_price">¥{{ item.productPrice*(1-0.01*item.productDiscount) }}</div>
+                <div v-if="item.productDiscount > 0" class="discount_final_price">¥{{ (item.productPrice*(1-0.01*item.productDiscount)).toFixed(2) }}</div>
+                <div v-else class="normal_price">¥{{ item.productPrice.toFixed(2) }}</div>
                 <div class="item—quantity">数量：{{ wishlistItem[index].productQuantity }}</div>
               </div>
             </div>
@@ -335,6 +336,10 @@ const jumpToCart = () => {
 .discount_final_price {
   color: #BEEE11;
   line-height: 16px;
+  font-size: 15px;
+}
+.normal_price {
+  color: #ffffff;
   font-size: 15px;
 }
 .item—quantity {

@@ -8,6 +8,7 @@ const route = useRoute()
 const storeMenuLocked = ref(false)
 const mineMenuLocked = ref(false)
 const actionMenuLocked = ref(false)
+const adminMenuLocked = ref(false)
 
 const userId = ref('')
 const userName = ref('')
@@ -87,7 +88,16 @@ function logout() {
             <RouterLink class="store_item" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
           </div>
         </RouterLink>
-        <RouterLink class="menuitem supernav" :class="{ current: current === 1 }" to="/community">社区</RouterLink>
+        <RouterLink class="menuitem supernav" :class="{ current: current === 1 }" to="/friend">社区</RouterLink>
+        <RouterLink v-if="userRole === 'STAFF'" class="menuitem supernav admin" :class="{ current: current === 6 }" to="/admin" @click="adminMenuLocked = true" @mouseenter="adminMenuLocked = false">
+          管理
+          <div v-show="!adminMenuLocked" class="submenu_Admin">
+            <RouterLink class="admin_item" to="/admin" @click="adminMenuLocked = true">商品管理</RouterLink>
+            <RouterLink class="admin_item" to="/createProduct" @click="adminMenuLocked = true">创建商品</RouterLink>
+            <RouterLink class="admin_item" to="/createAdvertisement" @click="adminMenuLocked = true">创建广告</RouterLink>
+            <RouterLink class="admin_item" to="/updateLottery" @click="adminMenuLocked = true">抽奖管理</RouterLink>
+          </div>
+        </RouterLink>
         <RouterLink v-if="token" class="menuitem supernav nickname profile" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
           {{ userName }}
           <div v-show="!mineMenuLocked" class="submenu_Profile">
@@ -98,6 +108,7 @@ function logout() {
             >个人资料</RouterLink>
             <RouterLink class="profile_item" to="/friend" @click="mineMenuLocked = true">好友</RouterLink>
             <RouterLink class="profile_item" to="/games" @click="mineMenuLocked = true">游戏</RouterLink>
+            <RouterLink class="profile_item" to="/lottery" @click="mineMenuLocked = true">抽奖</RouterLink>
           </div>
         </RouterLink>
         <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
@@ -211,6 +222,13 @@ function logout() {
   }
 }
 
+.admin {
+  &:hover>.submenu_Admin {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
 .submenu_Store {
   width: 78px;
   position: absolute;
@@ -247,6 +265,24 @@ function logout() {
   }
 }
 
+.submenu_Admin {
+  width: 92.7px;
+  position: absolute;
+  z-index: 1900;
+  left: 0px;
+  top: 30px;
+  opacity: 0;
+  pointer-events: none;
+  background: #3D4450;
+  box-shadow: 3px 3px 5px -3px #000;
+  text-align: left;
+  transition: opacity 0.2s;
+  &:hover {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
 .store_item {
   width: 78px;
   text-decoration: none;
@@ -264,6 +300,22 @@ function logout() {
 }
 
 .profile_item {
+  width: 92.7px;
+  text-decoration: none;
+  text-transform: none;
+  font-size: 12px;
+  color: #dcdedf;
+  display: inline-block;
+  padding: 6px 15px;
+  text-align: left;
+  box-sizing: border-box;
+  &:hover {
+    color: #171a21;
+    background-color: #dcdedf;
+  }
+}
+
+.admin_item {
   width: 92.7px;
   text-decoration: none;
   text-transform: none;

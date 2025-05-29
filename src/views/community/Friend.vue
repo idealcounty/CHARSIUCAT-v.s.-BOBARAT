@@ -133,7 +133,7 @@ function rejectRequest(friendId: Number) {
           <div class="friends_header_avatar">
             <a href="">
               <img
-                  :src="userAvatar"
+                  :src="userAvatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'"
                   class="avatar-image"
               >
             </a>
@@ -260,7 +260,7 @@ function rejectRequest(friendId: Number) {
               >
                 <div class="friend_avatar">
                   <img
-                      :src="friend.avatar || 'https://picsum.photos/200/200'"
+                      :src="friend.avatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'"
                       alt="friend avatar"
                       class="avatar-small"
                   >
@@ -309,7 +309,7 @@ function rejectRequest(friendId: Number) {
           <div v-if="showSearchResults" class="search-results">
             <div class="add-friend-item">
               <div class="friend_avatar">
-                <img :src="searchResult.avatar || 'https://picsum.photos/200/200'" alt="avatar" class="avatar-small">
+                <img :src="searchResult.avatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'" alt="avatar" class="avatar-small">
               </div>
               <div class="friend_info">
                 <div class="friend_name">
@@ -342,7 +342,7 @@ function rejectRequest(friendId: Number) {
             >
               <div class="friend_avatar">
                 <img
-                    :src="request.avatar || 'https://picsum.photos/200/200'"
+                    :src="request.avatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'"
                     alt="avatar"
                     class="avatar-small"
                 >

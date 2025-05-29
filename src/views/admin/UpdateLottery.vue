@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { createLottery, getLotteryList, addLotteryItem, createLotteryItem, deleteLottery, removeLotteryItemFromLottery, updateLotteryName } from '../../api/lottery.ts'
-import { getAllProducts } from '../../api/product.ts'
+import { getAllProducts, checkProductStock, deductProductStock, addProductStock } from '../../api/product.ts'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 // 定义类型接口
@@ -136,6 +136,18 @@ async function handleCreateLottery() {
   
   loading.value = true
   try {
+    // 先检查所有商品库存
+    if (createForm.value.selectedProducts.length > 0) {
+      for (const item of createForm.value.selectedProducts) {
+        const stockRes = await checkProductStock(item.productId, item.quantity)
+        if (stockRes.data.code !== '000') {
+          const product = getProduct(item.productId)
+          ElMessage.error(`商品"${product?.productName}"库存不足，当前库存：${stockRes.data.result || 0}，需要：${item.quantity}`)
+          return
+        }
+      }
+    }
+    
     // 创建奖池
     const createRes = await createLottery(createForm.value.lotteryName)
     if (createRes.data.code !== '000') {
@@ -146,23 +158,40 @@ async function handleCreateLottery() {
     // 直接使用返回的奖池对象
     const newLottery = createRes.data.result
     
-    // 如果有选中的商品，则添加到奖池
+    // 如果有选中的商品，则添加到奖池并扣除库存
     if (createForm.value.selectedProducts.length > 0) {
       let successCount = 0
       for (const item of createForm.value.selectedProducts) {
         try {
+          // 先扣除库存
+          const deductRes = await deductProductStock(item.productId, item.quantity)
+          if (deductRes.data.code !== '000') {
+            ElMessage.error(`扣除商品库存失败: ${deductRes.data.message}`)
+            continue
+          }
+          
           const createItemRes = await createLotteryItem(item.productId, item.quantity)
           if (createItemRes.data.code === '000' && createItemRes.data.result) {
             const addRes = await addLotteryItem(newLottery.lotteryId, createItemRes.data.result)
             if (addRes.data.code === '000') {
               successCount++
             } else {
+              // 添加失败，返还库存
+              await addProductStock(item.productId, item.quantity)
               console.error(`添加商品失败: ${addRes.data.message}`)
             }
           } else {
+            // 创建失败，返还库存
+            await addProductStock(item.productId, item.quantity)
             console.error(`创建商品失败: ${createItemRes.data.message || '商品不存在'}`)
           }
         } catch (itemError) {
+          // 发生错误，返还库存
+          try {
+            await addProductStock(item.productId, item.quantity)
+          } catch (e) {
+            console.error('返还库存失败:', e)
+          }
           console.error('添加商品时出错:', itemError)
         }
       }
@@ -237,10 +266,26 @@ async function handleRemoveItem(lotteryId: number, itemId: number) {
     })
     
     loading.value = true
+    
+    // 找到要删除的商品信息
+    const itemToRemove = selectedLottery.value?.lotteryItems.find(item => item.lotteryItemId === itemId)
+    if (!itemToRemove) {
+      ElMessage.error('找不到要删除的商品')
+      return
+    }
+    
     const res = await removeLotteryItemFromLottery(lotteryId, itemId)
     
     if (res.data.code === '000') {
-      ElMessage.success('商品移除成功')
+      // 删除成功，返还库存
+      try {
+        await addProductStock(itemToRemove.productId, itemToRemove.productQuantity)
+        ElMessage.success('商品移除成功，库存已返还')
+      } catch (stockError) {
+        console.error('返还库存失败:', stockError)
+        ElMessage.warning('商品移除成功，但返还库存失败')
+      }
+      
       await fetchLotteryList()
       // 更新当前选中的奖池数据
       if (selectedLottery.value) {
@@ -303,9 +348,28 @@ async function addItemToLottery() {
     return
   }
   
+  const productId = addItemForm.value.productId
+  const quantity = addItemForm.value.quantity
+  
   try {
     loading.value = true
-    const createItemRes = await createLotteryItem(addItemForm.value.productId, addItemForm.value.quantity)
+    
+    // 先检查库存
+    const stockRes = await checkProductStock(productId, quantity)
+    if (stockRes.data.code !== '000') {
+      const product = getProduct(productId)
+      ElMessage.error(`商品"${product?.productName}"库存不足，当前库存：${stockRes.data.result || 0}，需要：${quantity}`)
+      return
+    }
+    
+    // 扣除库存
+    const deductRes = await deductProductStock(productId, quantity)
+    if (deductRes.data.code !== '000') {
+      ElMessage.error(`扣除商品库存失败: ${deductRes.data.message}`)
+      return
+    }
+    
+    const createItemRes = await createLotteryItem(productId, quantity)
     
     if (createItemRes.data.code === '000' && createItemRes.data.result) {
       const addRes = await addLotteryItem(selectedLottery.value.lotteryId, createItemRes.data.result)
@@ -316,12 +380,22 @@ async function addItemToLottery() {
         selectedLottery.value = lotteryList.value.find(l => l.lotteryId === selectedLottery.value!.lotteryId) || null
         addItemForm.value = { productId: null, quantity: 1 }
       } else {
+        // 添加失败，返还库存
+        await addProductStock(productId, quantity)
         ElMessage.error('添加失败')
       }
     } else {
+      // 创建失败，返还库存
+      await addProductStock(productId, quantity)
       ElMessage.error('商品不存在或创建失败')
     }
   } catch (error: any) {
+    // 发生错误，尝试返还库存
+    try {
+      await addProductStock(productId, quantity)
+    } catch (stockError) {
+      console.error('返还库存失败:', stockError)
+    }
     console.error('添加商品失败:', error)
     ElMessage.error('添加商品失败')
   } finally {
@@ -1092,5 +1166,107 @@ onMounted(async () => {
   .steam-lottery-grid {
     grid-template-columns: 1fr;
   }
+}
+</style>
+
+<style>
+/* Steam风格确认框样式 - 全局样式 */
+.steam-message-box {
+  background-color: #1b2838 !important;
+  border: 1px solid #316282 !important;
+  border-radius: 3px !important;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.8) !important;
+}
+
+.steam-message-box .el-message-box__header {
+  background: linear-gradient(90deg, #356480 0%, #1e3b4b 100%) !important;
+  padding: 15px 20px !important;
+  border-bottom: 1px solid #316282 !important;
+  border-radius: 3px 3px 0 0 !important;
+}
+
+.steam-message-box .el-message-box__title {
+  color: #ffffff !important;
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: normal !important;
+}
+
+.steam-message-box .el-message-box__content {
+  background-color: #1b2838 !important;
+  padding: 20px !important;
+  color: #c7d5e0 !important;
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif !important;
+}
+
+.steam-message-box .el-message-box__message {
+  color: #c7d5e0 !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.steam-message-box .el-message-box__btns {
+  background-color: #1b2838 !important;
+  padding: 15px 20px !important;
+  border-top: 1px solid #316282 !important;
+  text-align: right !important;
+  border-radius: 0 0 3px 3px !important;
+}
+
+.steam-confirm-btn {
+  background: linear-gradient(90deg, #c15755 0%, #a04543 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  padding: 8px 16px !important;
+  border-radius: 2px !important;
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  margin-left: 10px !important;
+  transition: all 0.2s ease !important;
+}
+
+.steam-confirm-btn:hover {
+  background: linear-gradient(90deg, #d66862 0%, #b85450 100%) !important;
+}
+
+.steam-cancel-btn {
+  background: linear-gradient(90deg, #3c6c8c 0%, #2b5069 100%) !important;
+  border: none !important;
+  color: #c7d5e0 !important;
+  padding: 8px 16px !important;
+  border-radius: 2px !important;
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif !important;
+  font-size: 14px !important;
+  transition: all 0.2s ease !important;
+}
+
+.steam-cancel-btn:hover {
+  background: linear-gradient(90deg, #4e85ab 0%, #3a6a8a 100%) !important;
+  color: #ffffff !important;
+}
+
+.steam-message-box .el-message-box__close {
+  color: #67c1f5 !important;
+  font-size: 18px !important;
+}
+
+.steam-message-box .el-message-box__close:hover {
+  color: #00aff0 !important;
+}
+
+/* 警告图标样式 */
+.steam-message-box .el-message-box__status {
+  color: #ffcb41 !important;
+  font-size: 24px !important;
+}
+
+/* 对话框遮罩层 */
+.el-overlay .steam-message-box {
+  background-color: #1b2838 !important;
+}
+
+/* 确保遮罩层样式 */
+.el-overlay {
+  backdrop-filter: blur(2px) !important;
 }
 </style>

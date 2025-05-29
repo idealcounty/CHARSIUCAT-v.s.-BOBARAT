@@ -126,7 +126,7 @@ function handleList(){
     <div class="chat-header">
       <button class="friend-list-btn" @click="handleList">打开好友列表</button>
       <div class="chat-title">
-        <img :src="friendAvatar" class="avatar" />
+        <img :src="friendAvatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'" class="avatar" />
         <span class="friend-name">{{ friendName }}</span>
       </div>
     </div>
@@ -141,7 +141,7 @@ function handleList(){
           <!-- 头像（仅首条消息显示） -->
           <img
               v-if="msg.showHeader"
-              :src="msg.sender.avatar || 'https://community.steamstatic.com/public/images/avatars/ee/eea1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1_full.jpg'"
+              :src="msg.sender.avatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'"
               class="msg-avatar"
           />
 

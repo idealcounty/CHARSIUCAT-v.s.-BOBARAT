@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { router } from '../../router/index.ts';
 import { getUserCart, CartItem, userInfo, getUserCartVO } from "../../api/user.ts";
-import { Cart, getProductByProductId, ProductInfo } from "../../api/product.ts";
+import { Cart, getProductByProductId, ProductInfo, checkProductStock } from "../../api/product.ts";
 import { createOrder, goToPayment } from '../../api/alipay.ts';
 import { getOrderStatus } from '../../api/alipay.ts';
 
@@ -71,7 +71,7 @@ const retryPayment = () => {
   }
 };
 
-const purchaseItems = () => {
+const purchaseItems = async () => {
     if (selectedPayment.value != 'alipay') {
         ElMessage({
             message: "暂未支持该支付方式！",
@@ -88,13 +88,39 @@ const purchaseItems = () => {
         })
         return
     }
-    createOrder(userId.value, cart.value).then(res => {
+    
+    // 检查所有商品库存
+    try {
+        loading.value = true
+        for (const item of cartProducts.value) {
+            const quantity = (item as any).productQuantity || 1
+            const stockRes = await checkProductStock(item.productId, quantity)
+            if (stockRes.data.code !== '000') {
+                ElMessage({
+                    message: `商品"${item.productName}"库存不足，当前库存：${stockRes.data.result || 0}，需要：${quantity}`,
+                    type: 'error',
+                    center: true,
+                })
+                return
+            }
+        }
+        
+        // 库存充足，创建订单
+        const res = await createOrder(userId.value, cart.value)
         orderId.value = res.data.result.ordersId
-        goToPayment(orderId.value).then(() => {
-          // 开始轮询订单状态
-          startPollingOrderStatus(orderId.value);
-        });
-    })
+        await goToPayment(orderId.value)
+        // 开始轮询订单状态
+        startPollingOrderStatus(orderId.value)
+    } catch (error) {
+        console.error('创建订单失败:', error)
+        ElMessage({
+            message: "创建订单失败，请稍后重试",
+            type: 'error',
+            center: true,
+        })
+    } finally {
+        loading.value = false
+    }
 }
 
 const getUserInfo = async () => {
@@ -180,11 +206,14 @@ onMounted(() => {
                                 <div class="discount_original_price">¥{{ item.productPrice.toFixed(2) }}</div>
                                 <div class="discount_final_price">¥{{ calculateDiscountedPrice(item.productPrice,
                                     item.productDiscount).toFixed(2) }}</div>
+                                <div class="item_total_price">小计: ¥{{ (calculateDiscountedPrice(item.productPrice, item.productDiscount) * ((item as any).productQuantity || 1)).toFixed(2) }}</div>
                             </div>
                         </div>
-                        <div class="tab_item_discount" v-else>
+                        <div class="discount_block tab_item_discount" v-else>
+                            <div class="discount_pct_placeholder"></div>
                             <div class="discount_prices">
-                                <div class="discount_final_price">¥{{ item.productPrice.toFixed(2) }}</div>
+                                <div class="normal_price">¥{{ item.productPrice.toFixed(2) }}</div>
+                                <div class="item_total_price">小计: ¥{{ (item.productPrice * ((item as any).productQuantity || 1)).toFixed(2) }}</div>
                             </div>
                         </div>
                         <div class="tab_item_content">
@@ -504,7 +533,7 @@ onMounted(() => {
     float: right;
     margin-right: 16px;
     background: none;
-    margin-top: 23px;
+    margin-top: 17px;
     width: 133px;
     text-align: right;
     position: relative;
@@ -526,6 +555,17 @@ onMounted(() => {
     font-weight: 500;
     color: #BEEE11;
     background: #4c6b22;
+}
+
+.discount_pct_placeholder {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    line-height: 18px;
+    padding: 0 4px;
+    border-radius: 1px;
+    /* 占位空间，与discount_pct大小一致但透明 */
+    visibility: hidden;
 }
 
 .discount_prices {
@@ -559,6 +599,20 @@ onMounted(() => {
     color: #BEEE11;
     line-height: 16px;
     font-size: 15px;
+}
+
+.normal_price {
+    color: #ffffff;
+    line-height: 16px;
+    font-size: 15px;
+}
+
+.item_total_price {
+    color: #67c1f5;
+    line-height: 14px;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: bold;
 }
 
 .tab_item_content {

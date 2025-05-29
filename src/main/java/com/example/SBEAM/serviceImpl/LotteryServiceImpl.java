@@ -178,8 +178,26 @@ public class LotteryServiceImpl implements LotteryService {
 
     @Override
     public LotteryItemVO drawLottery(int lotteryId, int userId) {
+        // 检查用户抽奖次数
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null; // 用户不存在
+        }
+
+        Integer currentChances = user.getLotteryChances() != null ? user.getLotteryChances() : 0;
+        if (currentChances <= 0) {
+            return null; // 抽奖次数不足
+        }
+
+        // 消耗抽奖次数
+        user.setLotteryChances(currentChances - 1);
+        userRepository.save(user);
+
         Lottery lottery = lotteryRepository.findByLotteryId(lotteryId);
         if (lottery == null || lottery.getLotteryItems().isEmpty()) {
+            // 如果抽奖失败，退还抽奖次数
+            user.setLotteryChances(currentChances);
+            userRepository.save(user);
             return null;
         }
 
@@ -188,6 +206,9 @@ public class LotteryServiceImpl implements LotteryService {
                 .collect(Collectors.toList());
 
         if (availableItems.isEmpty()) {
+            // 如果没有可用奖品，退还抽奖次数
+            user.setLotteryChances(currentChances);
+            userRepository.save(user);
             return null;
         }
 
@@ -200,6 +221,7 @@ public class LotteryServiceImpl implements LotteryService {
         }
 
         if (randomNumber > totalProbability) {
+            // 没中奖，不退还抽奖次数（抽奖次数已消耗）
             return null;
         }
 
@@ -224,13 +246,10 @@ public class LotteryServiceImpl implements LotteryService {
                 lotteryRepository.save(lottery);
 
                 // 添加到用户库存
-                User user = userRepository.findById(userId).orElse(null);
-                if (user != null) {
-                    Inventory inventory = new Inventory(user, item.getProductId(), 1,
-                            item.getProductValue());
-                    user.getInventories().add(inventory);
-                    userRepository.save(user);
-                }
+                Inventory inventory = new Inventory(user, item.getProductId(), 1,
+                        item.getProductValue());
+                user.getInventories().add(inventory);
+                userRepository.save(user);
 
                 return item.toVO();
             }

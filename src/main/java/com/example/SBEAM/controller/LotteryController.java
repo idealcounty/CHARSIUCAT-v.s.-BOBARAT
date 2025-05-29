@@ -1,19 +1,28 @@
 package com.example.SBEAM.controller;
 
+import com.example.SBEAM.po.LotteryItem;
+import com.example.SBEAM.po.LotteryOrder;
+import com.example.SBEAM.enums.OrderStatus;
+import com.example.SBEAM.repository.LotteryOrderRepository;
 import com.example.SBEAM.service.LotteryService;
-import com.example.SBEAM.vo.LotteryItemVO;
 import com.example.SBEAM.vo.LotteryVO;
+import com.example.SBEAM.vo.LotteryItemVO;
 import com.example.SBEAM.vo.ResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/lottery")
 public class LotteryController {
     @Autowired
     LotteryService lotteryService;
+
+    @Autowired
+    private LotteryOrderRepository lotteryOrderRepository;
 
     @PostMapping
     public ResultVO<LotteryVO> createLottery(@RequestParam String lotteryName) {
@@ -84,5 +93,33 @@ public class LotteryController {
     @GetMapping()
     public ResultVO<List<LotteryVO>> getLotteryList() {
         return ResultVO.buildSuccess(lotteryService.getLottery());
+    }
+
+    @PostMapping("/createOrder")
+    public ResultVO<Map<String, Object>> createLotteryOrder(@RequestBody Map<String, Object> params) {
+        Integer userId = (Integer) params.get("userId");
+        Integer lotteryChancesCount = (Integer) params.get("lotteryChancesCount");
+        Double totalPrice = ((Number) params.get("totalPrice")).doubleValue();
+
+        LotteryOrder lotteryOrder = new LotteryOrder(userId, lotteryChancesCount, totalPrice);
+        lotteryOrder.setOrderStatus(OrderStatus.PENDING);
+        lotteryOrder.setCreateTime(new Date());
+        lotteryOrder = lotteryOrderRepository.save(lotteryOrder);
+
+        Map<String, Object> result = new java.util.HashMap<>();
+        result.put("lotteryOrderId", lotteryOrder.getLotteryOrderId());
+        result.put("totalPrice", lotteryOrder.getTotalPrice());
+        result.put("lotteryChancesCount", lotteryOrder.getLotteryChancesCount());
+
+        return ResultVO.buildSuccess(result);
+    }
+
+    @GetMapping("/orderStatus/{lotteryOrderId}")
+    public ResultVO<String> getLotteryOrderStatus(@PathVariable Integer lotteryOrderId) {
+        LotteryOrder lotteryOrder = lotteryOrderRepository.findById(lotteryOrderId).orElse(null);
+        if (lotteryOrder == null) {
+            return ResultVO.buildFailure("订单不存在");
+        }
+        return ResultVO.buildSuccess(lotteryOrder.getOrderStatus().toString());
     }
 }

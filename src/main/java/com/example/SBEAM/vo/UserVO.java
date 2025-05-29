@@ -37,6 +37,8 @@ public class UserVO {
 
     private String avatar;
 
+    private Integer lotteryChances;
+
     private List<Inventory> inventories;
 
     private List<User> alreadyFriends;
@@ -46,8 +48,9 @@ public class UserVO {
     private List<Message> sentMessages;
 
     private List<Message> receivedMessages;
-    public User toPO(){
-        User user=new User();
+
+    public User toPO() {
+        User user = new User();
         user.setId(this.id);
         user.setAddress(this.address);
         user.setName(this.name);
@@ -58,6 +61,7 @@ public class UserVO {
         user.setCreateTime(this.createTime);
         user.setBalance((double) 0);
         user.setAvatar(this.avatar);
+        user.setLotteryChances(this.lotteryChances);
         user.setInventories(this.inventories);
         user.setAlreadyFriends(this.alreadyFriends);
         user.setPreparedFriends(this.preparedFriends);

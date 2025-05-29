@@ -59,25 +59,21 @@ public class User {
     @Column(name = "avatar")
     private String avatar;
 
+    @Basic
+    @Column(name = "lottery_chances")
+    private Integer lotteryChances = 0;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @Column(name = "inventory")
     private List<Inventory> inventories;
 
     @ManyToMany
     @JsonIgnore
-    @JoinTable(
-        name = "user_already_friends",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "already_friend_id")
-    )
+    @JoinTable(name = "user_already_friends", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "already_friend_id"))
     private List<User> alreadyFriends;
     @ManyToMany
     @JsonIgnore
-    @JoinTable(
-        name = "user_prepared_friends",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "prepared_friend_id")
-    )
+    @JoinTable(name = "user_prepared_friends", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "prepared_friend_id"))
     private List<User> preparedFriends;
 
     @JsonIgnore
@@ -100,6 +96,7 @@ public class User {
         userVO.setCreateTime(this.createTime);
         userVO.setBalance(this.balance);
         userVO.setAvatar(this.avatar);
+        userVO.setLotteryChances(this.lotteryChances);
         userVO.setInventories(this.inventories);
         userVO.setAlreadyFriends(this.alreadyFriends);
         userVO.setPreparedFriends(this.preparedFriends);

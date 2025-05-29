@@ -32,7 +32,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     SecurityUtil securityUtil;
 
-
     @Override
     public Boolean register(UserVO userVO) {
         User user = userRepository.findByPhone(userVO.getPhone());
@@ -60,13 +59,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserVO getInformation() {
-        User user=securityUtil.getCurrentUser();
+        User user = securityUtil.getCurrentUser();
         return user.toVO();
     }
 
     @Override
-    public Boolean updateInformation(int userId,UserVO userVO) {
-        User user=userRepository.findById(userId).get();
+    public Boolean updateInformation(int userId, UserVO userVO) {
+        User user = userRepository.findById(userId).get();
         user.setPassword(userVO.getPassword());
         user.setName(userVO.getName());
         user.setAddress(userVO.getAddress());
@@ -78,17 +77,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void depositBalance(Integer userId, double amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        user.setBalance(user.getBalance()+amount);
+        user.setBalance(user.getBalance() + amount);
     }
 
     @Override
-    public List<InventoryVO> getInventory(int userId){
+    public List<InventoryVO> getInventory(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return user.getInventories().stream().map(Inventory::toVO).collect(Collectors.toList());
     }
 
     @Override
-    public UserVO getUserInformation(int userId){
+    public UserVO getUserInformation(int userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
         return user.toVO();
     }
@@ -106,5 +105,14 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId).get();
         return user.toVO();
     }
-}
 
+    @Override
+    public Integer getUserGameCount(int userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        // 获取用户库存中不同游戏的种类数量（去重）
+        return (int) user.getInventories().stream()
+                .map(Inventory::getProductId)
+                .distinct()
+                .count();
+    }
+}

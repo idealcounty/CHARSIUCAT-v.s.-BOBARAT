@@ -1,187 +1,199 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { getAllProducts, ProductInfo } from "../../api/product.ts";
-import { AdvertisementInfo,getAllAdvertisements } from "../../api/advertisement.ts";
+import {
+  AdvertisementInfo,
+  getAllAdvertisements,
+} from "../../api/advertisement.ts";
 import { userInfo, getUserCart } from "../../api/user.ts";
 
-const currentHour = ref(new Date().getHours())
-const activeTab = ref(0)
-const activeScreenshot = ref(-1)
-const productList = ref<ProductInfo[]>([])
-const advertisementList = ref<AdvertisementInfo[]>([])
-const current = ref(0)
-const userId = ref(0)
-const wishlistCount = ref(0)
+const currentHour = ref(new Date().getHours());
+const activeTab = ref(0);
+const activeScreenshot = ref(-1);
+const productList = ref<ProductInfo[]>([]);
+const advertisementList = ref<AdvertisementInfo[]>([]);
+const current = ref(0);
+const userId = ref(0);
+const wishlistCount = ref(0);
 
 // 自动轮播相关
-const autoPlayTimer = ref<number | null>(null)
-const isTransitioning = ref(false)
-const isScreenshotTransitioning = ref(false)
-const isPreviewTransitioning = ref(false)
+const autoPlayTimer = ref<number | null>(null);
+const isTransitioning = ref(false);
+const isScreenshotTransitioning = ref(false);
+const isPreviewTransitioning = ref(false);
 
 // 分页相关变量
-const currentPage = ref(0)
-const pageSize = 10
+const currentPage = ref(0);
+const pageSize = 10;
 
 // 计算属性：限制精选与推荐最多显示10个商品
 const limitedAdvertisementList = computed(() => {
-  return advertisementList.value.slice(0, 10)
-})
+  return advertisementList.value.slice(0, 10);
+});
 
 // 计算属性：限制后的广告列表长度
 const limitedAdvertisementListSize = computed(() => {
-  return limitedAdvertisementList.value.length
-})
+  return limitedAdvertisementList.value.length;
+});
 
 // 计算属性：总页数
 const totalPages = computed(() => {
-  return Math.ceil(productList.value.length / pageSize)
-})
+  return Math.ceil(productList.value.length / pageSize);
+});
 
 // 计算属性：当前页的商品列表
 const currentPageProducts = computed(() => {
-  const start = currentPage.value * pageSize
-  const end = start + pageSize
-  return productList.value.slice(start, end)
-})
+  const start = currentPage.value * pageSize;
+  const end = start + pageSize;
+  return productList.value.slice(start, end);
+});
 
 // 分页函数
 const goToPage = (page: number) => {
-  currentPage.value = page
-  activeTab.value = 0 // 重置活跃的tab到第一个
-}
+  currentPage.value = page;
+  activeTab.value = 0; // 重置活跃的tab到第一个
+};
 
 // 截图切换函数（带动画）
 const switchToScreenshot = (index: number) => {
-  isScreenshotTransitioning.value = true
+  isScreenshotTransitioning.value = true;
   setTimeout(() => {
-    activeScreenshot.value = index
-    isScreenshotTransitioning.value = false
-  }, 300) // 增加动画持续时间
-}
+    activeScreenshot.value = index;
+    isScreenshotTransitioning.value = false;
+  }, 300); // 增加动画持续时间
+};
 
 // 切换回广告图（带动画）
 const switchToAdvertisement = () => {
-  isScreenshotTransitioning.value = true
+  isScreenshotTransitioning.value = true;
   setTimeout(() => {
-    activeScreenshot.value = -1
-    isScreenshotTransitioning.value = false
-  }, 300)
-}
+    activeScreenshot.value = -1;
+    isScreenshotTransitioning.value = false;
+  }, 300);
+};
 
 // 商品预览切换函数（带动画）
 const switchToProductPreview = (index: number) => {
   if (activeTab.value !== index) {
     // 立即切换活跃项，确保只有一个商品高亮
-    activeTab.value = index
-    
+    activeTab.value = index;
+
     // 只为右列预览区域添加渐变动画
-    isPreviewTransitioning.value = true
+    isPreviewTransitioning.value = true;
     setTimeout(() => {
-      isPreviewTransitioning.value = false
-    }, 250) // 只影响右列预览动画
+      isPreviewTransitioning.value = false;
+    }, 250); // 只影响右列预览动画
   }
-}
+};
 
 // 自动轮播函数
 const startAutoPlay = () => {
   if (autoPlayTimer.value) {
-    clearInterval(autoPlayTimer.value)
+    clearInterval(autoPlayTimer.value);
   }
-  
+
   autoPlayTimer.value = setInterval(() => {
     if (limitedAdvertisementListSize.value > 1) {
-      isTransitioning.value = true
+      isTransitioning.value = true;
       setTimeout(() => {
-        current.value = (current.value + 1) % limitedAdvertisementListSize.value
-        isTransitioning.value = false
-      }, 300) // 增加动画持续时间
+        current.value =
+          (current.value + 1) % limitedAdvertisementListSize.value;
+        isTransitioning.value = false;
+      }, 300); // 增加动画持续时间
     }
-  }, 10000) // 10秒间隔
-}
+  }, 10000); // 10秒间隔
+};
 
 // 停止自动轮播
 const stopAutoPlay = () => {
   if (autoPlayTimer.value) {
-    clearInterval(autoPlayTimer.value)
-    autoPlayTimer.value = null
+    clearInterval(autoPlayTimer.value);
+    autoPlayTimer.value = null;
   }
-}
+};
 
 // 手动切换轮播项（同时重置定时器）
 const manualSwitchTo = (index: number) => {
-  isTransitioning.value = true
+  isTransitioning.value = true;
   setTimeout(() => {
-    current.value = index
-    isTransitioning.value = false
-  }, 300)
-  
+    current.value = index;
+    isTransitioning.value = false;
+  }, 300);
+
   // 重置自动轮播定时器
-  startAutoPlay()
-}
+  startAutoPlay();
+};
 
 // 手动切换到上一个/下一个
 const switchToPrev = () => {
-  manualSwitchTo((current.value + limitedAdvertisementListSize.value - 1) % limitedAdvertisementListSize.value)
-}
+  manualSwitchTo(
+    (current.value + limitedAdvertisementListSize.value - 1) %
+      limitedAdvertisementListSize.value
+  );
+};
 
 const switchToNext = () => {
-  manualSwitchTo((current.value + 1) % limitedAdvertisementListSize.value)
-}
+  manualSwitchTo((current.value + 1) % limitedAdvertisementListSize.value);
+};
 
 // 获取愿望单数量
 const getWishlistCount = async () => {
   try {
-    const userRes = await userInfo()
-    if (userRes.data.code === '000') {
-      userId.value = userRes.data.result.id
-      const res = await getUserCart(userId.value)
-      wishlistCount.value = res.data.length
+    const userRes = await userInfo();
+    if (userRes.data.code === "000") {
+      userId.value = userRes.data.result.id;
+      const res = await getUserCart(userId.value);
+      wishlistCount.value = res.data.length;
     }
   } catch (error) {
-    console.error('获取愿望单数量失败:', error)
-    wishlistCount.value = 0
+    console.error("获取愿望单数量失败:", error);
+    wishlistCount.value = 0;
   }
-}
+};
 
 onMounted(async () => {
-  await getAllAdvertisements().then(res => {
-    advertisementList.value = res.data.result
+  await getAllAdvertisements().then((res) => {
+    advertisementList.value = res.data.result;
     // 数据加载完成后启动自动轮播
     if (limitedAdvertisementListSize.value > 1) {
-      startAutoPlay()
+      startAutoPlay();
     }
-  })
+  });
 
-  await getAllProducts().then(res => {
-    productList.value = res.data.result
-  })
+  await getAllProducts().then((res) => {
+    productList.value = res.data.result;
+  });
 
   // 获取愿望单数量
-  await getWishlistCount()
-})
+  await getWishlistCount();
+});
 
 onUnmounted(() => {
-  stopAutoPlay()
-})
+  stopAutoPlay();
+});
 
-getAllAdvertisements().then(res => {
-  advertisementList.value = res.data.result
-})
+getAllAdvertisements().then((res) => {
+  advertisementList.value = res.data.result;
+});
 
-getAllProducts().then(res => {
-  productList.value = res.data.result
-})
+getAllProducts().then((res) => {
+  productList.value = res.data.result;
+});
 
 // 获取愿望单数量
-getWishlistCount()
+getWishlistCount();
 </script>
 
 <template>
   <div class="app">
     <div class="app-background"></div>
-    <div class="store-background"
-         :class="{ 'store-background_day': currentHour >= 6 && currentHour < 18, 'store-background_night': currentHour < 6 || currentHour >= 18 }"></div>
+    <div
+      class="store-background"
+      :class="{
+        'store-background_day': currentHour >= 6 && currentHour < 18,
+        'store-background_night': currentHour < 6 || currentHour >= 18,
+      }"
+    ></div>
     <!-- 导航栏 -->
     <div class="store-header">
       <div class="content">
@@ -189,7 +201,9 @@ getWishlistCount()
           <div class="cart_status_flex">
             <div class="store_header_btn_gray store-header_btn">
               <div class="store_header_btn_caps store_header_btn_leftcap"></div>
-              <div class="store_header_btn_caps store_header_btn_rightcap"></div>
+              <div
+                class="store_header_btn_caps store_header_btn_rightcap"
+              ></div>
               <router-link class="store_header_btn_content" to="/wishlist">
                 愿望单（{{ wishlistCount }}）
               </router-link>
@@ -226,45 +240,126 @@ getWishlistCount()
     <div class="home_cluster_ctn home_ctn">
       <div class="home_page_content">
         <h2 class="home_page_content_title">精选与推荐</h2>
-        <div class="carousel_container maincap" @mouseenter="stopAutoPlay" @mouseleave="startAutoPlay">
+        <div
+          class="carousel_container maincap"
+          @mouseenter="stopAutoPlay"
+          @mouseleave="startAutoPlay"
+        >
           <div class="carousel_items reponsive_scroll_snap_ctn">
             <router-link
-                :to="{ name:'detail',params:{ product_id:limitedAdvertisementList[current].productId }}"
-                class="store_main_capsule responsive_scroll_snap_start broadcast_capsule app_impression_tracked"
-                :class="{ 'fade-transition': isTransitioning }"
+              :to="{
+                name: 'detail',
+                params: {
+                  product_id: limitedAdvertisementList[current].productId,
+                },
+              }"
+              class="store_main_capsule responsive_scroll_snap_start broadcast_capsule app_impression_tracked"
+              :class="{ 'fade-transition': isTransitioning }"
             >
               <div class="capsule main_capsule">
-                <img v-if="activeScreenshot == -1" class="screenshot" :class="{ 'fade-transition': isScreenshotTransitioning }" :src="limitedAdvertisementList[current].advertisementImageUrl">
-                <img v-else class="screenshot" :class="{ 'fade-transition': isScreenshotTransitioning }" :src="productList[limitedAdvertisementList[current].productId-1].productImages[activeScreenshot]">
+                <img
+                  v-if="activeScreenshot == -1"
+                  class="screenshot"
+                  :class="{ 'fade-transition': isScreenshotTransitioning }"
+                  :src="limitedAdvertisementList[current].advertisementImageUrl"
+                />
+                <img
+                  v-else
+                  class="screenshot"
+                  :class="{ 'fade-transition': isScreenshotTransitioning }"
+                  :src="
+                    productList[limitedAdvertisementList[current].productId - 1]
+                      .productImages[activeScreenshot]
+                  "
+                />
               </div>
               <div class="info">
                 <div class="app_name">
-                  <div>{{ productList[limitedAdvertisementList[current].productId-1].productName }}</div>
+                  <div>
+                    {{
+                      productList[
+                        limitedAdvertisementList[current].productId - 1
+                      ].productName
+                    }}
+                  </div>
                 </div>
                 <div class="screenshots">
                   <div
-                      v-for="(img, index) in productList[limitedAdvertisementList[current].productId-1].productImages"
-                      :key="index"
-                      @mouseenter="switchToScreenshot(index)"
-                      @mouseleave="switchToAdvertisement"
+                    v-for="(img, index) in productList[
+                      limitedAdvertisementList[current].productId - 1
+                    ].productImages"
+                    :key="index"
+                    @mouseenter="switchToScreenshot(index)"
+                    @mouseleave="switchToAdvertisement"
                   >
-                    <img :src="img">
+                    <img :src="img" />
                   </div>
                 </div>
-                <div class="reason">{{ limitedAdvertisementList[current].advertisementContent }}</div>
-                <div v-if="productList[limitedAdvertisementList[current].productId-1].productDiscount == 0">
+                <div class="reason">
+                  {{ limitedAdvertisementList[current].advertisementContent }}
+                </div>
+                <div
+                  v-if="
+                    productList[limitedAdvertisementList[current].productId - 1]
+                      .productDiscount == 0
+                  "
+                >
                   <div class="discount_block_ca discount_block_inline_ca">
                     <div class="discount_prices_ca">
-                      <div class="discount_final_price_ca_nodiscount">¥ {{ (productList[limitedAdvertisementList[current].productId-1].productPrice * (1 - productList[limitedAdvertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
+                      <div class="discount_final_price_ca_nodiscount">
+                        ¥
+                        {{
+                          (
+                            productList[
+                              limitedAdvertisementList[current].productId - 1
+                            ].productPrice *
+                            (1 -
+                              productList[
+                                limitedAdvertisementList[current].productId - 1
+                              ].productDiscount /
+                                100)
+                          ).toFixed(2)
+                        }}
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div v-else>
-                  <div class="discount_block_ca discount_block_inline_ca" style="display: flex; ">
-                    <div class="discount_pct_ca">-{{ productList[limitedAdvertisementList[current].productId-1].productDiscount }}%</div>
+                  <div
+                    class="discount_block_ca discount_block_inline_ca"
+                    style="display: flex"
+                  >
+                    <div class="discount_pct_ca">
+                      -{{
+                        productList[
+                          limitedAdvertisementList[current].productId - 1
+                        ].productDiscount
+                      }}%
+                    </div>
                     <div class="discount_prices_cap">
-                      <div class="discount_original_price_ca">¥ {{ productList[limitedAdvertisementList[current].productId-1].productPrice.toFixed(2) }}</div>
-                      <div class="discount_final_price_ca">¥ {{ (productList[limitedAdvertisementList[current].productId-1].productPrice * (1 - productList[limitedAdvertisementList[current].productId-1].productDiscount / 100)).toFixed(2) }}</div>
+                      <div class="discount_original_price_ca">
+                        ¥
+                        {{
+                          productList[
+                            limitedAdvertisementList[current].productId - 1
+                          ].productPrice.toFixed(2)
+                        }}
+                      </div>
+                      <div class="discount_final_price_ca">
+                        ¥
+                        {{
+                          (
+                            productList[
+                              limitedAdvertisementList[current].productId - 1
+                            ].productPrice *
+                            (1 -
+                              productList[
+                                limitedAdvertisementList[current].productId - 1
+                              ].productDiscount /
+                                100)
+                          ).toFixed(2)
+                        }}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -272,20 +367,17 @@ getWishlistCount()
               <div class="ds_options"></div>
             </router-link>
           </div>
-          <div class="carousel_thumbs" style="display: flex; justify-content: center;">
+          <div
+            class="carousel_thumbs"
+            style="display: flex; justify-content: center"
+          >
             <div
-                v-for="(item, index) in limitedAdvertisementList"
-                :key="index"
-                @click="manualSwitchTo(index)"
+              v-for="(item, index) in limitedAdvertisementList"
+              :key="index"
+              @click="manualSwitchTo(index)"
             >
-              <div
-                  v-if="current != index"
-                  class="thumbs"
-              ></div>
-              <div
-                  v-if="current == index"
-                  class="thumbs_focus"
-              ></div>
+              <div v-if="current != index" class="thumbs"></div>
+              <div v-if="current == index" class="thumbs_focus"></div>
             </div>
           </div>
           <div class="arrow left" @click="switchToPrev">
@@ -298,9 +390,9 @@ getWishlistCount()
       </div>
     </div>
     <!-- 商品列表 -->
-    <div class="home_ctn tab_container" style="overflow: visible;">
+    <div class="home_ctn tab_container" style="overflow: visible">
       <div class="home_page_content home_tabs_row_ctn">
-        <div class="store_horizontal_minislider_ctn" style="height: 31px;">
+        <div class="store_horizontal_minislider_ctn" style="height: 31px">
           <div class="home_tabs_row store_horizontal_minislider">
             <div class="home_tab">
               <div class="tab_content">商品列表</div>
@@ -315,19 +407,33 @@ getWishlistCount()
               v-for="(product, index) in currentPageProducts"
               :key="index"
               class="tab_item"
-              :class="{ 'tab_item_active': activeTab === index }"
+              :class="{ tab_item_active: activeTab === index }"
               @mouseenter="switchToProductPreview(index)"
-              :to="{ name:'detail',params:{ product_id:product.productId }}"
+              :to="{
+                name: 'detail',
+                params: { product_id: product.productId },
+              }"
             >
               <div class="tab_item_cap">
-                <img class="tab_item_cap_img" :src="product.productLogo">
+                <img class="tab_item_cap_img" :src="product.productLogo" />
               </div>
-              <div v-if="product.productDiscount!=0">
+              <div v-if="product.productDiscount != 0">
                 <div class="discount_block tab_item_discount">
-                  <div class="discount_pct">-{{ product.productDiscount }}%</div>
+                  <div class="discount_pct">
+                    -{{ product.productDiscount }}%
+                  </div>
                   <div class="discount_prices">
-                    <div class="discount_original_price">¥{{ (product.productPrice).toFixed(2) }}</div>
-                    <div class="discount_final_price">¥{{ (product.productPrice * (1 - product.productDiscount / 100)).toFixed(2) }}</div>
+                    <div class="discount_original_price">
+                      ¥{{ product.productPrice.toFixed(2) }}
+                    </div>
+                    <div class="discount_final_price">
+                      ¥{{
+                        (
+                          product.productPrice *
+                          (1 - product.productDiscount / 100)
+                        ).toFixed(2)
+                      }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -336,50 +442,58 @@ getWishlistCount()
                   <div class="discount_pct_nodiscount"></div>
                   <div class="discount_prices">
                     <div class="discount_original_price_nodiscount"></div>
-                    <div class="discount_final_price_nodiscount">¥{{ (product.productPrice).toFixed(2) }}</div>
+                    <div class="discount_final_price_nodiscount">
+                      ¥{{ product.productPrice.toFixed(2) }}
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="tab_item_content">
                 <div class="tab_item_name">{{ product.productName }}</div>
               </div>
-              <div style="clear: both;"></div>
+              <div style="clear: both"></div>
               <div class="ds_options"><div></div></div>
             </router-link>
           </div>
           <!-- 分页按钮 -->
-          <div v-if="productList.length > pageSize" class="pagination_thumbs" style="display: flex; justify-content: center; margin-top: 20px;">
+          <div
+            v-if="productList.length > pageSize"
+            class="pagination_thumbs"
+            style="display: flex; justify-content: center; margin-top: 20px"
+          >
             <div
-                v-for="(page, index) in totalPages"
-                :key="index"
-                @click="goToPage(index)"
+              v-for="(page, index) in totalPages"
+              :key="index"
+              @click="goToPage(index)"
             >
-              <div
-                  v-if="currentPage !== index"
-                  class="thumbs"
-              ></div>
-              <div
-                  v-if="currentPage === index"
-                  class="thumbs_focus"
-              ></div>
+              <div v-if="currentPage !== index" class="thumbs"></div>
+              <div v-if="currentPage === index" class="thumbs_focus"></div>
             </div>
           </div>
         </div>
         <div class="home_rightcol">
           <div class="tab_preview_container">
-            <div class="tab_preview" :class="{ 'preview-transitioning': isPreviewTransitioning }">
-              <h2 class="tab_preview_title" v-if="currentPageProducts && currentPageProducts[activeTab]">{{ currentPageProducts[activeTab].productName }}</h2>
+            <div
+              class="tab_preview"
+              :class="{ 'preview-transitioning': isPreviewTransitioning }"
+            >
+              <h2
+                class="tab_preview_title"
+                v-if="currentPageProducts && currentPageProducts[activeTab]"
+              >
+                {{ currentPageProducts[activeTab].productName }}
+              </h2>
               <img
-                  v-if="currentPageProducts && currentPageProducts[activeTab]"
-                  v-for="(img, i) in currentPageProducts[activeTab].productImages"
-                  :key="i"
-                  class="screenshot"
-                  :src="img"
+                v-if="currentPageProducts && currentPageProducts[activeTab]"
+                v-for="(img, i) in currentPageProducts[activeTab].productImages"
+                :key="i"
+                class="screenshot"
+                :src="img"
               />
             </div>
           </div>
         </div>
-        <div style="clear: both;"></div>
+        <div style="clear: both"></div>
       </div>
     </div>
   </div>
@@ -449,7 +563,7 @@ getWishlistCount()
 }
 
 .store_controls:hover .store_header_btn_gray {
-  background: linear-gradient(to right, #e4ebf1, #c7d0da);;
+  background: linear-gradient(to right, #e4ebf1, #c7d0da);
 }
 
 .store_controls:hover .store_header_btn_content {
@@ -461,8 +575,8 @@ getWishlistCount()
 }
 
 .store_header_btn_gray {
-  background-image: url( '../../assets/background_wishlist.jpg' );
-  background-color: rgba( 255, 255, 255, 0.4 );
+  background-image: url("../../assets/background_wishlist.jpg");
+  background-color: rgba(255, 255, 255, 0.4);
   background-position: -34px 20px;
 }
 
@@ -486,8 +600,13 @@ getWishlistCount()
 }
 
 .store_nav_bg {
-  background: linear-gradient(90deg, rgba(62, 103, 150, 0.919) 11.38%, rgba(58, 120, 177, 0.8) 25.23%, rgb(15, 33, 110) 100%);
-  box-shadow: 0 0 3px rgba( 0, 0, 0, 0.4);
+  background: linear-gradient(
+    90deg,
+    rgba(62, 103, 150, 0.919) 11.38%,
+    rgba(58, 120, 177, 0.8) 25.23%,
+    rgb(15, 33, 110) 100%
+  );
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.4);
   height: 35px;
   margin: 7px 0;
 }
@@ -510,7 +629,12 @@ getWishlistCount()
 
   &:hover {
     color: #ffffff;
-    background: linear-gradient(90deg, rgba(33, 162, 255, 0.25) 0%, rgba(33, 162, 255, 0.15) 50%, rgba(50, 50, 51, 0) 100%);
+    background: linear-gradient(
+      90deg,
+      rgba(33, 162, 255, 0.25) 0%,
+      rgba(33, 162, 255, 0.15) 50%,
+      rgba(50, 50, 51, 0) 100%
+    );
   }
 }
 
@@ -696,17 +820,17 @@ getWishlistCount()
   height: 58px;
   border-radius: 2px;
   color: #ffffff;
-  background: linear-gradient(90deg, #06BFFF 0%, #2D73FF 100%);
+  background: linear-gradient(90deg, #06bfff 0%, #2d73ff 100%);
   font-size: 16px;
   text-decoration: none;
 
   &:hover {
-    background: linear-gradient(90deg, #06BFFF 30%, #2D73FF 100%);
+    background: linear-gradient(90deg, #06bfff 30%, #2d73ff 100%);
   }
 }
 
 .home_cluster_ctn {
-  background: url( '../../assets/cluster_bg.png' ) bottom center no-repeat;
+  background: url("../../assets/cluster_bg.png") bottom center no-repeat;
   position: relative;
 }
 
@@ -744,8 +868,9 @@ getWishlistCount()
   clear: both;
 }
 
-.store_main_capsule, .store_main_capsule:hover {
-  background-image: url( '../../assets/background_maincap_2.jpg');
+.store_main_capsule,
+.store_main_capsule:hover {
+  background-image: url("../../assets/background_maincap_2.jpg");
   background-repeat: no-repeat;
   background-position: right;
   color: #fff;
@@ -886,7 +1011,7 @@ getWishlistCount()
   padding: 0 3px;
   font-family: "Motiva Sans", Sans-serif;
   font-weight: 500;
-  color: #BEEE11;
+  color: #beee11;
   background: #4c6b22;
   display: inline-block;
   font-size: 11px;
@@ -902,7 +1027,7 @@ getWishlistCount()
 }
 
 .discount_original_price_ca:before {
-  content: '';
+  content: "";
   left: 0px;
   right: 0px;
   position: absolute;
@@ -940,7 +1065,7 @@ getWishlistCount()
 }
 
 .discount_final_price_ca {
-  color: #BEEE11;
+  color: #beee11;
   font-size: 11px;
   line-height: 12px;
   margin-left: 4px;
@@ -960,11 +1085,11 @@ getWishlistCount()
   height: 9px;
   border-radius: 2px;
   transition: background-color 0.4s ease;
-  background-color: hsla(202,60%,100%,0.2);
+  background-color: hsla(202, 60%, 100%, 0.2);
   cursor: pointer;
 
   &:hover {
-    background-color: hsla(202,60%,100%,0.3);
+    background-color: hsla(202, 60%, 100%, 0.3);
   }
 }
 
@@ -975,7 +1100,7 @@ getWishlistCount()
   height: 9px;
   border-radius: 2px;
   transition: background-color 0.4s ease;
-  background-color: hsla(202,60%,100%,0.4);
+  background-color: hsla(202, 60%, 100%, 0.4);
   cursor: pointer;
 }
 
@@ -992,31 +1117,39 @@ getWishlistCount()
 
 .left {
   left: -46px;
-  background: linear-gradient( to right, rgba( 0, 0, 0, 0.3) 5%,rgba( 0, 0, 0, 0) 95%);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.3) 5%,
+    rgba(0, 0, 0, 0) 95%
+  );
 
   &:hover {
-    background: linear-gradient( to right, #48617b ,rgba( 0, 0, 0, 0) 95%);
+    background: linear-gradient(to right, #48617b, rgba(0, 0, 0, 0) 95%);
   }
 }
 
 .right {
   right: -46px;
-  background: linear-gradient( to right, rgba( 0, 0, 0, 0) 5%,rgba( 0, 0, 0, 0.3) 95%);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 5%,
+    rgba(0, 0, 0, 0.3) 95%
+  );
 
   &:hover {
-    background: linear-gradient( to right, rgba( 0, 0, 0, 0) 5%, #48617b);
+    background: linear-gradient(to right, rgba(0, 0, 0, 0) 5%, #48617b);
   }
 }
 
 .left_arrow {
   background-position-x: 23px;
-  background-image: url('../../assets/arrows.png');
+  background-image: url("../../assets/arrows.png");
   width: 23px;
   height: 36px;
 }
 
 .right_arrow {
-  background-image: url('../../assets/arrows.png');
+  background-image: url("../../assets/arrows.png");
   width: 23px;
   height: 36px;
 }
@@ -1030,7 +1163,11 @@ getWishlistCount()
 }
 
 .home_ctn.tab_container {
-  background: linear-gradient( to bottom, rgba(42,71,94,1.0) 5%, rgba(42,71,94,0.0) 70%);
+  background: linear-gradient(
+    to bottom,
+    rgba(42, 71, 94, 1) 5%,
+    rgba(42, 71, 94, 0) 70%
+  );
   padding-top: 1px;
   margin-top: 60px;
 }
@@ -1077,7 +1214,7 @@ getWishlistCount()
   font-size: 14px;
   color: #ffffff;
   background: #1a2737;
-  text-shadow: -1px -1px rgba( 0, 0, 0, 0.25 );
+  text-shadow: -1px -1px rgba(0, 0, 0, 0.25);
   cursor: default;
   margin-top: 0;
   box-shadow: none;
@@ -1168,8 +1305,7 @@ img {
   text-align: right;
 }
 
-.tab_item_discount
-.discount_pct {
+.tab_item_discount .discount_pct {
   display: flex;
   align-items: center;
   font-size: 14px;
@@ -1178,12 +1314,11 @@ img {
   border-radius: 1px;
 }
 
-.discount_block
-.discount_pct,
+.discount_block .discount_pct,
 .discount_pct {
   font-family: "Motiva Sans", sans-serif;
   font-weight: 500;
-  color: #BEEE11;
+  color: #beee11;
   background: #4c6b22;
 }
 
@@ -1213,7 +1348,7 @@ img {
 }
 
 .discount_original_price::before {
-  content: '';
+  content: "";
   left: 0px;
   right: 0px;
   position: absolute;
@@ -1230,7 +1365,7 @@ img {
 }
 
 .discount_final_price {
-  color: #BEEE11;
+  color: #beee11;
   line-height: 16px;
   font-size: 15px;
 }
@@ -1308,7 +1443,7 @@ h2 {
   pointer-events: none;
   width: 292px;
 
-  opacity: 1.0;
+  opacity: 1;
   pointer-events: auto;
   transition: opacity 0.5s ease-in-out;
 }

@@ -113,27 +113,4 @@ export interface Lottery {
     lotteryItems: LotteryItem[];
 }
 
-// 创建抽奖次数订单
-export const createLotteryOrder = (userId: number, lotteryChancesCount: number) => {
-    const totalPrice = lotteryChancesCount * 17; // 17元一次
-    return axios.post(`${LOTTERY_MODULE}/createOrder`, {
-        userId,
-        lotteryChancesCount,
-        totalPrice
-    });
-};
-
-// 抽奖次数支付
-export const goToLotteryPayment = (lotteryOrderId: number) => {
-    return axios.get(`${ALIPAY_MODULE}/payLottery`, {
-        params: { lotteryOrderId },
-        headers: { 'Content-Type': 'application/json' }
-    }).then(res => {
-        window.open(`http://localhost:8080${ALIPAY_MODULE}/payLottery?lotteryOrderId=${lotteryOrderId}`)
-    })
-};
-
-// 获取抽奖次数订单状态
-export const getLotteryOrderStatus = (lotteryOrderId: number) => {
-    return axios.get(`${LOTTERY_MODULE}/orderStatus/${lotteryOrderId}`);
-}; 
+// 购买抽奖次数的功能已移除，现在每购买一个商品获得一次抽奖机会 

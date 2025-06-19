@@ -79,10 +79,6 @@ const router = createRouter({
         component: () => import('../views/user/Lottery.vue'),
         meta: { title: '抽奖' }
     }, {
-        path: '/lottery/buy-chances',
-        component: () => import('../views/lottery/BuyChances.vue'),
-        meta: { title: '购买抽奖次数' }
-    }, {
         path: '/service',
         component: () => import('../views/community/Service.vue'),
         meta: { title: '客服' }

@@ -1,76 +1,76 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch } from "vue";
 import { router } from "../router/index.ts";
-import { useRoute } from 'vue-router'
+import { useRoute } from "vue-router";
 
-const route = useRoute()
+const route = useRoute();
 
-const storeMenuLocked = ref(false)
-const mineMenuLocked = ref(false)
-const actionMenuLocked = ref(false)
-const adminMenuLocked = ref(false)
+const storeMenuLocked = ref(false);
+const mineMenuLocked = ref(false);
+const actionMenuLocked = ref(false);
+const adminMenuLocked = ref(false);
 
-const userId = ref('')
-const userName = ref('')
-const userPhone = ref('')
-const userPassword = ref('')
-const userAddress = ref('')
-const userRole = ref('')
-const userCreateTime = ref('')
-const userBalance = ref('')
-const userAvatar = ref('')
+const userId = ref("");
+const userName = ref("");
+const userPhone = ref("");
+const userPassword = ref("");
+const userAddress = ref("");
+const userRole = ref("");
+const userCreateTime = ref("");
+const userBalance = ref("");
+const userAvatar = ref("");
 
-const current = ref('')
-const token = ref(false)
-const isLoggedIn = !!sessionStorage.getItem('token')
+const current = ref("");
+const token = ref(false);
+const isLoggedIn = !!sessionStorage.getItem("token");
 
 async function getUserInfo() {
-  const { userInfo } = await import('../api/user.ts')
-  const res = await userInfo()
-  console.log(res.data.code)
-  if (res.data.code === '000') {
-    token.value = true
-    const result = res.data.result
-    userId.value = result.id
-    userName.value = result.name
-    userPhone.value = result.userPhone
-    userPassword.value = result.password
-    userAddress.value = result.address
-    userRole.value = result.role
-    userCreateTime.value = result.createTime
-    userBalance.value = result.balance
-    userAvatar.value = result.avatar
-  } else if (res.data.code === '400') {
-    console.log('未登录')
+  const { userInfo } = await import("../api/user.ts");
+  const res = await userInfo();
+  console.log(res.data.code);
+  if (res.data.code === "000") {
+    token.value = true;
+    const result = res.data.result;
+    userId.value = result.id;
+    userName.value = result.name;
+    userPhone.value = result.userPhone;
+    userPassword.value = result.password;
+    userAddress.value = result.address;
+    userRole.value = result.role;
+    userCreateTime.value = result.createTime;
+    userBalance.value = result.balance;
+    userAvatar.value = result.avatar;
+  } else if (res.data.code === "400") {
+    console.log("未登录");
   }
 }
 
 onMounted(() => {
-  if(isLoggedIn) {
-    getUserInfo()
+  if (isLoggedIn) {
+    getUserInfo();
   }
-})
+});
 
 watch(
-    () => route.fullPath,
-    () => {
-      getUserInfo()
-    }
-)
+  () => route.fullPath,
+  () => {
+    getUserInfo();
+  }
+);
 
 function logout() {
-  sessionStorage.removeItem('token')
-  userId.value = ''
-  userName.value = ''
-  userPhone.value = ''
-  userPassword.value = ''
-  userAddress.value = ''
-  userRole.value = ''
-  userCreateTime.value = ''
-  userBalance.value = ''
-  userAvatar.value = ''
-  token.value = false
-  router.push({'path': '/login'})
+  sessionStorage.removeItem("token");
+  userId.value = "";
+  userName.value = "";
+  userPhone.value = "";
+  userPassword.value = "";
+  userAddress.value = "";
+  userRole.value = "";
+  userCreateTime.value = "";
+  userBalance.value = "";
+  userAvatar.value = "";
+  token.value = false;
+  router.push({ path: "/login" });
 }
 </script>
 
@@ -81,62 +81,174 @@ function logout() {
         <img src="../assets/logo_steam.svg" alt="steam" />
       </div>
       <div class="supernav_container">
-        <RouterLink class="menuitem supernav store" :class="{ current: current === 0 }" to="/" @click="storeMenuLocked = true" @mouseenter="storeMenuLocked = false">
+        <RouterLink
+          class="menuitem supernav store"
+          :class="{ current: current === 0 }"
+          to="/"
+          @click="storeMenuLocked = true"
+          @mouseenter="storeMenuLocked = false"
+        >
           商店
           <div v-show="!storeMenuLocked" class="submenu_Store">
-            <RouterLink class="store_item" to="/" @click="storeMenuLocked = true">主页</RouterLink>
-            <RouterLink class="store_item" to="/wishlist" @click="storeMenuLocked = true">愿望单</RouterLink>
+            <RouterLink
+              class="store_item"
+              to="/"
+              @click="storeMenuLocked = true"
+              >主页</RouterLink
+            >
+            <RouterLink
+              class="store_item"
+              to="/wishlist"
+              @click="storeMenuLocked = true"
+              >愿望单</RouterLink
+            >
           </div>
         </RouterLink>
-        <RouterLink class="menuitem supernav" :class="{ current: current === 1 }" to="/friend">社区</RouterLink>
-        <RouterLink v-if="userRole === 'STAFF'" class="menuitem supernav admin" :class="{ current: current === 6 }" to="/admin" @click="adminMenuLocked = true" @mouseenter="adminMenuLocked = false">
+        <RouterLink
+          class="menuitem supernav"
+          :class="{ current: current === 1 }"
+          to="/friend"
+          >社区</RouterLink
+        >
+        <RouterLink
+          v-if="userRole === 'STAFF'"
+          class="menuitem supernav admin"
+          :class="{ current: current === 6 }"
+          to="/admin"
+          @click="adminMenuLocked = true"
+          @mouseenter="adminMenuLocked = false"
+        >
           管理
           <div v-show="!adminMenuLocked" class="submenu_Admin">
-            <RouterLink class="admin_item" to="/admin" @click="adminMenuLocked = true">商品管理</RouterLink>
-            <RouterLink class="admin_item" to="/createProduct" @click="adminMenuLocked = true">创建商品</RouterLink>
-            <RouterLink class="admin_item" to="/createAdvertisement" @click="adminMenuLocked = true">创建广告</RouterLink>
-            <RouterLink class="admin_item" to="/updateLottery" @click="adminMenuLocked = true">抽奖管理</RouterLink>
+            <RouterLink
+              class="admin_item"
+              to="/admin"
+              @click="adminMenuLocked = true"
+              >商品管理</RouterLink
+            >
+            <RouterLink
+              class="admin_item"
+              to="/createProduct"
+              @click="adminMenuLocked = true"
+              >创建商品</RouterLink
+            >
+            <RouterLink
+              class="admin_item"
+              to="/createAdvertisement"
+              @click="adminMenuLocked = true"
+              >创建广告</RouterLink
+            >
+            <RouterLink
+              class="admin_item"
+              to="/updateLottery"
+              @click="adminMenuLocked = true"
+              >抽奖管理</RouterLink
+            >
           </div>
         </RouterLink>
-        <RouterLink v-if="token" class="menuitem supernav nickname profile" :class="{ current: current === 2 }" :to="`/profile/${userId}`" @click="mineMenuLocked = true" @mouseenter="mineMenuLocked = false">
+        <RouterLink
+          v-if="token"
+          class="menuitem supernav nickname profile"
+          :class="{ current: current === 2 }"
+          :to="`/profile/${userId}`"
+          @click="mineMenuLocked = true"
+          @mouseenter="mineMenuLocked = false"
+        >
           {{ userName }}
           <div v-show="!mineMenuLocked" class="submenu_Profile">
             <RouterLink
-                class="profile_item"
-                :to="{ name:'profile',params:{ user_id:userId }}"
-                @click="mineMenuLocked = true"
-            >个人资料</RouterLink>
-            <RouterLink class="profile_item" to="/friend" @click="mineMenuLocked = true">好友</RouterLink>
-            <RouterLink class="profile_item" to="/games" @click="mineMenuLocked = true">游戏</RouterLink>
-            <RouterLink class="profile_item" to="/lottery" @click="mineMenuLocked = true">抽奖</RouterLink>
+              class="profile_item"
+              :to="{ name: 'profile', params: { user_id: userId } }"
+              @click="mineMenuLocked = true"
+              >个人资料</RouterLink
+            >
+            <RouterLink
+              class="profile_item"
+              to="/friend"
+              @click="mineMenuLocked = true"
+              >好友</RouterLink
+            >
+            <RouterLink
+              class="profile_item"
+              to="/games"
+              @click="mineMenuLocked = true"
+              >游戏</RouterLink
+            >
+            <RouterLink
+              class="profile_item"
+              to="/lottery"
+              @click="mineMenuLocked = true"
+              >抽奖</RouterLink
+            >
           </div>
         </RouterLink>
         <!--        <RouterLink v-else class="nav-item" :class="{ current: current === 3 }" to="/about">关于</RouterLink>-->
-        <RouterLink v-if="token" class="menuitem" :class="{ current: current === 4 }" to="/chat">聊天</RouterLink>
-        <RouterLink class="menuitem" :class="{ current: current === 5 }" to="/service">客服</RouterLink>
+        <RouterLink
+          v-if="token"
+          class="menuitem"
+          :class="{ current: current === 4 }"
+          to="/chat"
+          >聊天</RouterLink
+        >
+        <RouterLink
+          class="menuitem"
+          :class="{ current: current === 5 }"
+          to="/service"
+          >客服</RouterLink
+        >
       </div>
       <div class="actions">
         <div class="action-menu">
-          <RouterLink class="install" :class="{ light: token === null }" to="/about">
-            <img src="../assets/btn_header_installsteam_download.png" alt="安装Steam">
+          <RouterLink
+            class="install"
+            :class="{ light: token === null }"
+            to="/about"
+          >
+            <img
+              src="../assets/btn_header_installsteam_download.png"
+              alt="安装Steam"
+            />
             安装 SBEAM
           </RouterLink>
-          <div v-if="token" class="account-pulldown" @mouseenter="actionMenuLocked = false">
+          <div
+            v-if="token"
+            class="account-pulldown"
+            @mouseenter="actionMenuLocked = false"
+          >
             {{ userName }}
-            <img src="../assets/btn_arrow_down_padded.png" alt="">
+            <img src="../assets/btn_arrow_down_padded.png" alt="" />
             <div v-show="!actionMenuLocked" class="account-pulldown-menu">
-              <RouterLink class="account-pulldown-menu-item" :to="`/profile/${userId}`" @click="actionMenuLocked = true">查看个人资料</RouterLink>
-              <div class="account-pulldown-menu-item" @click="logout(); actionMenuLocked = true">注销：<span>{{ userName }}</span></div>
+              <RouterLink
+                class="account-pulldown-menu-item"
+                :to="`/profile/${userId}`"
+                @click="actionMenuLocked = true"
+                >查看个人资料</RouterLink
+              >
+              <div
+                class="account-pulldown-menu-item"
+                @click="
+                  logout();
+                  actionMenuLocked = true;
+                "
+              >
+                注销：<span>{{ userName }}</span>
+              </div>
             </div>
           </div>
         </div>
 
         <RouterLink
-            v-if="token"
-            class="user-avatar"
-            :to="{ name:'profile',params:{ user_id:userId }}"
+          v-if="token"
+          class="user-avatar"
+          :to="{ name: 'profile', params: { user_id: userId } }"
         >
-          <img :src="userAvatar || 'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'" alt="">
+          <img
+            :src="
+              userAvatar ||
+              'https://steam-1314488277.cos.ap-guangzhou.myqcloud.com/assets%2Fdefault_avatar.jpg'
+            "
+            alt=""
+          />
         </RouterLink>
         <RouterLink v-else class="login" to="/login">登录</RouterLink>
       </div>
@@ -151,22 +263,23 @@ function logout() {
   display: flex;
   justify-content: center;
   width: 100%;
-  min-width: 940px;
-  background-color: #171D25;
-  font-family: "Motiva Sans", sans-serif;;
+  min-width: 1116px;
+  background-color: #171d25;
+  font-family: "Motiva Sans", sans-serif;
 }
 
 .content {
   position: relative;
   display: flex;
   align-items: center;
-  width: 940px;
-  height: 104px;
+  width: 1116px;
+  height: 120px;
 }
 
 .logo {
-  width: 176px;
-  height: 44px;
+  width: 352px;
+  height: 88px;
+  margin-left: 50px;
   margin-right: 24px;
   img {
     width: 100%;
@@ -176,7 +289,7 @@ function logout() {
 
 .supernav_container {
   position: absolute;
-  left: 200px;
+  left: 376px;
 }
 
 .menuitem {
@@ -198,7 +311,7 @@ function logout() {
 }
 
 .store {
-  &:hover>.submenu_Store {
+  &:hover > .submenu_Store {
     opacity: 1;
     pointer-events: auto;
   }
@@ -206,7 +319,7 @@ function logout() {
 
 .menuitem:hover {
   text-decoration: underline;
-  color: #1a9fff
+  color: #1a9fff;
 }
 
 .nickname {
@@ -216,14 +329,14 @@ function logout() {
 }
 
 .profile {
-  &:hover>.submenu_Profile {
+  &:hover > .submenu_Profile {
     opacity: 1;
     pointer-events: auto;
   }
 }
 
 .admin {
-  &:hover>.submenu_Admin {
+  &:hover > .submenu_Admin {
     opacity: 1;
     pointer-events: auto;
   }
@@ -237,7 +350,7 @@ function logout() {
   top: 30px;
   opacity: 0;
   pointer-events: none;
-  background: #3D4450;
+  background: #3d4450;
   box-shadow: 3px 3px 5px -3px #000;
   text-align: left;
   transition: opacity 0.2s;
@@ -255,7 +368,7 @@ function logout() {
   top: 30px;
   opacity: 0;
   pointer-events: none;
-  background: #3D4450;
+  background: #3d4450;
   box-shadow: 3px 3px 5px -3px #000;
   text-align: left;
   transition: opacity 0.2s;
@@ -273,7 +386,7 @@ function logout() {
   top: 30px;
   opacity: 0;
   pointer-events: none;
-  background: #3D4450;
+  background: #3d4450;
   box-shadow: 3px 3px 5px -3px #000;
   text-align: left;
   transition: opacity 0.2s;
@@ -384,7 +497,7 @@ function logout() {
   cursor: pointer;
   &:hover {
     color: #ffffff;
-    &>.account-pulldown-menu {
+    & > .account-pulldown-menu {
       opacity: 1;
       pointer-events: auto;
     }
@@ -394,7 +507,7 @@ function logout() {
   position: absolute;
   right: 0;
   top: 100%;
-  border: 1px solid #3D4450;
+  border: 1px solid #3d4450;
   box-shadow: 0 0 12px #000000;
   background-color: #3d4450;
   opacity: 0;
@@ -425,7 +538,7 @@ function logout() {
   img {
     width: 32px;
     height: 32px;
-    background: linear-gradient( to bottom, #41778f 5%, #3d697b 95%);
+    background: linear-gradient(to bottom, #41778f 5%, #3d697b 95%);
   }
 }
 .login {

@@ -36,6 +36,18 @@ const limitedAdvertisementListSize = computed(() => {
   return limitedAdvertisementList.value.length;
 });
 
+// 计算属性：当前广告对应的产品信息
+const currentAdvertisementProduct = computed(() => {
+  if (limitedAdvertisementList.value.length === 0 || productList.value.length === 0) {
+    return null;
+  }
+  const currentAd = limitedAdvertisementList.value[current.value];
+  if (!currentAd) {
+    return null;
+  }
+  return productList.value.find(product => product.productId === currentAd.productId) || null;
+});
+
 // 计算属性：总页数
 const totalPages = computed(() => {
   return Math.ceil(productList.value.length / pageSize);
@@ -246,7 +258,19 @@ getWishlistCount();
           @mouseleave="startAutoPlay"
         >
           <div class="carousel_items reponsive_scroll_snap_ctn">
+            <!-- 加载状态 -->
+            <div
+              v-if="!currentAdvertisementProduct && limitedAdvertisementList.length > 0"
+              class="store_main_capsule responsive_scroll_snap_start broadcast_capsule app_impression_tracked loading"
+            >
+              <div class="capsule main_capsule">
+                <div class="loading-placeholder">正在加载...</div>
+              </div>
+            </div>
+            
+            <!-- 正常显示内容 -->
             <router-link
+              v-if="currentAdvertisementProduct"
               :to="{
                 name: 'detail',
                 params: {
@@ -267,27 +291,18 @@ getWishlistCount();
                   v-else
                   class="screenshot"
                   :class="{ 'fade-transition': isScreenshotTransitioning }"
-                  :src="
-                    productList[limitedAdvertisementList[current].productId - 1]
-                      .productImages[activeScreenshot]
-                  "
+                  :src="currentAdvertisementProduct.productImages[activeScreenshot]"
                 />
               </div>
               <div class="info">
                 <div class="app_name">
                   <div>
-                    {{
-                      productList[
-                        limitedAdvertisementList[current].productId - 1
-                      ].productName
-                    }}
+                    {{ currentAdvertisementProduct.productName }}
                   </div>
                 </div>
                 <div class="screenshots">
                   <div
-                    v-for="(img, index) in productList[
-                      limitedAdvertisementList[current].productId - 1
-                    ].productImages"
+                    v-for="(img, index) in currentAdvertisementProduct.productImages"
                     :key="index"
                     @mouseenter="switchToScreenshot(index)"
                     @mouseleave="switchToAdvertisement"
@@ -298,26 +313,15 @@ getWishlistCount();
                 <div class="reason">
                   {{ limitedAdvertisementList[current].advertisementContent }}
                 </div>
-                <div
-                  v-if="
-                    productList[limitedAdvertisementList[current].productId - 1]
-                      .productDiscount == 0
-                  "
-                >
+                <div v-if="currentAdvertisementProduct.productDiscount == 0">
                   <div class="discount_block_ca discount_block_inline_ca">
                     <div class="discount_prices_ca">
                       <div class="discount_final_price_ca_nodiscount">
                         ¥
                         {{
                           (
-                            productList[
-                              limitedAdvertisementList[current].productId - 1
-                            ].productPrice *
-                            (1 -
-                              productList[
-                                limitedAdvertisementList[current].productId - 1
-                              ].productDiscount /
-                                100)
+                            currentAdvertisementProduct.productPrice *
+                            (1 - currentAdvertisementProduct.productDiscount / 100)
                           ).toFixed(2)
                         }}
                       </div>
@@ -330,33 +334,18 @@ getWishlistCount();
                     style="display: flex"
                   >
                     <div class="discount_pct_ca">
-                      -{{
-                        productList[
-                          limitedAdvertisementList[current].productId - 1
-                        ].productDiscount
-                      }}%
+                      -{{ currentAdvertisementProduct.productDiscount }}%
                     </div>
                     <div class="discount_prices_cap">
                       <div class="discount_original_price_ca">
-                        ¥
-                        {{
-                          productList[
-                            limitedAdvertisementList[current].productId - 1
-                          ].productPrice.toFixed(2)
-                        }}
+                        ¥{{ currentAdvertisementProduct.productPrice.toFixed(2) }}
                       </div>
                       <div class="discount_final_price_ca">
                         ¥
                         {{
                           (
-                            productList[
-                              limitedAdvertisementList[current].productId - 1
-                            ].productPrice *
-                            (1 -
-                              productList[
-                                limitedAdvertisementList[current].productId - 1
-                              ].productDiscount /
-                                100)
+                            currentAdvertisementProduct.productPrice *
+                            (1 - currentAdvertisementProduct.productDiscount / 100)
                           ).toFixed(2)
                         }}
                       </div>
@@ -1504,5 +1493,17 @@ h2 {
 /* 未打折商品在活跃状态下的价格样式 */
 .tab_item_active .discount_final_price_nodiscount {
   color: #000000;
+}
+
+/* 加载状态样式 */
+.loading-placeholder {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  color: #ffffff;
+  font-size: 18px;
+  background: rgba(0, 0, 0, 0.3);
 }
 </style>
